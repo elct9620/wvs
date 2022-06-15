@@ -1,6 +1,7 @@
 package controller_test
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -16,12 +17,16 @@ import (
 
 type WebSocketTestSuite struct {
 	suite.Suite
-	server *httptest.Server
-	ws     *websocket.Conn
+	controller *controller.WebSocketController
+	server     *httptest.Server
+	ws         *websocket.Conn
 }
 
-func mustDialWebsocket(t *testing.T, url string) *websocket.Conn {
-	ws, err := websocket.Dial(url, "", "")
+func mustDialWebsocket(t *testing.T, server *httptest.Server) *websocket.Conn {
+	url := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
+	origin := server.URL
+
+	ws, err := websocket.Dial(url, "", origin)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,14 +34,20 @@ func mustDialWebsocket(t *testing.T, url string) *websocket.Conn {
 	return ws
 }
 
+func newContext() echo.Context {
+	request := httptest.NewRequest(http.MethodGet, "/ws", strings.NewReader(""))
+	response := httptest.NewRecorder()
+	return echo.New().NewContext(request, response)
+}
+
 func (suite *WebSocketTestSuite) SetupTest() {
-	controller := controller.NewWebSocketController()
+	suite.controller = controller.NewWebSocketController()
 
 	e := echo.New()
-	e.GET("/ws", controller.Server)
+	e.GET("/ws", suite.controller.Server)
 
 	suite.server = httptest.NewServer(e.Server.Handler)
-	suite.ws = mustDialWebsocket(suite.T(), "ws"+strings.TrimPrefix(suite.server.URL, "http")+"/ws")
+	suite.ws = mustDialWebsocket(suite.T(), suite.server)
 }
 
 func (suite *WebSocketTestSuite) TearDownTest() {
@@ -44,16 +55,70 @@ func (suite *WebSocketTestSuite) TearDownTest() {
 	suite.server.Close()
 }
 
-func (suite *WebSocketTestSuite) TestServer() {
-	err := websocket.JSON.Send(suite.ws, data.Command{Type: "keepalive", Payload: struct{}{}})
+func (suite *WebSocketTestSuite) readID() string {
+	var command data.Command
+	time.Sleep(10 * time.Millisecond)
+	err := websocket.JSON.Receive(suite.ws, &command)
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.Error(err)
+	}
+
+	if command.Type != "connected" {
+		suite.Fail("Unable to read ID")
+	}
+
+	return command.Payload.(string)
+}
+
+func (suite *WebSocketTestSuite) TestServer() {
+	suite.readID()
+
+	err := websocket.JSON.Send(suite.ws, data.NewCommand("keepalive"))
+	if err != nil {
+		suite.Error(err)
 	}
 
 	time.Sleep(10 * time.Millisecond)
 
 	var command data.Command
-	websocket.Message.Receive(suite.ws, &command)
+	err = websocket.JSON.Receive(suite.ws, &command)
+	if err != nil {
+		suite.Error(err)
+	}
 
 	assert.Equal(suite.T(), "keepalive", command.Type)
+}
+
+func (suite *WebSocketTestSuite) TestBroadcast() {
+	suite.readID()
+
+	ctx := newContext()
+	suite.controller.Broadcast(ctx, data.NewCommand("keepalive"))
+
+	time.Sleep(10 * time.Millisecond)
+
+	var command data.Command
+	err := websocket.JSON.Receive(suite.ws, &command)
+	if err != nil {
+		suite.Error(err)
+	}
+	assert.Equal(suite.T(), "keepalive", command.Type)
+}
+
+func (suite *WebSocketTestSuite) TestBroadcastTo() {
+	id := suite.readID()
+
+	ctx := newContext()
+	suite.controller.BroadcastTo(ctx, id, data.NewCommand("keepalive"))
+
+	var command data.Command
+	err := websocket.JSON.Receive(suite.ws, &command)
+	if err != nil {
+		suite.Error(err)
+	}
+	assert.Equal(suite.T(), "keepalive", command.Type)
+}
+
+func TestWebSocketController(t *testing.T) {
+	suite.Run(t, new(WebSocketTestSuite))
 }
