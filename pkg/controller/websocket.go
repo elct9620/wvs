@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/pkg/data"
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -14,12 +13,14 @@ var (
 
 type WebSocketController struct {
 	game        *application.GameApplication
+	player      *application.PlayerApplication
 	connections map[string]*websocket.Conn
 }
 
-func NewWebSocketController(game *application.GameApplication) *WebSocketController {
+func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication) *WebSocketController {
 	return &WebSocketController{
 		game:        game,
+		player:      player,
 		connections: make(map[string]*websocket.Conn),
 	}
 }
@@ -30,15 +31,18 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 		return err
 	}
 
-	id := uuid.NewString()
-	ctrl.connections[id] = ws
+	player, err := ctrl.player.Register(ws)
+	if err != nil {
+		return err
+	}
+	ctrl.connections[player.ID] = ws
 
 	defer func() {
-		delete(ctrl.connections, id)
+		delete(ctrl.connections, player.ID)
 		ws.Close()
 	}()
 
-	ctrl.BroadcastTo(c, id, data.NewCommand("connected", id))
+	ctrl.BroadcastTo(c, player.ID, data.NewCommand("connected", player.ID))
 
 	for {
 		var command data.Command
@@ -50,7 +54,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			break
 		}
 
-		target, command, err := ctrl.execute(id, command)
+		target, command, err := ctrl.execute(player.ID, command)
 		if err != nil {
 			c.Logger().Error(err)
 		}

@@ -41,7 +41,8 @@ func newContext() echo.Context {
 
 func (suite *WebSocketTestSuite) SetupTest() {
 	game := application.NewGameApplication()
-	suite.controller = controller.NewWebSocketController(game)
+	player := application.NewPlayerApplication()
+	suite.controller = controller.NewWebSocketController(game, player)
 
 	e := echo.New()
 	e.GET("/ws", suite.controller.Server)

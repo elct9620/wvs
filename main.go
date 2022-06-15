@@ -9,7 +9,8 @@ import (
 
 func main() {
 	game := application.NewGameApplication()
-	controller := controller.NewWebSocketController(game)
+	player := application.NewPlayerApplication()
+	controller := controller.NewWebSocketController(game, player)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
