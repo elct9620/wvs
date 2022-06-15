@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/elct9620/wvs/pkg/data"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/net/websocket"
 )
@@ -17,13 +18,13 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 		defer ws.Close()
 
 		for {
-			msg := ""
-			err := websocket.Message.Receive(ws, &msg)
+			var command data.Command
+			err := websocket.JSON.Receive(ws, &command)
 			if err != nil {
 				c.Logger().Error(err)
 			}
 
-			err = websocket.Message.Send(ws, msg)
+			err = websocket.JSON.Send(ws, command)
 			if err != nil {
 				c.Logger().Error(err)
 			}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/pkg/controller"
+	"github.com/elct9620/wvs/pkg/data"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -44,12 +45,15 @@ func (suite *WebSocketTestSuite) TearDownTest() {
 }
 
 func (suite *WebSocketTestSuite) TestServer() {
-	websocket.Message.Send(suite.ws, "Hello World")
+	err := websocket.JSON.Send(suite.ws, data.Command{Type: "keepalive", Payload: struct{}{}})
+	if err != nil {
+		suite.T().Fatal(err)
+	}
 
 	time.Sleep(10 * time.Millisecond)
 
-	var message string
-	websocket.Message.Receive(suite.ws, &message)
+	var command data.Command
+	websocket.Message.Receive(suite.ws, &command)
 
-	assert.Equal(suite.T(), "Hello World", message)
+	assert.Equal(suite.T(), "keepalive", command.Type)
 }
