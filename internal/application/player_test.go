@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -15,7 +16,8 @@ type PlayerApplicationTestSuite struct {
 }
 
 func (suite *PlayerApplicationTestSuite) SetupTest() {
-	suite.app = application.NewPlayerApplication()
+	playerRepo := repository.NewPlayerRepository()
+	suite.app = application.NewPlayerApplication(playerRepo)
 }
 
 func (suite *PlayerApplicationTestSuite) TestRegister() {
@@ -27,12 +29,12 @@ func (suite *PlayerApplicationTestSuite) TestRegister() {
 
 func (suite *PlayerApplicationTestSuite) TestUnregister() {
 	conn := websocket.Conn{}
-	_, err := suite.app.Register(&conn)
+	player, err := suite.app.Register(&conn)
 	if err != nil {
 		suite.Error(err)
 	}
 
-	err = suite.app.Unregister(&conn)
+	err = suite.app.Unregister(player.ID)
 
 	assert.Nil(suite.T(), err)
 }

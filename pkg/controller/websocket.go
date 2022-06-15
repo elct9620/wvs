@@ -38,6 +38,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 	ctrl.connections[player.ID] = ws
 
 	defer func() {
+		ctrl.player.Unregister(player.ID)
 		delete(ctrl.connections, player.ID)
 		ws.Close()
 	}()

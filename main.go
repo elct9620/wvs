@@ -2,14 +2,17 @@ package main
 
 import (
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	playerRepo := repository.NewPlayerRepository()
+
 	game := application.NewGameApplication()
-	player := application.NewPlayerApplication()
+	player := application.NewPlayerApplication(playerRepo)
 	controller := controller.NewWebSocketController(game, player)
 
 	e := echo.New()
