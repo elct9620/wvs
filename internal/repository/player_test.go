@@ -12,11 +12,29 @@ import (
 
 type PlayerRepositoryTestSuite struct {
 	suite.Suite
-	repo repository.PlayerRepository
+	repo *repository.PlayerRepository
 }
 
 func (suite *PlayerRepositoryTestSuite) SetupTest() {
 	suite.repo = repository.NewPlayerRepository()
+}
+
+func (suite *PlayerRepositoryTestSuite) TestFind() {
+	conn := websocket.Conn{}
+	player := domain.NewPlayerFromConn(&conn)
+
+	_, err := suite.repo.Find(player.ID)
+	assert.Error(suite.T(), err, "player not exists")
+
+	err = suite.repo.Insert(player)
+	if err != nil {
+		suite.Error(err)
+	}
+	defer suite.repo.Delete(player.ID)
+
+	foundPlayer, err := suite.repo.Find(player.ID)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), player.ID, foundPlayer.ID)
 }
 
 func (suite *PlayerRepositoryTestSuite) TestInsert() {

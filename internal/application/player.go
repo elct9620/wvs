@@ -7,10 +7,10 @@ import (
 )
 
 type PlayerApplication struct {
-	playerRepo repository.PlayerRepository
+	playerRepo *repository.PlayerRepository
 }
 
-func NewPlayerApplication(playerRepo repository.PlayerRepository) *PlayerApplication {
+func NewPlayerApplication(playerRepo *repository.PlayerRepository) *PlayerApplication {
 	return &PlayerApplication{
 		playerRepo: playerRepo,
 	}

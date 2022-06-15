@@ -14,13 +14,15 @@ var (
 type WebSocketController struct {
 	game        *application.GameApplication
 	player      *application.PlayerApplication
+	broadcast   *application.BroadcastApplication
 	connections map[string]*websocket.Conn
 }
 
-func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication) *WebSocketController {
+func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication, broadcast *application.BroadcastApplication) *WebSocketController {
 	return &WebSocketController{
 		game:        game,
 		player:      player,
+		broadcast:   broadcast,
 		connections: make(map[string]*websocket.Conn),
 	}
 }
@@ -43,11 +45,14 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 		ws.Close()
 	}()
 
-	ctrl.BroadcastTo(c, player.ID, data.NewCommand("connected", player.ID))
+	err = ctrl.broadcast.BroadcastTo(player.ID, data.NewCommand("connected", player.ID))
+	if err != nil {
+		return err
+	}
 
 	for {
 		var command data.Command
-		err := ws.ReadJSON(&command)
+		err = ws.ReadJSON(&command)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				c.Logger().Error(err)
@@ -60,16 +65,25 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			c.Logger().Error(err)
 		}
 
-		if target.IsGlobal {
-			ctrl.Broadcast(c, command)
-		} else {
-			for _, targetID := range target.IDs {
-				ctrl.BroadcastTo(c, targetID, command)
+		go func() {
+			if target.IsGlobal {
+				ctrl.Broadcast(c, command)
+			} else {
+				for _, targetID := range target.IDs {
+					ctrl.BroadcastTo(c, targetID, command)
+				}
 			}
-		}
+		}()
 	}
 
 	return nil
+}
+
+func (ctrl *WebSocketController) BroadcastTo(c echo.Context, id string, command data.Command) {
+	err := ctrl.broadcast.BroadcastTo(id, command)
+	if err != nil {
+		c.Logger().Error(err)
+	}
 }
 
 func (ctrl *WebSocketController) Broadcast(c echo.Context, command data.Command) {
@@ -78,18 +92,6 @@ func (ctrl *WebSocketController) Broadcast(c echo.Context, command data.Command)
 		if err != nil {
 			c.Logger().Error(err)
 		}
-	}
-}
-
-func (ctrl *WebSocketController) BroadcastTo(c echo.Context, id string, command data.Command) {
-	conn := ctrl.connections[id]
-	if conn == nil {
-		return
-	}
-
-	err := conn.WriteJSON(command)
-	if err != nil {
-		c.Logger().Error(err)
 	}
 }
 

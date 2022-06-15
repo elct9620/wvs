@@ -45,7 +45,8 @@ func (suite *WebSocketTestSuite) SetupTest() {
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)
-	suite.controller = controller.NewWebSocketController(game, player)
+	broadcast := application.NewBroadcastApplication(playerRepo)
+	suite.controller = controller.NewWebSocketController(game, player, broadcast)
 
 	e := echo.New()
 	e.GET("/ws", suite.controller.Server)

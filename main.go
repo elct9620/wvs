@@ -13,7 +13,8 @@ func main() {
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)
-	controller := controller.NewWebSocketController(game, player)
+	broadcast := application.NewBroadcastApplication(playerRepo)
+	controller := controller.NewWebSocketController(game, player, broadcast)
 
 	e := echo.New()
 	e.Use(middleware.Logger())

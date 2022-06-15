@@ -15,10 +15,18 @@ type PlayerRepository struct {
 	players *map[string]domain.Player
 }
 
-func NewPlayerRepository() PlayerRepository {
-	return PlayerRepository{
+func NewPlayerRepository() *PlayerRepository {
+	return &PlayerRepository{
 		players: &players,
 	}
+}
+
+func (repo *PlayerRepository) Find(id string) (*domain.Player, error) {
+	if player, ok := (*repo.players)[id]; ok == true {
+		return &player, nil
+	}
+
+	return nil, errors.New("player not exists")
 }
 
 func (repo *PlayerRepository) Insert(player domain.Player) error {
