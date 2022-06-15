@@ -1,13 +1,15 @@
 package main
 
 import (
+	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-	controller := controller.NewWebSocketController()
+	game := application.NewGameApplication()
+	controller := controller.NewWebSocketController(game)
 
 	e := echo.New()
 	e.Use(middleware.Logger())

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -12,11 +13,13 @@ var (
 )
 
 type WebSocketController struct {
+	game        *application.GameApplication
 	connections map[string]*websocket.Conn
 }
 
-func NewWebSocketController() *WebSocketController {
+func NewWebSocketController(game *application.GameApplication) *WebSocketController {
 	return &WebSocketController{
+		game:        game,
 		connections: make(map[string]*websocket.Conn),
 	}
 }
@@ -47,7 +50,18 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			break
 		}
 
-		ctrl.BroadcastTo(c, id, command)
+		target, command, err := ctrl.execute(id, command)
+		if err != nil {
+			c.Logger().Error(err)
+		}
+
+		if target.IsGlobal {
+			ctrl.Broadcast(c, command)
+		} else {
+			for _, targetID := range target.IDs {
+				ctrl.BroadcastTo(c, targetID, command)
+			}
+		}
 	}
 
 	return nil
@@ -71,5 +85,16 @@ func (ctrl *WebSocketController) BroadcastTo(c echo.Context, id string, command 
 	err := conn.WriteJSON(command)
 	if err != nil {
 		c.Logger().Error(err)
+	}
+}
+
+func (ctrl *WebSocketController) execute(id string, command data.Command) (data.BroadcastTarget, data.Command, error) {
+	switch command.Type {
+	case "keepalive":
+		return data.NewBroadcastTarget(false, id), command, nil
+	case "start_game":
+		return ctrl.game.StartGame(id)
+	default:
+		return data.NewBroadcastTarget(false), command, nil
 	}
 }

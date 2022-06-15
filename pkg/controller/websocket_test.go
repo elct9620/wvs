@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
@@ -39,7 +40,8 @@ func newContext() echo.Context {
 }
 
 func (suite *WebSocketTestSuite) SetupTest() {
-	suite.controller = controller.NewWebSocketController()
+	game := application.NewGameApplication()
+	suite.controller = controller.NewWebSocketController(game)
 
 	e := echo.New()
 	e.GET("/ws", suite.controller.Server)
