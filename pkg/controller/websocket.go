@@ -3,8 +3,12 @@ package controller
 import (
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/net/websocket"
+)
+
+var (
+	upgrader = websocket.Upgrader{}
 )
 
 type WebSocketController struct {
@@ -18,35 +22,40 @@ func NewWebSocketController() *WebSocketController {
 }
 
 func (ctrl *WebSocketController) Server(c echo.Context) error {
-	websocket.Handler(func(ws *websocket.Conn) {
-		id := uuid.NewString()
-		ctrl.connections[id] = ws
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		return err
+	}
 
-		defer func() {
-			delete(ctrl.connections, id)
-			ws.Close()
-		}()
+	id := uuid.NewString()
+	ctrl.connections[id] = ws
 
-		ctrl.BroadcastTo(c, id, data.NewCommand("connected", id))
+	defer func() {
+		delete(ctrl.connections, id)
+		ws.Close()
+	}()
 
-		for {
-			var command data.Command
-			err := websocket.JSON.Receive(ws, &command)
-			if err != nil {
-				continue
+	ctrl.BroadcastTo(c, id, data.NewCommand("connected", id))
+
+	for {
+		var command data.Command
+		err := ws.ReadJSON(&command)
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				c.Logger().Error(err)
 			}
-
-			ctrl.BroadcastTo(c, id, command)
+			break
 		}
 
-	}).ServeHTTP(c.Response(), c.Request())
+		ctrl.BroadcastTo(c, id, command)
+	}
 
 	return nil
 }
 
 func (ctrl *WebSocketController) Broadcast(c echo.Context, command data.Command) {
 	for _, conn := range ctrl.connections {
-		err := websocket.JSON.Send(conn, command)
+		err := conn.WriteJSON(command)
 		if err != nil {
 			c.Logger().Error(err)
 		}
@@ -59,7 +68,7 @@ func (ctrl *WebSocketController) BroadcastTo(c echo.Context, id string, command 
 		return
 	}
 
-	err := websocket.JSON.Send(conn, command)
+	err := conn.WriteJSON(command)
 	if err != nil {
 		c.Logger().Error(err)
 	}

@@ -9,10 +9,10 @@ import (
 
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/data"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"golang.org/x/net/websocket"
 )
 
 type WebSocketTestSuite struct {
@@ -24,9 +24,7 @@ type WebSocketTestSuite struct {
 
 func mustDialWebsocket(t *testing.T, server *httptest.Server) *websocket.Conn {
 	url := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
-	origin := server.URL
-
-	ws, err := websocket.Dial(url, "", origin)
+	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +56,7 @@ func (suite *WebSocketTestSuite) TearDownTest() {
 func (suite *WebSocketTestSuite) readID() string {
 	var command data.Command
 	time.Sleep(10 * time.Millisecond)
-	err := websocket.JSON.Receive(suite.ws, &command)
+	err := suite.ws.ReadJSON(&command)
 	if err != nil {
 		suite.Error(err)
 	}
@@ -73,7 +71,7 @@ func (suite *WebSocketTestSuite) readID() string {
 func (suite *WebSocketTestSuite) TestServer() {
 	suite.readID()
 
-	err := websocket.JSON.Send(suite.ws, data.NewCommand("keepalive"))
+	err := suite.ws.WriteJSON(data.NewCommand("keepalive"))
 	if err != nil {
 		suite.Error(err)
 	}
@@ -81,7 +79,7 @@ func (suite *WebSocketTestSuite) TestServer() {
 	time.Sleep(10 * time.Millisecond)
 
 	var command data.Command
-	err = websocket.JSON.Receive(suite.ws, &command)
+	err = suite.ws.ReadJSON(&command)
 	if err != nil {
 		suite.Error(err)
 	}
@@ -98,7 +96,7 @@ func (suite *WebSocketTestSuite) TestBroadcast() {
 	time.Sleep(10 * time.Millisecond)
 
 	var command data.Command
-	err := websocket.JSON.Receive(suite.ws, &command)
+	err := suite.ws.ReadJSON(&command)
 	if err != nil {
 		suite.Error(err)
 	}
@@ -112,7 +110,7 @@ func (suite *WebSocketTestSuite) TestBroadcastTo() {
 	suite.controller.BroadcastTo(ctx, id, data.NewCommand("keepalive"))
 
 	var command data.Command
-	err := websocket.JSON.Receive(suite.ws, &command)
+	err := suite.ws.ReadJSON(&command)
 	if err != nil {
 		suite.Error(err)
 	}

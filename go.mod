@@ -12,6 +12,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
