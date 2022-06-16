@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/gorilla/websocket"
@@ -13,14 +14,20 @@ import (
 
 type PlayerApplicationTestSuite struct {
 	suite.Suite
+	hub        *hub.Hub
 	app        *application.PlayerApplication
 	playerRepo *repository.PlayerRepository
 }
 
 func (suite *PlayerApplicationTestSuite) SetupTest() {
+	suite.hub = hub.NewHub()
 	store := store.NewStore()
 	suite.playerRepo = repository.NewPlayerRepository(store)
-	suite.app = application.NewPlayerApplication(suite.playerRepo)
+	suite.app = application.NewPlayerApplication(suite.hub, suite.playerRepo)
+}
+
+func (suite *PlayerApplicationTestSuite) TearDownTest() {
+	suite.hub.Stop()
 }
 
 func (suite *PlayerApplicationTestSuite) TestRegister() {

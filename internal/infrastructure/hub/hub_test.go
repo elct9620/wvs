@@ -18,25 +18,48 @@ func (suite *HubTestSuite) SetupTest() {
 	suite.hub = hub.NewHub()
 }
 
+func (suite *HubTestSuite) TearDownTest() {
+	suite.hub.Stop()
+}
+
+func (suite *HubTestSuite) newChannel(id string) *TestPublisher {
+	publisher := &TestPublisher{}
+	err := suite.hub.NewChannel(id, publisher)
+	if err != nil {
+		suite.Error(err)
+	}
+	return publisher
+}
+
+func (suite *HubTestSuite) startChannel(id string) func() {
+	err := suite.hub.StartChannel(id)
+	if err != nil {
+		suite.Error(err)
+	}
+
+	return func() { suite.hub.StopChannel(id) }
+}
+
 func (suite *HubTestSuite) TestPublishTo() {
 	err := suite.hub.PublishTo("1", true)
 	assert.Error(suite.T(), err, "channel not exists")
 
-	publisher := &TestPublisher{}
-	err = suite.hub.NewChannel("1", publisher)
-	if err != nil {
-		suite.Error(err)
-	}
-	err = suite.hub.StartChannel("1")
-	defer suite.hub.StopChannel("1")
-	if err != nil {
-		suite.Error(err)
-	}
+	publisher := suite.newChannel("1")
+	defer suite.startChannel("1")()
 
 	err = suite.hub.PublishTo("1", true)
 	time.Sleep(10 * time.Millisecond)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "true", publisher.LastData)
+}
+
+func (suite *HubTestSuite) TestStop() {
+	suite.newChannel("1")
+	defer suite.startChannel("1")
+
+	suite.hub.Stop()
+	err := suite.hub.StartChannel("1")
+	assert.Nil(suite.T(), err)
 }
 
 func TestHub(t *testing.T) {

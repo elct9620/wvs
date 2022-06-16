@@ -49,6 +49,8 @@ func (hub *Hub) StartChannel(id string) error {
 			select {
 			case msg := <-channel.messages:
 				channel.publisher.WriteJSON(msg)
+			case <-hub.ctx.Done():
+				return
 			case <-channel.exit:
 				return
 			}
@@ -62,6 +64,10 @@ func (hub *Hub) StopChannel(id string) error {
 	channel, ok := hub.channels[id]
 	if ok != true {
 		return errors.New("channel not exists")
+	}
+
+	if channel.running == false {
+		return errors.New("channel not running")
 	}
 
 	channel.Lock()

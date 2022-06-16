@@ -1,14 +1,23 @@
 package hub
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 type Hub struct {
 	channels map[string]*channel
+	ctx      context.Context
+	stop     context.CancelFunc
 }
 
 func NewHub() *Hub {
+	ctx, stop := context.WithCancel(context.Background())
+
 	return &Hub{
 		channels: make(map[string]*channel),
+		ctx:      ctx,
+		stop:     stop,
 	}
 }
 
@@ -23,4 +32,8 @@ func (hub *Hub) PublishTo(channelID string, data interface{}) error {
 	channel.Unlock()
 
 	return nil
+}
+
+func (hub *Hub) Stop() {
+	hub.stop()
 }

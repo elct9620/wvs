@@ -13,7 +13,7 @@ func main() {
 	playerRepo := container.NewPlayerRepository()
 
 	game := application.NewGameApplication()
-	player := application.NewPlayerApplication(playerRepo)
+	player := application.NewPlayerApplication(container.Hub(), playerRepo)
 	controller := controller.NewWebSocketController(game, player)
 
 	e := echo.New()

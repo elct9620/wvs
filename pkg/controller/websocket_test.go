@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
@@ -20,6 +21,7 @@ import (
 
 type WebSocketTestSuite struct {
 	suite.Suite
+	hub        *hub.Hub
 	controller *controller.WebSocketController
 	server     *httptest.Server
 	ws         *websocket.Conn
@@ -42,11 +44,13 @@ func newContext() echo.Context {
 }
 
 func (suite *WebSocketTestSuite) SetupTest() {
+	suite.hub = hub.NewHub()
+
 	store := store.NewStore()
 	playerRepo := repository.NewPlayerRepository(store)
 
 	game := application.NewGameApplication()
-	player := application.NewPlayerApplication(playerRepo)
+	player := application.NewPlayerApplication(suite.hub, playerRepo)
 	suite.controller = controller.NewWebSocketController(game, player)
 
 	e := echo.New()
@@ -57,6 +61,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 }
 
 func (suite *WebSocketTestSuite) TearDownTest() {
+	suite.hub.Stop()
 	suite.ws.Close()
 	suite.server.Close()
 }
