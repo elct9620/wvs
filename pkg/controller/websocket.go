@@ -12,16 +12,14 @@ var (
 )
 
 type WebSocketController struct {
-	game        *application.GameApplication
-	player      *application.PlayerApplication
-	connections map[string]*websocket.Conn
+	game   *application.GameApplication
+	player *application.PlayerApplication
 }
 
 func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication) *WebSocketController {
 	return &WebSocketController{
-		game:        game,
-		player:      player,
-		connections: make(map[string]*websocket.Conn),
+		game:   game,
+		player: player,
 	}
 }
 
@@ -35,11 +33,9 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	ctrl.connections[player.ID] = ws
 
 	defer func() {
 		ctrl.player.Unregister(player.ID)
-		delete(ctrl.connections, player.ID)
 		ws.Close()
 	}()
 
