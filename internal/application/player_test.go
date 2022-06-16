@@ -7,7 +7,6 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
-	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -31,15 +30,15 @@ func (suite *PlayerApplicationTestSuite) TearDownTest() {
 }
 
 func (suite *PlayerApplicationTestSuite) TestRegister() {
-	conn := websocket.Conn{}
-	_, err := suite.app.Register(&conn)
+	publisher := &hub.SimplePublisher{}
+	_, err := suite.app.Register(publisher)
 
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *PlayerApplicationTestSuite) TestUnregister() {
-	conn := websocket.Conn{}
-	player, err := suite.app.Register(&conn)
+	publisher := &hub.SimplePublisher{}
+	player, err := suite.app.Register(publisher)
 	if err != nil {
 		suite.Error(err)
 	}

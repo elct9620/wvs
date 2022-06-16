@@ -7,6 +7,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/elct9620/wvs/pkg/event"
+	"github.com/google/uuid"
 )
 
 type GameApplication struct {
@@ -27,6 +28,9 @@ func (app *GameApplication) ProcessCommand(player *domain.Player, command data.C
 
 	evt := command.Payload.(event.BaseEvent)
 	switch evt.Type {
+	case "new":
+		app.hub.PublishTo(player.ID, data.NewCommand("game", event.NewGameEvent{Room: uuid.NewString(), BaseEvent: event.BaseEvent{Type: "new"}}))
+		return nil
 	default:
 		app.raiseError(player, "unknown event")
 		return errors.New("unknown event")

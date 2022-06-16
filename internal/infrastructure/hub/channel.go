@@ -5,10 +5,6 @@ import (
 	"sync"
 )
 
-type Publisher interface {
-	WriteJSON(interface{}) error
-}
-
 type channel struct {
 	sync.Mutex
 	publisher Publisher
