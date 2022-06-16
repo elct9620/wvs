@@ -97,7 +97,7 @@ func (suite *WebSocketTestSuite) TestServer() {
 		suite.Error(err)
 	}
 
-	assert.Equal(suite.T(), "game", command.Type)
+	assert.Equal(suite.T(), "error", command.Type)
 }
 
 func TestWebSocketController(t *testing.T) {

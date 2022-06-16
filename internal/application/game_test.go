@@ -29,7 +29,7 @@ func (suite *GameApplicationTestSuite) TearDownTest() {
 func (suite *GameApplicationTestSuite) TestProcessCommand() {
 	player := domain.NewPlayer()
 	err := suite.app.ProcessCommand(&player, data.NewCommand("game"))
-	assert.Nil(suite.T(), err)
+	assert.Error(suite.T(), err, "invalid event")
 }
 
 func TestGameApplication(t *testing.T) {
