@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/labstack/echo/v4"
@@ -9,7 +10,8 @@ import (
 )
 
 func main() {
-	playerRepo := repository.NewPlayerRepository()
+	store := store.NewStore()
+	playerRepo := repository.NewPlayerRepository(store)
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)

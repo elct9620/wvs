@@ -5,6 +5,7 @@ import (
 
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,8 @@ type BroadcastApplicationTestSuite struct {
 }
 
 func (suite *BroadcastApplicationTestSuite) SetupTest() {
-	suite.playerRepo = repository.NewPlayerRepository()
+	store := store.NewStore()
+	suite.playerRepo = repository.NewPlayerRepository(store)
 	suite.app = application.NewBroadcastApplication(suite.playerRepo)
 }
 

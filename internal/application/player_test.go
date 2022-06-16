@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -12,12 +13,14 @@ import (
 
 type PlayerApplicationTestSuite struct {
 	suite.Suite
-	app *application.PlayerApplication
+	app        *application.PlayerApplication
+	playerRepo *repository.PlayerRepository
 }
 
 func (suite *PlayerApplicationTestSuite) SetupTest() {
-	playerRepo := repository.NewPlayerRepository()
-	suite.app = application.NewPlayerApplication(playerRepo)
+	store := store.NewStore()
+	suite.playerRepo = repository.NewPlayerRepository(store)
+	suite.app = application.NewPlayerApplication(suite.playerRepo)
 }
 
 func (suite *PlayerApplicationTestSuite) TestRegister() {
@@ -34,9 +37,10 @@ func (suite *PlayerApplicationTestSuite) TestUnregister() {
 		suite.Error(err)
 	}
 
-	err = suite.app.Unregister(player.ID)
-
-	assert.Nil(suite.T(), err)
+	suite.app.Unregister(player.ID)
+	res, err := suite.playerRepo.Find(player.ID)
+	assert.Nil(suite.T(), res)
+	assert.Error(suite.T(), err, "player not exists")
 }
 
 func TestPlayerApplication(t *testing.T) {

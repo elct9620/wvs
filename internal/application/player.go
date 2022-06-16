@@ -21,6 +21,6 @@ func (app *PlayerApplication) Register(conn *websocket.Conn) (domain.Player, err
 	return player, app.playerRepo.Insert(player)
 }
 
-func (app *PlayerApplication) Unregister(id string) error {
-	return app.playerRepo.Delete(id)
+func (app *PlayerApplication) Unregister(id string) {
+	app.playerRepo.Delete(id)
 }

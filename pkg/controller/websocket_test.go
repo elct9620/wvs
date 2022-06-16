@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/data"
@@ -41,7 +42,8 @@ func newContext() echo.Context {
 }
 
 func (suite *WebSocketTestSuite) SetupTest() {
-	playerRepo := repository.NewPlayerRepository()
+	store := store.NewStore()
+	playerRepo := repository.NewPlayerRepository(store)
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)

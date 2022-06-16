@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,8 @@ type PlayerRepositoryTestSuite struct {
 }
 
 func (suite *PlayerRepositoryTestSuite) SetupTest() {
-	suite.repo = repository.NewPlayerRepository()
+	store := store.NewStore()
+	suite.repo = repository.NewPlayerRepository(store)
 }
 
 func (suite *PlayerRepositoryTestSuite) TestFind() {
@@ -57,8 +59,10 @@ func (suite *PlayerRepositoryTestSuite) TestDelete() {
 		suite.Error(err)
 	}
 
-	err = suite.repo.Delete(player.ID)
-	assert.Nil(suite.T(), err)
+	suite.repo.Delete(player.ID)
+	res, err := suite.repo.Find(player.ID)
+	assert.Nil(suite.T(), res)
+	assert.Error(suite.T(), err, "player not exists")
 }
 
 func TestPlayerRepository(t *testing.T) {

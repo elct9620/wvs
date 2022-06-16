@@ -4,45 +4,39 @@ import (
 	"errors"
 
 	"github.com/elct9620/wvs/internal/domain"
-)
-
-// In-memory store
-var (
-	players map[string]domain.Player = make(map[string]domain.Player)
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 )
 
 type PlayerRepository struct {
-	players *map[string]domain.Player
+	store *store.Store
 }
 
-func NewPlayerRepository() *PlayerRepository {
+func NewPlayerRepository(store *store.Store) *PlayerRepository {
 	return &PlayerRepository{
-		players: &players,
+		store: store,
 	}
 }
 
 func (repo *PlayerRepository) Find(id string) (*domain.Player, error) {
-	if player, ok := (*repo.players)[id]; ok == true {
-		return &player, nil
+	res, err := repo.store.Find(id)
+	if err != nil {
+		return nil, errors.New("player not exists")
 	}
 
-	return nil, errors.New("player not exists")
+	player := res.(domain.Player)
+
+	return &player, nil
 }
 
 func (repo *PlayerRepository) Insert(player domain.Player) error {
-	if _, ok := (*repo.players)[player.ID]; ok == true {
+	err := repo.store.Insert(player.ID, player)
+	if err != nil {
 		return errors.New("player is exists")
 	}
-
-	(*repo.players)[player.ID] = player
 
 	return nil
 }
 
-func (repo *PlayerRepository) Delete(id string) error {
-	if _, ok := (*repo.players)[id]; ok == true {
-		delete(*repo.players, id)
-	}
-
-	return nil
+func (repo *PlayerRepository) Delete(id string) {
+	repo.store.Delete(id)
 }
