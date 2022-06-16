@@ -2,16 +2,15 @@ package main
 
 import (
 	"github.com/elct9620/wvs/internal/application"
-	"github.com/elct9620/wvs/internal/infrastructure/store"
-	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-	store := store.NewStore()
-	playerRepo := repository.NewPlayerRepository(store)
+	container := container.NewContainer()
+	playerRepo := container.GetPlayerRepository()
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)
