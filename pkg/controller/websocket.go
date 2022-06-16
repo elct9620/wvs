@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -49,28 +52,20 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			break
 		}
 
-		_, command, err := ctrl.execute(player.ID, command)
+		err := ctrl.dispatch(&player, command)
 		if err != nil {
 			c.Logger().Error(err)
 		}
-		go func() {
-			err = ws.WriteJSON(command)
-			if err != nil {
-				c.Logger().Error(err)
-			}
-		}()
 	}
 
 	return nil
 }
 
-func (ctrl *WebSocketController) execute(id string, command data.Command) (data.BroadcastTarget, data.Command, error) {
+func (ctrl *WebSocketController) dispatch(player *domain.Player, command data.Command) error {
 	switch command.Type {
-	case "keepalive":
-		return data.NewBroadcastTarget(false, id), command, nil
-	case "start_game":
-		return ctrl.game.StartGame(id)
+	case "game":
+		return ctrl.game.ProcessCommand(player, command)
 	default:
-		return data.NewBroadcastTarget(false), command, nil
+		return errors.New("unknown command")
 	}
 }

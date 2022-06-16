@@ -49,7 +49,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	store := store.NewStore()
 	playerRepo := repository.NewPlayerRepository(store)
 
-	game := application.NewGameApplication()
+	game := application.NewGameApplication(suite.hub)
 	player := application.NewPlayerApplication(suite.hub, playerRepo)
 	suite.controller = controller.NewWebSocketController(game, player)
 
@@ -84,7 +84,7 @@ func (suite *WebSocketTestSuite) readID() string {
 func (suite *WebSocketTestSuite) TestServer() {
 	suite.readID()
 
-	err := suite.ws.WriteJSON(data.NewCommand("keepalive"))
+	err := suite.ws.WriteJSON(data.NewCommand("game"))
 	if err != nil {
 		suite.Error(err)
 	}
@@ -97,7 +97,7 @@ func (suite *WebSocketTestSuite) TestServer() {
 		suite.Error(err)
 	}
 
-	assert.Equal(suite.T(), "keepalive", command.Type)
+	assert.Equal(suite.T(), "game", command.Type)
 }
 
 func TestWebSocketController(t *testing.T) {

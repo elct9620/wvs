@@ -1,14 +1,22 @@
 package application
 
-import "github.com/elct9620/wvs/pkg/data"
+import (
+	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/pkg/data"
+)
 
 type GameApplication struct {
+	hub *hub.Hub
 }
 
-func NewGameApplication() *GameApplication {
-	return &GameApplication{}
+func NewGameApplication(hub *hub.Hub) *GameApplication {
+	return &GameApplication{
+		hub: hub,
+	}
 }
 
-func (app *GameApplication) StartGame(playerID string) (data.BroadcastTarget, data.Command, error) {
-	return data.NewBroadcastTarget(false, playerID), data.NewCommand("event"), nil
+func (app *GameApplication) ProcessCommand(player *domain.Player, command data.Command) error {
+	app.hub.PublishTo(player.ID, command)
+	return nil
 }

@@ -12,7 +12,7 @@ func main() {
 	container := container.NewContainer()
 	playerRepo := container.NewPlayerRepository()
 
-	game := application.NewGameApplication()
+	game := application.NewGameApplication(container.Hub())
 	player := application.NewPlayerApplication(container.Hub(), playerRepo)
 	controller := controller.NewWebSocketController(game, player)
 
