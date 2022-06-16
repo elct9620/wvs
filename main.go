@@ -10,12 +10,11 @@ import (
 
 func main() {
 	container := container.NewContainer()
-	playerRepo := container.GetPlayerRepository()
+	playerRepo := container.NewPlayerRepository()
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)
-	broadcast := application.NewBroadcastApplication(playerRepo)
-	controller := controller.NewWebSocketController(game, player, broadcast)
+	controller := controller.NewWebSocketController(game, player)
 
 	e := echo.New()
 	e.Use(middleware.Logger())

@@ -14,15 +14,13 @@ var (
 type WebSocketController struct {
 	game        *application.GameApplication
 	player      *application.PlayerApplication
-	broadcast   *application.BroadcastApplication
 	connections map[string]*websocket.Conn
 }
 
-func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication, broadcast *application.BroadcastApplication) *WebSocketController {
+func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication) *WebSocketController {
 	return &WebSocketController{
 		game:        game,
 		player:      player,
-		broadcast:   broadcast,
 		connections: make(map[string]*websocket.Conn),
 	}
 }
@@ -45,7 +43,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 		ws.Close()
 	}()
 
-	err = ctrl.broadcast.BroadcastTo(player.ID, data.NewCommand("connected", player.ID))
+	err = ws.WriteJSON(data.NewCommand("connected", player.ID))
 	if err != nil {
 		return err
 	}
@@ -60,39 +58,19 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			break
 		}
 
-		target, command, err := ctrl.execute(player.ID, command)
+		_, command, err := ctrl.execute(player.ID, command)
 		if err != nil {
 			c.Logger().Error(err)
 		}
-
 		go func() {
-			if target.IsGlobal {
-				ctrl.Broadcast(c, command)
-			} else {
-				for _, targetID := range target.IDs {
-					ctrl.BroadcastTo(c, targetID, command)
-				}
+			err = ws.WriteJSON(command)
+			if err != nil {
+				c.Logger().Error(err)
 			}
 		}()
 	}
 
 	return nil
-}
-
-func (ctrl *WebSocketController) BroadcastTo(c echo.Context, id string, command data.Command) {
-	err := ctrl.broadcast.BroadcastTo(id, command)
-	if err != nil {
-		c.Logger().Error(err)
-	}
-}
-
-func (ctrl *WebSocketController) Broadcast(c echo.Context, command data.Command) {
-	for _, conn := range ctrl.connections {
-		err := conn.WriteJSON(command)
-		if err != nil {
-			c.Logger().Error(err)
-		}
-	}
 }
 
 func (ctrl *WebSocketController) execute(id string, command data.Command) (data.BroadcastTarget, data.Command, error) {

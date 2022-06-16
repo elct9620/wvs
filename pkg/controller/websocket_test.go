@@ -47,8 +47,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 
 	game := application.NewGameApplication()
 	player := application.NewPlayerApplication(playerRepo)
-	broadcast := application.NewBroadcastApplication(playerRepo)
-	suite.controller = controller.NewWebSocketController(game, player, broadcast)
+	suite.controller = controller.NewWebSocketController(game, player)
 
 	e := echo.New()
 	e.GET("/ws", suite.controller.Server)
@@ -93,36 +92,6 @@ func (suite *WebSocketTestSuite) TestServer() {
 		suite.Error(err)
 	}
 
-	assert.Equal(suite.T(), "keepalive", command.Type)
-}
-
-func (suite *WebSocketTestSuite) TestBroadcast() {
-	suite.readID()
-
-	ctx := newContext()
-	suite.controller.Broadcast(ctx, data.NewCommand("keepalive"))
-
-	time.Sleep(10 * time.Millisecond)
-
-	var command data.Command
-	err := suite.ws.ReadJSON(&command)
-	if err != nil {
-		suite.Error(err)
-	}
-	assert.Equal(suite.T(), "keepalive", command.Type)
-}
-
-func (suite *WebSocketTestSuite) TestBroadcastTo() {
-	id := suite.readID()
-
-	ctx := newContext()
-	suite.controller.BroadcastTo(ctx, id, data.NewCommand("keepalive"))
-
-	var command data.Command
-	err := suite.ws.ReadJSON(&command)
-	if err != nil {
-		suite.Error(err)
-	}
 	assert.Equal(suite.T(), "keepalive", command.Type)
 }
 
