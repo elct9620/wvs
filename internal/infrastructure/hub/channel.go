@@ -48,6 +48,9 @@ func (hub *Hub) StartChannel(id string) error {
 		for {
 			select {
 			case msg := <-channel.messages:
+				if channel.publisher == nil {
+					return
+				}
 				channel.publisher.WriteJSON(msg)
 			case <-hub.ctx.Done():
 				return

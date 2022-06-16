@@ -39,11 +39,6 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 		ws.Close()
 	}()
 
-	err = ws.WriteJSON(data.NewCommand("connected", player.ID))
-	if err != nil {
-		return err
-	}
-
 	for {
 		var command data.Command
 		err = ws.ReadJSON(&command)

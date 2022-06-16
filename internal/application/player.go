@@ -4,6 +4,7 @@ import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
 )
 
@@ -25,7 +26,18 @@ func (app *PlayerApplication) Register(conn *websocket.Conn) (domain.Player, err
 	if err != nil {
 		return player, err
 	}
+
 	err = app.hub.NewChannel(player.ID, conn)
+	if err != nil {
+		return player, err
+	}
+
+	err = app.hub.StartChannel(player.ID)
+	if err != nil {
+		return player, err
+	}
+
+	err = app.hub.PublishTo(player.ID, data.NewCommand("connected", player.ID))
 	return player, err
 }
 
