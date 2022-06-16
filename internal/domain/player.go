@@ -2,17 +2,14 @@ package domain
 
 import (
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 )
 
 type Player struct {
-	ID   string
-	Conn *websocket.Conn
+	ID string
 }
 
-func NewPlayerFromConn(conn *websocket.Conn) Player {
+func NewPlayer() Player {
 	return Player{
-		ID:   uuid.NewString(),
-		Conn: conn,
+		ID: uuid.NewString(),
 	}
 }

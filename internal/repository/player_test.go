@@ -6,7 +6,6 @@ import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
-	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -22,8 +21,7 @@ func (suite *PlayerRepositoryTestSuite) SetupTest() {
 }
 
 func (suite *PlayerRepositoryTestSuite) TestFind() {
-	conn := websocket.Conn{}
-	player := domain.NewPlayerFromConn(&conn)
+	player := domain.NewPlayer()
 
 	_, err := suite.repo.Find(player.ID)
 	assert.Error(suite.T(), err, "player not exists")
@@ -40,8 +38,7 @@ func (suite *PlayerRepositoryTestSuite) TestFind() {
 }
 
 func (suite *PlayerRepositoryTestSuite) TestInsert() {
-	conn := websocket.Conn{}
-	player := domain.NewPlayerFromConn(&conn)
+	player := domain.NewPlayer()
 	defer suite.repo.Delete(player.ID)
 
 	err := suite.repo.Insert(player)
@@ -52,8 +49,7 @@ func (suite *PlayerRepositoryTestSuite) TestInsert() {
 }
 
 func (suite *PlayerRepositoryTestSuite) TestDelete() {
-	conn := websocket.Conn{}
-	player := domain.NewPlayerFromConn(&conn)
+	player := domain.NewPlayer()
 	err := suite.repo.Insert(player)
 	if err != nil {
 		suite.Error(err)

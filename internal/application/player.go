@@ -20,7 +20,7 @@ func NewPlayerApplication(hub *hub.Hub, playerRepo *repository.PlayerRepository)
 }
 
 func (app *PlayerApplication) Register(conn *websocket.Conn) (domain.Player, error) {
-	player := domain.NewPlayerFromConn(conn)
+	player := domain.NewPlayer()
 	err := app.playerRepo.Insert(player)
 	if err != nil {
 		return player, err
