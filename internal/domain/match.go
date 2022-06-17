@@ -30,9 +30,17 @@ func (m *Match) State() MatchState {
 }
 
 func (m *Match) Player1() *Team {
+	if m.player1 == nil {
+		return &Team{}
+	}
+
 	return m.player1
 }
 
 func (m *Match) Player2() *Team {
+	if m.player2 == nil {
+		return &Team{}
+	}
+
 	return m.player2
 }

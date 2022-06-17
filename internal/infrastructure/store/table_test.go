@@ -41,7 +41,7 @@ func (suite *TableTestSuite) TestUpdate() {
 	assert.False(suite.T(), res.(bool))
 
 	err = suite.store.Update("2", true)
-	assert.Error(suite.T(), err, "object not exists")
+	assert.Nil(suite.T(), err)
 }
 
 func (suite *TableTestSuite) TestDelete() {

@@ -35,7 +35,7 @@ func (store *Table) Update(id string, obj interface{}) error {
 		return nil
 	}
 
-	return errors.New("object not exists")
+	return store.Insert(id, obj)
 }
 
 func (store *Table) Delete(id string) {

@@ -3,7 +3,8 @@ package domain
 type TeamType int
 
 const (
-	TeamWalrus TeamType = iota
+	TeamUnknown TeamType = iota
+	TeamWalrus
 	TeamSlime
 )
 
@@ -17,4 +18,11 @@ func NewTeam(team TeamType, player *Player) Team {
 		Type:   team,
 		Member: player,
 	}
+}
+
+func (t *Team) ID() string {
+	if t.Member == nil {
+		return ""
+	}
+	return t.Member.ID
 }
