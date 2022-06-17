@@ -16,8 +16,7 @@ type PlayerRepositoryTestSuite struct {
 }
 
 func (suite *PlayerRepositoryTestSuite) SetupTest() {
-	store := store.NewStore()
-	suite.repo = repository.NewPlayerRepository(store)
+	suite.repo = repository.NewPlayerRepository(store.NewTable())
 }
 
 func (suite *PlayerRepositoryTestSuite) TestFind() {

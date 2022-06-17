@@ -8,10 +8,10 @@ import (
 )
 
 type PlayerRepository struct {
-	store *store.Store
+	store *store.Table
 }
 
-func NewPlayerRepository(store *store.Store) *PlayerRepository {
+func NewPlayerRepository(store *store.Table) *PlayerRepository {
 	return &PlayerRepository{
 		store: store,
 	}

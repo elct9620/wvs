@@ -8,15 +8,15 @@ import (
 
 type Container struct {
 	hub         *hub.Hub
-	playerStore *store.Store
-	matchStore  *store.Store
+	playerStore *store.Table
+	matchStore  *store.Table
 }
 
 func NewContainer() *Container {
 	return &Container{
 		hub:         hub.NewHub(),
-		playerStore: store.NewStore(),
-		matchStore:  store.NewStore(),
+		playerStore: store.NewTable(),
+		matchStore:  store.NewTable(),
 	}
 }
 

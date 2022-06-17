@@ -20,8 +20,7 @@ type PlayerApplicationTestSuite struct {
 
 func (suite *PlayerApplicationTestSuite) SetupTest() {
 	suite.hub = hub.NewHub()
-	store := store.NewStore()
-	suite.playerRepo = repository.NewPlayerRepository(store)
+	suite.playerRepo = repository.NewPlayerRepository(store.NewTable())
 	suite.app = application.NewPlayerApplication(suite.hub, suite.playerRepo)
 }
 

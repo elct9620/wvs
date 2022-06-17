@@ -16,7 +16,7 @@ type MatchRepositoryTestSuite struct {
 }
 
 func (suite *MatchRepositoryTestSuite) SetupTest() {
-	suite.repo = repository.NewMatchRepository(store.NewStore())
+	suite.repo = repository.NewMatchRepository(store.NewTable())
 }
 
 func (suite *MatchRepositoryTestSuite) TestWaitingMatches() {

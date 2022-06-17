@@ -8,16 +8,16 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type StoreTestSuite struct {
+type TableTestSuite struct {
 	suite.Suite
-	store *store.Store
+	store *store.Table
 }
 
-func (suite *StoreTestSuite) SetupTest() {
-	suite.store = store.NewStore()
+func (suite *TableTestSuite) SetupTest() {
+	suite.store = store.NewTable()
 }
 
-func (suite *StoreTestSuite) TestInsert() {
+func (suite *TableTestSuite) TestInsert() {
 	err := suite.store.Insert("1", true)
 	assert.Nil(suite.T(), err)
 
@@ -25,7 +25,7 @@ func (suite *StoreTestSuite) TestInsert() {
 	assert.Error(suite.T(), err, "object is exists")
 }
 
-func (suite *StoreTestSuite) TestUpdate() {
+func (suite *TableTestSuite) TestUpdate() {
 	err := suite.store.Insert("1", true)
 	if err != nil {
 		suite.Error(err)
@@ -44,7 +44,7 @@ func (suite *StoreTestSuite) TestUpdate() {
 	assert.Error(suite.T(), err, "object not exists")
 }
 
-func (suite *StoreTestSuite) TestDelete() {
+func (suite *TableTestSuite) TestDelete() {
 	err := suite.store.Insert("1", true)
 	if err != nil {
 		suite.Error(err)
@@ -60,7 +60,7 @@ func (suite *StoreTestSuite) TestDelete() {
 	assert.Error(suite.T(), err, "object not exists")
 }
 
-func (suite *StoreTestSuite) TestFind() {
+func (suite *TableTestSuite) TestFind() {
 	err := suite.store.Insert("1", true)
 	if err != nil {
 		suite.Error(err)
@@ -76,5 +76,5 @@ func (suite *StoreTestSuite) TestFind() {
 }
 
 func TestStore(t *testing.T) {
-	suite.Run(t, new(StoreTestSuite))
+	suite.Run(t, new(TableTestSuite))
 }

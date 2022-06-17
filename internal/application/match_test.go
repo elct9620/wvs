@@ -24,7 +24,7 @@ type MatchApplicationTestSuite struct {
 
 func (suite *MatchApplicationTestSuite) SetupTest() {
 	suite.hub = hub.NewHub()
-	suite.repo = repository.NewMatchRepository(store.NewStore())
+	suite.repo = repository.NewMatchRepository(store.NewTable())
 	suite.app = application.NewMatchApplication(suite.hub, suite.repo)
 }
 
