@@ -11,18 +11,18 @@ import (
 )
 
 type GameApplication struct {
-	hub *hub.Hub
+	BaseApplication
 }
 
 func NewGameApplication(hub *hub.Hub) *GameApplication {
 	return &GameApplication{
-		hub: hub,
+		BaseApplication: BaseApplication{hub: hub},
 	}
 }
 
 func (app *GameApplication) ProcessCommand(player *domain.Player, command data.Command) error {
 	if command.Payload == nil {
-		app.raiseError(player, "invalid event")
+		app.RaiseError(player, "invalid event")
 		return errors.New("invalid event")
 	}
 
@@ -32,11 +32,7 @@ func (app *GameApplication) ProcessCommand(player *domain.Player, command data.C
 		app.hub.PublishTo(player.ID, data.NewCommand("game", event.NewGameEvent{Room: uuid.NewString(), BaseEvent: event.BaseEvent{Type: "new"}}))
 		return nil
 	default:
-		app.raiseError(player, "unknown event")
+		app.RaiseError(player, "unknown event")
 		return errors.New("unknown event")
 	}
-}
-
-func (app *GameApplication) raiseError(player *domain.Player, reason string) {
-	app.hub.PublishTo(player.ID, data.NewCommand("error", event.ErrorEvent{Message: reason}))
 }
