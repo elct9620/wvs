@@ -13,8 +13,9 @@ func main() {
 	playerRepo := container.NewPlayerRepository()
 
 	game := application.NewGameApplication(container.Hub())
+	match := application.NewMatchApplication(container.Hub())
 	player := application.NewPlayerApplication(container.Hub(), playerRepo)
-	controller := controller.NewWebSocketController(game, player)
+	controller := controller.NewWebSocketController(game, match, player)
 
 	e := echo.New()
 	e.Use(middleware.Logger())

@@ -16,12 +16,14 @@ var (
 
 type WebSocketController struct {
 	game   *application.GameApplication
+	match  *application.MatchApplication
 	player *application.PlayerApplication
 }
 
-func NewWebSocketController(game *application.GameApplication, player *application.PlayerApplication) *WebSocketController {
+func NewWebSocketController(game *application.GameApplication, match *application.MatchApplication, player *application.PlayerApplication) *WebSocketController {
 	return &WebSocketController{
 		game:   game,
+		match:  match,
 		player: player,
 	}
 }
@@ -63,6 +65,8 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 
 func (ctrl *WebSocketController) dispatch(player *domain.Player, command data.Command) error {
 	switch command.Type {
+	case "match":
+		return ctrl.match.ProcessCommand(player, command)
 	case "game":
 		return ctrl.game.ProcessCommand(player, command)
 	default:
