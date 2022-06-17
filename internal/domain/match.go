@@ -12,15 +12,27 @@ const (
 
 type Match struct {
 	ID      string
-	State   MatchState
-	Player1 *Player
-	Player2 *Player
+	state   MatchState
+	player1 *Team
+	player2 *Team
 }
 
-func NewMatch(player *Player) Match {
+func NewMatch(player1 *Team) Match {
 	return Match{
 		ID:      uuid.NewString(),
-		State:   MatchCreated,
-		Player1: player,
+		state:   MatchCreated,
+		player1: player1,
 	}
+}
+
+func (m *Match) State() MatchState {
+	return m.state
+}
+
+func (m *Match) Player1() *Team {
+	return m.player1
+}
+
+func (m *Match) Player2() *Team {
+	return m.player2
 }

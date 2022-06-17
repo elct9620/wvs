@@ -40,12 +40,8 @@ func (app *MatchApplication) ProcessCommand(player *domain.Player, command data.
 }
 
 func (app *MatchApplication) InitMatch(player *domain.Player, evt event.InitMatchEvent) error {
-	var match domain.Match
-	waitingMatches := app.repo.WaitingMatches(evt.Team)
-	if len(waitingMatches) > 0 {
-	} else {
-		match = domain.NewMatch(player)
-	}
+	team := domain.NewTeam(evt.Team, player)
+	match := domain.NewMatch(&team)
 
 	app.hub.PublishTo(player.ID, data.NewCommand("match", event.NewJoinMatchEvent(match.ID)))
 	return nil

@@ -15,6 +15,6 @@ func NewMatchRepository(store *store.Store) *MatchRepository {
 	}
 }
 
-func (repo *MatchRepository) WaitingMatches(excludeTeam domain.Team) []domain.Match {
+func (repo *MatchRepository) WaitingMatches(excludeTeam domain.TeamType) []domain.Match {
 	return []domain.Match{}
 }

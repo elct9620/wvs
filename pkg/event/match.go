@@ -4,7 +4,7 @@ import "github.com/elct9620/wvs/internal/domain"
 
 type InitMatchEvent struct {
 	BaseEvent
-	Team domain.Team `json:"team"`
+	Team domain.TeamType `json:"team"`
 }
 
 type JoinMatchEvent struct {
