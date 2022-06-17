@@ -25,6 +25,15 @@ func NewMatch(player1 *Team) Match {
 	}
 }
 
+func NewMatchFromData(id string, state MatchState, player1 *Team, player2 *Team) Match {
+	return Match{
+		ID:      id,
+		state:   state,
+		player1: player1,
+		player2: player2,
+	}
+}
+
 func (m *Match) State() MatchState {
 	return m.state
 }

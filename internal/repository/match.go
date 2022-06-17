@@ -26,6 +26,20 @@ func NewMatchRepository(store *store.Store) *MatchRepository {
 	}
 }
 
+func (repo *MatchRepository) Find(id string) *domain.Match {
+	matches := repo.store.Table("matches")
+	raw, err := matches.Find(id)
+	if err != nil {
+		return nil
+	}
+	data := raw.(schema)
+
+	team1 := domain.NewTeam(data.Player1Team, &domain.Player{ID: data.Player1ID})
+	team2 := domain.NewTeam(data.Player2Team, &domain.Player{ID: data.Player2ID})
+	match := domain.NewMatchFromData(data.ID, data.State, &team1, &team2)
+	return &match
+}
+
 func (repo *MatchRepository) Save(match domain.Match) error {
 	matches := repo.store.Table("matches")
 
