@@ -19,12 +19,12 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 
 ### Layers
 
-| Layer          | Description                                   | Package                                    |
-|----------------|-----------------------------------------------|--------------------------------------------|
-| Presentation   | To handle the end-user interactive            | `pkg/controller`, `pkg/data`, `pkg/event`  |
-| Application    | To handle the user flow                       | `internal/application`                     |
-| Domain         | The business logic                            | `internal/domain`, `internal/repository`   |
-| Infrastructure | Non-domain related behaviors, e.g. data store | `internal/infrastructure`, `internal/data` |
+| Layer          | Description                                   | Package                                   |
+|----------------|-----------------------------------------------|-------------------------------------------|
+| Presentation   | To handle the end-user interactive            | `pkg/controller`, `pkg/data`, `pkg/event` |
+| Application    | To handle the user flow                       | `internal/application`                    |
+| Domain         | The business logic                            | `internal/domain`, `internal/repository`  |
+| Infrastructure | Non-domain related behaviors, e.g. data store | `internal/infrastructure`                 |
 
 ### Domain
 
