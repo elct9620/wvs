@@ -15,6 +15,10 @@ func NewMatchRepository(store *store.Store) *MatchRepository {
 	}
 }
 
+func (repo *MatchRepository) Save(match domain.Match) error {
+	return nil
+}
+
 func (repo *MatchRepository) WaitingMatches(excludeTeam domain.TeamType) []domain.Match {
 	return []domain.Match{}
 }

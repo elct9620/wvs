@@ -42,6 +42,7 @@ func (app *MatchApplication) ProcessCommand(player *domain.Player, command data.
 func (app *MatchApplication) InitMatch(player *domain.Player, evt event.InitMatchEvent) error {
 	team := domain.NewTeam(evt.Team, player)
 	match := domain.NewMatch(&team)
+	app.repo.Save(match)
 
 	app.hub.PublishTo(player.ID, data.NewCommand("match", event.NewJoinMatchEvent(match.ID)))
 	return nil
