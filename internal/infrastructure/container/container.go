@@ -1,6 +1,7 @@
 package container
 
 import (
+	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
@@ -8,6 +9,7 @@ import (
 
 type Container struct {
 	hub         *hub.Hub
+	store       *store.Store
 	playerStore *store.Table
 	matchStore  *store.Table
 }
@@ -15,6 +17,7 @@ type Container struct {
 func NewContainer() *Container {
 	return &Container{
 		hub:         hub.NewHub(),
+		store:       infrastructure.InitStore(),
 		playerStore: store.NewTable(),
 		matchStore:  store.NewTable(),
 	}
