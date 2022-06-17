@@ -75,6 +75,6 @@ func (suite *TableTestSuite) TestFind() {
 	assert.Error(suite.T(), err, "object not exists")
 }
 
-func TestStore(t *testing.T) {
+func TestTable(t *testing.T) {
 	suite.Run(t, new(TableTestSuite))
 }
