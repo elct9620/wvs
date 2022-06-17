@@ -8,9 +8,8 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
-	"github.com/elct9620/wvs/internal/infrastructure/store"
-	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
@@ -22,6 +21,7 @@ import (
 type WebSocketTestSuite struct {
 	suite.Suite
 	hub        *hub.Hub
+	container  *container.Container
 	controller *controller.WebSocketController
 	server     *httptest.Server
 	ws         *websocket.Conn
@@ -44,13 +44,14 @@ func newContext() echo.Context {
 }
 
 func (suite *WebSocketTestSuite) SetupTest() {
-	suite.hub = hub.NewHub()
+	suite.container = container.NewContainer()
+	suite.hub = suite.container.Hub()
 
-	store := store.NewStore()
-	playerRepo := repository.NewPlayerRepository(store)
+	playerRepo := suite.container.NewPlayerRepository()
+	matchRepo := suite.container.NewMatchRepository()
 
 	game := application.NewGameApplication(suite.hub)
-	match := application.NewMatchApplication(suite.hub)
+	match := application.NewMatchApplication(suite.hub, matchRepo)
 	player := application.NewPlayerApplication(suite.hub, playerRepo)
 	suite.controller = controller.NewWebSocketController(game, match, player)
 

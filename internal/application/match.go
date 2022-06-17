@@ -5,6 +5,7 @@ import (
 
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/utils"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/elct9620/wvs/pkg/event"
@@ -12,11 +13,13 @@ import (
 
 type MatchApplication struct {
 	BaseApplication
+	repo *repository.MatchRepository
 }
 
-func NewMatchApplication(hub *hub.Hub) *MatchApplication {
+func NewMatchApplication(hub *hub.Hub, repo *repository.MatchRepository) *MatchApplication {
 	return &MatchApplication{
 		BaseApplication: BaseApplication{hub: hub},
+		repo:            repo,
 	}
 }
 
@@ -37,6 +40,13 @@ func (app *MatchApplication) ProcessCommand(player *domain.Player, command data.
 }
 
 func (app *MatchApplication) InitMatch(player *domain.Player, evt event.InitMatchEvent) error {
-	app.hub.PublishTo(player.ID, data.NewCommand("match", event.NewJoinMatchEvent("0001")))
+	var match domain.Match
+	waitingMatches := app.repo.WaitingMatches(evt.Team)
+	if len(waitingMatches) > 0 {
+	} else {
+		match = domain.NewMatch(player)
+	}
+
+	app.hub.PublishTo(player.ID, data.NewCommand("match", event.NewJoinMatchEvent(match.ID)))
 	return nil
 }

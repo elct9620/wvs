@@ -9,12 +9,14 @@ import (
 type Container struct {
 	hub         *hub.Hub
 	playerStore *store.Store
+	matchStore  *store.Store
 }
 
 func NewContainer() *Container {
 	return &Container{
 		hub:         hub.NewHub(),
 		playerStore: store.NewStore(),
+		matchStore:  store.NewStore(),
 	}
 }
 
@@ -24,4 +26,8 @@ func (c *Container) Hub() *hub.Hub {
 
 func (c *Container) NewPlayerRepository() *repository.PlayerRepository {
 	return repository.NewPlayerRepository(c.playerStore)
+}
+
+func (c *Container) NewMatchRepository() *repository.MatchRepository {
+	return repository.NewMatchRepository(c.matchStore)
 }

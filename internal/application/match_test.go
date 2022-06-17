@@ -7,6 +7,8 @@ import (
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/elct9620/wvs/pkg/event"
 	"github.com/stretchr/testify/assert"
@@ -15,13 +17,15 @@ import (
 
 type MatchApplicationTestSuite struct {
 	suite.Suite
-	hub *hub.Hub
-	app *application.MatchApplication
+	hub  *hub.Hub
+	repo *repository.MatchRepository
+	app  *application.MatchApplication
 }
 
 func (suite *MatchApplicationTestSuite) SetupTest() {
 	suite.hub = hub.NewHub()
-	suite.app = application.NewMatchApplication(suite.hub)
+	suite.repo = repository.NewMatchRepository(store.NewStore())
+	suite.app = application.NewMatchApplication(suite.hub, suite.repo)
 }
 
 func (suite *MatchApplicationTestSuite) TearDownTest() {
@@ -51,7 +55,7 @@ func (suite *MatchApplicationTestSuite) TestInitMatch() {
 
 	suite.app.InitMatch(player, event.InitMatchEvent{Team: domain.TeamWalrus})
 	time.Sleep(10 * time.Millisecond)
-	assert.Contains(suite.T(), publisher.LastData, `"match_id":"0001"`)
+	assert.Contains(suite.T(), publisher.LastData, `"match_id":`)
 }
 
 func TestMatchApplication(t *testing.T) {

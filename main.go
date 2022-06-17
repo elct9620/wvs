@@ -11,9 +11,10 @@ import (
 func main() {
 	container := container.NewContainer()
 	playerRepo := container.NewPlayerRepository()
+	matchRepo := container.NewMatchRepository()
 
 	game := application.NewGameApplication(container.Hub())
-	match := application.NewMatchApplication(container.Hub())
+	match := application.NewMatchApplication(container.Hub(), matchRepo)
 	player := application.NewPlayerApplication(container.Hub(), playerRepo)
 	controller := controller.NewWebSocketController(game, match, player)
 
