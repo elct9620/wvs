@@ -3,6 +3,6 @@ package domain
 type Team int
 
 const (
-	Walrus Team = iota
-	Slime
+	TeamWalrus Team = iota
+	TeamSlime
 )

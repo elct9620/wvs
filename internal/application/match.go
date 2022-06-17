@@ -7,6 +7,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/utils"
 	"github.com/elct9620/wvs/pkg/data"
+	"github.com/elct9620/wvs/pkg/event"
 )
 
 type MatchApplication struct {
@@ -27,8 +28,15 @@ func (app *MatchApplication) ProcessCommand(player *domain.Player, command data.
 	}
 
 	switch evtName {
+	case "init":
+		return app.InitMatch(player, command.Payload.(event.InitMatchEvent))
 	default:
 		app.RaiseError(player, "unknown event")
 		return errors.New("unknown event")
 	}
+}
+
+func (app *MatchApplication) InitMatch(player *domain.Player, evt event.InitMatchEvent) error {
+	app.hub.PublishTo(player.ID, data.NewCommand("match", event.NewJoinMatchEvent("0001")))
+	return nil
 }
