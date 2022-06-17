@@ -1,4 +1,4 @@
-Walrus vs Slime
+Walrus vs Slime [![Test](https://github.com/elct9620/wvs/actions/workflows/test.yml/badge.svg)](https://github.com/elct9620/wvs/actions/workflows/test.yml)
 ===
 
 The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/BasalticStudio/Walrus-vs-Slime) I wrote in 2015, this project is rewritten with DDD (Domain-Driven Design) style which with colossal improvement.
@@ -12,6 +12,7 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 ## Usage
 
 > **Note**
+>
 > TODO
 
 ## Design
@@ -28,4 +29,5 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 ### Domain
 
 > **Note**
+>
 > TODO
