@@ -6,10 +6,10 @@ import (
 )
 
 type MatchRepository struct {
-	store *store.Table
+	store *store.Store
 }
 
-func NewMatchRepository(store *store.Table) *MatchRepository {
+func NewMatchRepository(store *store.Store) *MatchRepository {
 	return &MatchRepository{
 		store: store,
 	}

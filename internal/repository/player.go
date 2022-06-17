@@ -8,17 +8,17 @@ import (
 )
 
 type PlayerRepository struct {
-	store *store.Table
+	store *store.Store
 }
 
-func NewPlayerRepository(store *store.Table) *PlayerRepository {
+func NewPlayerRepository(store *store.Store) *PlayerRepository {
 	return &PlayerRepository{
 		store: store,
 	}
 }
 
 func (repo *PlayerRepository) Find(id string) (*domain.Player, error) {
-	res, err := repo.store.Find(id)
+	res, err := repo.store.Table("players").Find(id)
 	if err != nil {
 		return nil, errors.New("player not exists")
 	}
@@ -29,7 +29,7 @@ func (repo *PlayerRepository) Find(id string) (*domain.Player, error) {
 }
 
 func (repo *PlayerRepository) Insert(player domain.Player) error {
-	err := repo.store.Insert(player.ID, player)
+	err := repo.store.Table("players").Insert(player.ID, player)
 	if err != nil {
 		return errors.New("player is exists")
 	}
@@ -38,5 +38,5 @@ func (repo *PlayerRepository) Insert(player domain.Player) error {
 }
 
 func (repo *PlayerRepository) Delete(id string) {
-	repo.store.Delete(id)
+	repo.store.Table("players").Delete(id)
 }

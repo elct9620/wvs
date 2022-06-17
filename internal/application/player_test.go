@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
-	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -19,8 +19,10 @@ type PlayerApplicationTestSuite struct {
 }
 
 func (suite *PlayerApplicationTestSuite) SetupTest() {
-	suite.hub = hub.NewHub()
-	suite.playerRepo = repository.NewPlayerRepository(store.NewTable())
+	container := container.NewContainer()
+	suite.hub = container.Hub()
+
+	suite.playerRepo = container.NewPlayerRepository()
 	suite.app = application.NewPlayerApplication(suite.hub, suite.playerRepo)
 }
 
