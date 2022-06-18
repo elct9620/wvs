@@ -15,18 +15,38 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 >
 > TODO
 
-## Design
+## Project Structure
 
-### Layers
+### Presentation
 
-| Layer          | Description                                   | Package                                   |
-|----------------|-----------------------------------------------|-------------------------------------------|
-| Presentation   | To handle the end-user interactive            | `pkg/controller`, `pkg/data`, `pkg/event` |
-| Application    | To handle the user flow                       | `internal/application`                    |
-| Domain         | The business logic                            | `internal/domain`, `internal/repository`  |
-| Infrastructure | Non-domain related behaviors, e.g. data store | `internal/infrastructure`                 |
+To handle the API interface or protocol
 
-### Domain
+* `pkg/controller` - the HTTP request handler
+* `pkg/command` - the WebSocket command handler
+  * `pkg/command/parameter` - the WebSocket command parameters
+
+### Application
+
+The handle the user flow
+
+* `internal/application` - the user flow, e.g. find a match
+
+### Domain Object
+
+* `internal/domain` - the Entity (or Aggregate) and Value Object
+* `internal/repository` - the factory of Entity
+* `internal/service` - the business logic
+
+### Infrastructure
+
+The foundation or utils
+
+* `internal/infrastructure/container` - the shared object container
+* `internal/infrastructure/hub` - the PubSub manager for WebSocket connection
+* `internal/infrastructure/rpc` - the RPC command manager for WebSocket
+* `internal/infrastructure/store` - the in-memory store
+
+## Domain
 
 > **Note**
 >
