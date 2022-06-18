@@ -21,15 +21,24 @@ func (suite *MatchRepositoryTestSuite) SetupTest() {
 }
 
 func (suite *MatchRepositoryTestSuite) TestWaitingMatches() {
+	player := domain.NewPlayer()
+	team := domain.NewTeam(domain.TeamWalrus, &player)
+	match := domain.NewMatch(&team)
+	suite.repo.Save(&match)
+
+	team = domain.NewTeam(domain.TeamSlime, &player)
+	match = domain.NewMatch(&team)
+	suite.repo.Save(&match)
+
 	items := suite.repo.WaitingMatches(domain.TeamSlime)
-	assert.Len(suite.T(), items, 0)
+	assert.Len(suite.T(), items, 1)
 }
 
 func (suite *MatchRepositoryTestSuite) TestSave() {
 	player := domain.NewPlayer()
 	team := domain.NewTeam(domain.TeamWalrus, &player)
 	match := domain.NewMatch(&team)
-	suite.repo.Save(match)
+	suite.repo.Save(&match)
 
 	foundMatch := suite.repo.Find(match.ID)
 	assert.NotNil(suite.T(), foundMatch)

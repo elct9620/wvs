@@ -53,3 +53,7 @@ func (m *Match) Team2() *Team {
 
 	return m.team2
 }
+
+func (m *Match) Join(team2 *Team) {
+	m.team2 = team2
+}

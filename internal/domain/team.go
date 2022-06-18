@@ -26,3 +26,19 @@ func (t *Team) ID() string {
 	}
 	return t.Member.ID
 }
+
+func (t *Team) IsValid() bool {
+	if t.Type == TeamUnknown {
+		return false
+	}
+
+	if t.Member == nil {
+		return false
+	}
+
+	if len(t.Member.ID) == 0 {
+		return false
+	}
+
+	return true
+}

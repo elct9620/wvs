@@ -19,9 +19,18 @@ func NewMatchApplication(hub *hub.Hub, repo *repository.MatchRepository) *MatchA
 }
 
 func (app *MatchApplication) StartMatch(player *domain.Player, teamType domain.TeamType) *domain.Match {
+	waitings := app.repo.WaitingMatches(teamType)
+
+	var match domain.Match
+
 	team := domain.NewTeam(teamType, player)
-	match := domain.NewMatch(&team)
-	app.repo.Save(match)
+	if len(waitings) > 0 {
+		match = *waitings[0]
+		match.Join(&team)
+	} else {
+		match = domain.NewMatch(&team)
+	}
+	app.repo.Save(&match)
 
 	return &match
 }

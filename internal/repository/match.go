@@ -40,7 +40,33 @@ func (repo *MatchRepository) Find(id string) *domain.Match {
 	return &match
 }
 
-func (repo *MatchRepository) Save(match domain.Match) error {
+func (repo *MatchRepository) WaitingMatches(excludeTeam domain.TeamType) []*domain.Match {
+	items := repo.store.Table("matches").Map(func(raw interface{}) interface{} {
+		data := raw.(schema)
+
+		team1 := domain.NewTeam(data.Team1Team, &domain.Player{ID: data.Team1ID})
+		team2 := domain.NewTeam(data.Team2Team, &domain.Player{ID: data.Team2ID})
+		return domain.NewMatchFromData(data.ID, data.State, &team1, &team2)
+	})
+
+	filtered := make([]*domain.Match, 0)
+	for _, item := range items {
+		match := item.(domain.Match)
+		if match.State() != domain.MatchCreated || !match.Team1().IsValid() || match.Team2().IsValid() {
+			continue
+		}
+
+		if match.Team1().Type == excludeTeam {
+			continue
+		}
+
+		filtered = append(filtered, &match)
+	}
+
+	return filtered
+}
+
+func (repo *MatchRepository) Save(match *domain.Match) error {
 	matches := repo.store.Table("matches")
 
 	return matches.Update(match.ID, schema{
@@ -51,8 +77,4 @@ func (repo *MatchRepository) Save(match domain.Match) error {
 		Team2ID:   match.Team2().ID(),
 		Team2Team: match.Team2().Type,
 	})
-}
-
-func (repo *MatchRepository) WaitingMatches(excludeTeam domain.TeamType) []domain.Match {
-	return []domain.Match{}
 }
