@@ -6,6 +6,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/service"
 )
 
 type Container struct {
@@ -36,4 +37,8 @@ func (c *Container) NewPlayerRepository() *repository.PlayerRepository {
 
 func (c *Container) NewMatchRepository() *repository.MatchRepository {
 	return repository.NewMatchRepository(c.store)
+}
+
+func (c *Container) NewBroadcastService() *service.BroadcastService {
+	return service.NewBroadcastService(c.hub)
 }

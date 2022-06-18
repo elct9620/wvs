@@ -3,21 +3,22 @@ package application
 import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/service"
 )
 
 type MatchApplication struct {
-	hub    *hub.Hub
-	engine *engine.Engine
-	repo   *repository.MatchRepository
+	engine    *engine.Engine
+	repo      *repository.MatchRepository
+	broadcast *service.BroadcastService
 }
 
-func NewMatchApplication(hub *hub.Hub, engine *engine.Engine, repo *repository.MatchRepository) *MatchApplication {
+func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository, broadcast *service.BroadcastService) *MatchApplication {
 	return &MatchApplication{
-		hub:    hub,
-		engine: engine,
-		repo:   repo,
+		engine:    engine,
+		repo:      repo,
+		broadcast: broadcast,
 	}
 }
 
@@ -44,4 +45,7 @@ func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.Te
 
 func (app *MatchApplication) StartMatch(match *domain.Match) {
 	app.engine.NewGameLoop(match.ID)
+
+	command := rpc.NewCommand("match/start", nil)
+	app.broadcast.BroadcastToMatch(match, command)
 }

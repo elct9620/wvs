@@ -27,7 +27,7 @@ func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Com
 }
 
 func (s *RPCService) SetupMatchService() {
-	app := application.NewMatchApplication(s.container.Hub(), s.container.Engine(), s.container.NewMatchRepository())
+	app := application.NewMatchApplication(s.container.Engine(), s.container.NewMatchRepository(), s.container.NewBroadcastService())
 	cmd := NewMatchCommand(app)
 	s.HandleFunc("match/find", cmd.FindMatch)
 }
