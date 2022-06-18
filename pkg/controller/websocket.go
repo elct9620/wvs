@@ -1,13 +1,9 @@
 package controller
 
 import (
-	"errors"
-
 	"github.com/elct9620/wvs/internal/application"
-	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
-	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -80,15 +76,4 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 	}
 
 	return nil
-}
-
-func (ctrl *WebSocketController) dispatch(player *domain.Player, command data.Command) error {
-	switch command.Type {
-	case "match":
-		return ctrl.match.ProcessCommand(player, command)
-	case "game":
-		return ctrl.game.ProcessCommand(player, command)
-	default:
-		return errors.New("unknown command")
-	}
 }

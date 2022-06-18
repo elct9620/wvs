@@ -34,8 +34,8 @@ func (suite *BaseApplicationTestSuite) TestRaiseError() {
 
 	suite.app.RaiseError(&player, "dummy error")
 	time.Sleep(10 * time.Millisecond)
-	assert.Contains(suite.T(), publisher.LastData, `"type":"error"`)
-	assert.Contains(suite.T(), publisher.LastData, `"message":"dummy error"`)
+	assert.Contains(suite.T(), publisher.LastData, `"name":"error"`)
+	assert.Contains(suite.T(), publisher.LastData, `"reason":"dummy error"`)
 }
 
 func TestBaseApplication(t *testing.T) {

@@ -12,7 +12,6 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/pkg/controller"
-	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -76,18 +75,19 @@ func (suite *WebSocketTestSuite) TearDownTest() {
 }
 
 func (suite *WebSocketTestSuite) readID() string {
-	var command data.Command
+	var c rpc.Command
 	time.Sleep(10 * time.Millisecond)
-	err := suite.ws.ReadJSON(&command)
+	err := suite.ws.ReadJSON(&c)
 	if err != nil {
 		suite.Error(err)
 	}
 
-	if command.Type != "connected" {
+	if c.Name != "connected" {
 		suite.Fail("Unable to read ID")
 	}
 
-	return command.Payload.(string)
+	parameter := c.Parameters.(map[string]interface{})
+	return parameter["id"].(string)
 }
 
 func (suite *WebSocketTestSuite) TestServer() {

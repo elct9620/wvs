@@ -3,8 +3,9 @@ package application
 import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
-	"github.com/elct9620/wvs/pkg/data"
+	"github.com/elct9620/wvs/pkg/command"
 )
 
 type PlayerApplication struct {
@@ -36,7 +37,7 @@ func (app *PlayerApplication) Register(conn hub.Publisher) (domain.Player, error
 		return player, err
 	}
 
-	err = app.hub.PublishTo(player.ID, data.NewCommand("connected", player.ID))
+	err = app.hub.PublishTo(player.ID, rpc.NewCommand("connected", command.ConnectedParameter{ID: player.ID}))
 	return player, err
 }
 
