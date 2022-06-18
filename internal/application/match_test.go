@@ -39,10 +39,10 @@ func (suite *MatchApplicationTestSuite) newPlayer() (*domain.Player, *hub.Simple
 	return &player, publisher
 }
 
-func (suite *MatchApplicationTestSuite) TestInitMatch() {
+func (suite *MatchApplicationTestSuite) TestStartMatch() {
 	player, _ := suite.newPlayer()
 
-	match := suite.app.InitMatch(player, domain.TeamWalrus)
+	match := suite.app.StartMatch(player, domain.TeamWalrus)
 	assert.NotNil(suite.T(), match.ID)
 	assert.Equal(suite.T(), match.Player1().Type, domain.TeamWalrus)
 }

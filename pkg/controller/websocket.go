@@ -65,7 +65,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			break
 		}
 
-		err = ctrl.rpc.Process(WebSocketExecutor{channelID: player.ID, hub: ctrl.hub}, &command)
+		err = ctrl.rpc.Process(WebSocketExecutor{channelID: player.ID, hub: ctrl.hub}, player.ID, &command)
 		if err != nil {
 			c.Logger().Error(err)
 		}

@@ -18,7 +18,7 @@ func NewMatchApplication(hub *hub.Hub, repo *repository.MatchRepository) *MatchA
 	}
 }
 
-func (app *MatchApplication) InitMatch(player *domain.Player, teamType domain.TeamType) *domain.Match {
+func (app *MatchApplication) StartMatch(player *domain.Player, teamType domain.TeamType) *domain.Match {
 	team := domain.NewTeam(teamType, player)
 	match := domain.NewMatch(&team)
 	app.repo.Save(match)

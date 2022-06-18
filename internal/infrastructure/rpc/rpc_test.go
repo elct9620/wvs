@@ -37,14 +37,14 @@ func (suite *RPCTestSuite) TestHandlerFunc() {
 	buffer := new(bytes.Buffer)
 	executor := SimpleExecutor{io: buffer}
 	command := rpc.NewCommand("match/init", nil)
-	err := suite.rpc.Process(executor, command)
+	err := suite.rpc.Process(executor, "test", command)
 	assert.Error(suite.T(), err, "unknown command")
 
-	suite.rpc.HandleFunc("match/init", func(command *rpc.Command) *rpc.Command {
+	suite.rpc.HandleFunc("match/init", func(id string, command *rpc.Command) *rpc.Command {
 		return rpc.NewCommand("match/ready", nil)
 	})
 
-	err = suite.rpc.Process(executor, command)
+	err = suite.rpc.Process(executor, "test", command)
 	assert.Nil(suite.T(), err)
 	assert.Contains(suite.T(), string(buffer.Bytes()), `"name":"match/ready"`)
 }

@@ -52,7 +52,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	testRPC := rpc.NewRPC()
 	player := application.NewPlayerApplication(suite.hub, playerRepo)
 
-	testRPC.HandleFunc("test", func(c *rpc.Command) *rpc.Command {
+	testRPC.HandleFunc("test", func(id string, c *rpc.Command) *rpc.Command {
 		return rpc.NewCommand("test", nil)
 	})
 

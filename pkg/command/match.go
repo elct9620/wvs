@@ -15,7 +15,7 @@ func NewMatchCommand(app *application.MatchApplication) *MatchCommand {
 	}
 }
 
-func (c *MatchCommand) StartMatch(command *rpc.Command) *rpc.Command {
+func (c *MatchCommand) StartMatch(remoteID string, command *rpc.Command) *rpc.Command {
 	return nil
 }
 
