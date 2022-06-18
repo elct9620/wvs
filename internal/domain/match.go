@@ -57,3 +57,11 @@ func (m *Match) Team2() *Team {
 func (m *Match) Join(team2 *Team) {
 	m.team2 = team2
 }
+
+func (m *Match) IsReady() bool {
+	if m.team1 == nil || m.team2 == nil {
+		return false
+	}
+
+	return m.team1.IsValid() && m.team2.IsValid()
+}
