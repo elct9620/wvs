@@ -17,17 +17,17 @@ func NewMatchCommand(app *application.MatchApplication) *MatchCommand {
 	}
 }
 
-func (c *MatchCommand) StartMatch(remoteID string, command *rpc.Command) *rpc.Command {
+func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Command {
 	player := &domain.Player{ID: remoteID}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(domain.TeamType)
-	match := c.app.StartMatch(player, team)
+	match := c.app.FindMatch(player, team)
 
 	return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team1().Type})
 }
 
 func (s *RPCService) SetupMatchService() {
-	app := application.NewMatchApplication(s.container.Hub(), s.container.NewMatchRepository())
+	app := application.NewMatchApplication(s.container.Hub(), s.container.Engine(), s.container.NewMatchRepository())
 	cmd := NewMatchCommand(app)
-	s.HandleFunc("match/start", cmd.StartMatch)
+	s.HandleFunc("match/find", cmd.FindMatch)
 }

@@ -32,9 +32,9 @@ func (suite *MatchCommandTestSuite) SetupTest() {
 	suite.service = command.NewRPCService(container)
 }
 
-func (suite *MatchCommandTestSuite) TestStartMatch() {
+func (suite *MatchCommandTestSuite) TestFindMatch() {
 	buffer := new(bytes.Buffer)
-	suite.service.Process(JSONExecutor{buffer: buffer}, "test", rpc.NewCommand("match/start", map[string]interface{}{"team": domain.TeamWalrus}))
+	suite.service.Process(JSONExecutor{buffer: buffer}, "test", rpc.NewCommand("match/find", map[string]interface{}{"team": domain.TeamWalrus}))
 
 	assert.Contains(suite.T(), string(buffer.Bytes()), `"match/init"`)
 }

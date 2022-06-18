@@ -22,7 +22,7 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 	suite.hub = container.Hub()
 
 	repo := container.NewMatchRepository()
-	suite.app = application.NewMatchApplication(suite.hub, repo)
+	suite.app = application.NewMatchApplication(suite.hub, container.Engine(), repo)
 }
 
 func (suite *MatchApplicationTestSuite) TearDownTest() {
@@ -39,10 +39,10 @@ func (suite *MatchApplicationTestSuite) newPlayer() (*domain.Player, *hub.Simple
 	return &player, publisher
 }
 
-func (suite *MatchApplicationTestSuite) TestStartMatch() {
+func (suite *MatchApplicationTestSuite) TestFindMatch() {
 	player, _ := suite.newPlayer()
 
-	match := suite.app.StartMatch(player, domain.TeamWalrus)
+	match := suite.app.FindMatch(player, domain.TeamWalrus)
 	assert.NotNil(suite.T(), match.ID)
 	assert.Equal(suite.T(), match.Team1().Type, domain.TeamWalrus)
 }
