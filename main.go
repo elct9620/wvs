@@ -12,13 +12,10 @@ import (
 func main() {
 	container := container.NewContainer()
 	playerRepo := container.NewPlayerRepository()
-	matchRepo := container.NewMatchRepository()
 
-	service := command.NewRPCService()
-	game := application.NewGameApplication(container.Hub())
-	match := application.NewMatchApplication(container.Hub(), matchRepo)
+	service := command.NewRPCService(container)
 	player := application.NewPlayerApplication(container.Hub(), playerRepo)
-	controller := controller.NewWebSocketController(&service.RPC, container.Hub(), game, match, player)
+	controller := controller.NewWebSocketController(&service.RPC, container.Hub(), player)
 
 	e := echo.New()
 	e.Use(middleware.Logger())

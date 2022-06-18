@@ -4,7 +4,7 @@ import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
-	"github.com/elct9620/wvs/pkg/command"
+	"github.com/elct9620/wvs/pkg/command/parameter"
 )
 
 type BaseApplication struct {
@@ -16,5 +16,5 @@ func NewBaseApplication(hub *hub.Hub) *BaseApplication {
 }
 
 func (app *BaseApplication) RaiseError(player *domain.Player, reason string) {
-	app.hub.PublishTo(player.ID, rpc.NewCommand("error", command.ErrorParameter{Reason: reason}))
+	app.hub.PublishTo(player.ID, rpc.NewCommand("error", parameter.ErrorParameter{Reason: reason}))
 }

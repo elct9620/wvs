@@ -48,18 +48,15 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	suite.hub = suite.container.Hub()
 
 	playerRepo := suite.container.NewPlayerRepository()
-	matchRepo := suite.container.NewMatchRepository()
 
 	testRPC := rpc.NewRPC()
-	game := application.NewGameApplication(suite.hub)
-	match := application.NewMatchApplication(suite.hub, matchRepo)
 	player := application.NewPlayerApplication(suite.hub, playerRepo)
 
 	testRPC.HandleFunc("test", func(c *rpc.Command) *rpc.Command {
 		return rpc.NewCommand("test", nil)
 	})
 
-	suite.controller = controller.NewWebSocketController(testRPC, suite.hub, game, match, player)
+	suite.controller = controller.NewWebSocketController(testRPC, suite.hub, player)
 
 	e := echo.New()
 	e.GET("/ws", suite.controller.Server)

@@ -6,16 +6,19 @@ import (
 	"reflect"
 	"regexp"
 
+	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 )
 
 type RPCService struct {
 	rpc.RPC
+	container *container.Container
 }
 
-func NewRPCService() *RPCService {
+func NewRPCService(container *container.Container) *RPCService {
 	service := &RPCService{
-		RPC: *rpc.NewRPC(),
+		RPC:       *rpc.NewRPC(),
+		container: container,
 	}
 
 	service.setup()

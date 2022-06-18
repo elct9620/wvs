@@ -15,17 +15,13 @@ var (
 type WebSocketController struct {
 	rpc    *rpc.RPC
 	hub    *hub.Hub
-	game   *application.GameApplication
-	match  *application.MatchApplication
 	player *application.PlayerApplication
 }
 
-func NewWebSocketController(rpc *rpc.RPC, hub *hub.Hub, game *application.GameApplication, match *application.MatchApplication, player *application.PlayerApplication) *WebSocketController {
+func NewWebSocketController(rpc *rpc.RPC, hub *hub.Hub, player *application.PlayerApplication) *WebSocketController {
 	return &WebSocketController{
 		rpc:    rpc,
 		hub:    hub,
-		game:   game,
-		match:  match,
 		player: player,
 	}
 }

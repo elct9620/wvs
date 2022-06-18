@@ -5,7 +5,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
-	"github.com/elct9620/wvs/pkg/command"
+	"github.com/elct9620/wvs/pkg/command/parameter"
 )
 
 type MatchApplication struct {
@@ -25,6 +25,6 @@ func (app *MatchApplication) InitMatch(player *domain.Player, teamType domain.Te
 	match := domain.NewMatch(&team)
 	app.repo.Save(match)
 
-	app.hub.PublishTo(player.ID, rpc.NewCommand("match/init", command.MatchInitParameter{ID: match.ID, Team: teamType}))
+	app.hub.PublishTo(player.ID, rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: teamType}))
 	return nil
 }
