@@ -11,26 +11,26 @@ const (
 )
 
 type Match struct {
-	ID      string
-	state   MatchState
-	player1 *Team
-	player2 *Team
+	ID    string
+	state MatchState
+	team1 *Team
+	team2 *Team
 }
 
-func NewMatch(player1 *Team) Match {
+func NewMatch(team1 *Team) Match {
 	return Match{
-		ID:      uuid.NewString(),
-		state:   MatchCreated,
-		player1: player1,
+		ID:    uuid.NewString(),
+		state: MatchCreated,
+		team1: team1,
 	}
 }
 
-func NewMatchFromData(id string, state MatchState, player1 *Team, player2 *Team) Match {
+func NewMatchFromData(id string, state MatchState, team1 *Team, team2 *Team) Match {
 	return Match{
-		ID:      id,
-		state:   state,
-		player1: player1,
-		player2: player2,
+		ID:    id,
+		state: state,
+		team1: team1,
+		team2: team2,
 	}
 }
 
@@ -38,18 +38,18 @@ func (m *Match) State() MatchState {
 	return m.state
 }
 
-func (m *Match) Player1() *Team {
-	if m.player1 == nil {
+func (m *Match) Team1() *Team {
+	if m.team1 == nil {
 		return &Team{}
 	}
 
-	return m.player1
+	return m.team1
 }
 
-func (m *Match) Player2() *Team {
-	if m.player2 == nil {
+func (m *Match) Team2() *Team {
+	if m.team2 == nil {
 		return &Team{}
 	}
 
-	return m.player2
+	return m.team2
 }

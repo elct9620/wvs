@@ -9,11 +9,11 @@ type schema struct {
 	ID    string
 	State domain.MatchState
 
-	Player1ID   string
-	Player1Team domain.TeamType
+	Team1ID   string
+	Team1Team domain.TeamType
 
-	Player2ID   string
-	Player2Team domain.TeamType
+	Team2ID   string
+	Team2Team domain.TeamType
 }
 
 type MatchRepository struct {
@@ -34,8 +34,8 @@ func (repo *MatchRepository) Find(id string) *domain.Match {
 	}
 	data := raw.(schema)
 
-	team1 := domain.NewTeam(data.Player1Team, &domain.Player{ID: data.Player1ID})
-	team2 := domain.NewTeam(data.Player2Team, &domain.Player{ID: data.Player2ID})
+	team1 := domain.NewTeam(data.Team1Team, &domain.Player{ID: data.Team1ID})
+	team2 := domain.NewTeam(data.Team2Team, &domain.Player{ID: data.Team2ID})
 	match := domain.NewMatchFromData(data.ID, data.State, &team1, &team2)
 	return &match
 }
@@ -44,12 +44,12 @@ func (repo *MatchRepository) Save(match domain.Match) error {
 	matches := repo.store.Table("matches")
 
 	return matches.Update(match.ID, schema{
-		ID:          match.ID,
-		State:       match.State(),
-		Player1ID:   match.Player1().ID(),
-		Player1Team: match.Player1().Type,
-		Player2ID:   match.Player2().ID(),
-		Player2Team: match.Player2().Type,
+		ID:        match.ID,
+		State:     match.State(),
+		Team1ID:   match.Team1().ID(),
+		Team1Team: match.Team1().Type,
+		Team2ID:   match.Team2().ID(),
+		Team2Team: match.Team2().Type,
 	})
 }
 

@@ -44,7 +44,7 @@ func (suite *MatchApplicationTestSuite) TestStartMatch() {
 
 	match := suite.app.StartMatch(player, domain.TeamWalrus)
 	assert.NotNil(suite.T(), match.ID)
-	assert.Equal(suite.T(), match.Player1().Type, domain.TeamWalrus)
+	assert.Equal(suite.T(), match.Team1().Type, domain.TeamWalrus)
 }
 
 func TestMatchApplication(t *testing.T) {
