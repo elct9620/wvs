@@ -44,7 +44,13 @@ func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.Te
 }
 
 func (app *MatchApplication) StartMatch(match *domain.Match) {
+	if !match.Start() {
+		return
+	}
+
 	app.engine.NewGameLoop(match.ID)
+
+	app.repo.Save(match)
 
 	command := rpc.NewCommand("match/start", nil)
 	app.broadcast.BroadcastToMatch(match, command)

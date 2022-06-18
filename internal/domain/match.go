@@ -1,6 +1,8 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type MatchState int
 
@@ -64,4 +66,13 @@ func (m *Match) IsReady() bool {
 	}
 
 	return m.team1.IsValid() && m.team2.IsValid()
+}
+
+func (m *Match) Start() bool {
+	if !m.IsReady() {
+		return false
+	}
+
+	m.state = MatchStarted
+	return true
 }

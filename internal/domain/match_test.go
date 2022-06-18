@@ -7,24 +7,42 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMatch_Join(t *testing.T) {
+func newTeam(teamType domain.TeamType) *domain.Team {
 	player := domain.NewPlayer()
-	team := domain.NewTeam(domain.TeamSlime, &player)
-	match := domain.NewMatch(&team)
+	team := domain.NewTeam(teamType, &player)
+	return &team
+}
+
+func newMatch() *domain.Match {
+	team := newTeam(domain.TeamSlime)
+	match := domain.NewMatch(team)
+
+	return &match
+}
+
+func TestMatch_Join(t *testing.T) {
+	match := newMatch()
 	assert.Nil(t, match.Team2().Member)
 
-	team2 := domain.NewTeam(domain.TeamWalrus, &player)
-	match.Join(&team2)
-	assert.Equal(t, &team2, match.Team2())
+	team2 := newTeam(domain.TeamWalrus)
+	match.Join(team2)
+	assert.Equal(t, team2, match.Team2())
 }
 
 func TestMatch_IsReady(t *testing.T) {
-	player := domain.NewPlayer()
-	team := domain.NewTeam(domain.TeamSlime, &player)
-	match := domain.NewMatch(&team)
+	match := newMatch()
 	assert.False(t, match.IsReady())
 
-	team2 := domain.NewTeam(domain.TeamWalrus, &player)
-	match.Join(&team2)
+	match.Join(newTeam(domain.TeamWalrus))
 	assert.True(t, match.IsReady())
+}
+
+func TestMatch_Start(t *testing.T) {
+	match := newMatch()
+	match.Start()
+	assert.NotEqual(t, domain.MatchStarted, match.State())
+
+	match.Join(newTeam(domain.TeamWalrus))
+	match.Start()
+	assert.Equal(t, domain.MatchStarted, match.State())
 }
