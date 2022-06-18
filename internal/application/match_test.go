@@ -2,7 +2,6 @@ package application_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
@@ -41,12 +40,11 @@ func (suite *MatchApplicationTestSuite) newPlayer() (*domain.Player, *hub.Simple
 }
 
 func (suite *MatchApplicationTestSuite) TestInitMatch() {
-	player, publisher := suite.newPlayer()
+	player, _ := suite.newPlayer()
 
-	suite.app.InitMatch(player, domain.TeamWalrus)
-	time.Sleep(10 * time.Millisecond)
-	assert.Contains(suite.T(), publisher.LastData, `"id":`)
-	assert.Contains(suite.T(), publisher.LastData, `"team":1`)
+	match := suite.app.InitMatch(player, domain.TeamWalrus)
+	assert.NotNil(suite.T(), match.ID)
+	assert.Equal(suite.T(), match.Player1().Type, domain.TeamWalrus)
 }
 
 func TestMatchApplication(t *testing.T) {
