@@ -75,6 +75,29 @@ func (suite *TableTestSuite) TestFind() {
 	assert.Error(suite.T(), err, "object not exists")
 }
 
+func (suite *TableTestSuite) TestMap() {
+	err := suite.store.Insert("1", true)
+	if err != nil {
+		suite.Error(err)
+	}
+
+	err = suite.store.Insert("2", false)
+	if err != nil {
+		suite.Error(err)
+	}
+
+	items := suite.store.Map(func(v interface{}) interface{} {
+		if v.(bool) {
+			return 1
+		}
+
+		return 0
+	})
+	assert.Len(suite.T(), items, 2)
+	assert.Equal(suite.T(), 1, items[0].(int))
+	assert.Equal(suite.T(), 0, items[1].(int))
+}
+
 func TestTable(t *testing.T) {
 	suite.Run(t, new(TableTestSuite))
 }

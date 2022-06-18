@@ -2,6 +2,8 @@ package store
 
 import "errors"
 
+type MapFunc func(v interface{}) interface{}
+
 type Table struct {
 	items map[string]interface{}
 }
@@ -12,32 +14,41 @@ func NewTable() *Table {
 	}
 }
 
-func (store *Table) Find(id string) (interface{}, error) {
-	if obj, ok := store.items[id]; ok == true {
+func (table *Table) Find(id string) (interface{}, error) {
+	if obj, ok := table.items[id]; ok == true {
 		return obj, nil
 	}
 
 	return nil, errors.New("object not exists")
 }
 
-func (store *Table) Insert(id string, obj interface{}) error {
-	if _, ok := store.items[id]; ok == true {
+func (table *Table) Insert(id string, obj interface{}) error {
+	if _, ok := table.items[id]; ok == true {
 		return errors.New("object is exists")
 	}
 
-	store.items[id] = obj
+	table.items[id] = obj
 	return nil
 }
 
-func (store *Table) Update(id string, obj interface{}) error {
-	if _, ok := store.items[id]; ok == true {
-		store.items[id] = obj
+func (table *Table) Update(id string, obj interface{}) error {
+	if _, ok := table.items[id]; ok == true {
+		table.items[id] = obj
 		return nil
 	}
 
-	return store.Insert(id, obj)
+	return table.Insert(id, obj)
 }
 
-func (store *Table) Delete(id string) {
-	delete(store.items, id)
+func (table *Table) Map(mapFunc MapFunc) []interface{} {
+	items := make([]interface{}, 0)
+	for _, item := range table.items {
+		items = append(items, mapFunc(item))
+	}
+
+	return items
+}
+
+func (table *Table) Delete(id string) {
+	delete(table.items, id)
 }
