@@ -94,8 +94,8 @@ func (suite *TableTestSuite) TestMap() {
 		return 0
 	})
 	assert.Len(suite.T(), items, 2)
-	assert.Equal(suite.T(), 1, items[0].(int))
-	assert.Equal(suite.T(), 0, items[1].(int))
+	assert.Contains(suite.T(), items, 1)
+	assert.Contains(suite.T(), items, 0)
 }
 
 func TestTable(t *testing.T) {
