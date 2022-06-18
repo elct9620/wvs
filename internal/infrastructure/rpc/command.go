@@ -1,11 +1,17 @@
 package rpc
 
-type Command struct {
-	Name string `json:"name"`
+type Parameter interface {
+	isParameter()
 }
 
-func NewCommand(name string) *Command {
+type Command struct {
+	Name       string    `json:"name"`
+	Parameters Parameter `json:"parameters"`
+}
+
+func NewCommand(name string, parameters Parameter) *Command {
 	return &Command{
-		Name: name,
+		Name:       name,
+		Parameters: parameters,
 	}
 }
