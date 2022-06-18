@@ -1,6 +1,8 @@
 package rpc
 
-import "errors"
+import (
+	"errors"
+)
 
 type HandlerFunc func(command *Command) *Command
 

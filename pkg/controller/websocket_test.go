@@ -10,6 +10,7 @@ import (
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
@@ -50,10 +51,16 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	playerRepo := suite.container.NewPlayerRepository()
 	matchRepo := suite.container.NewMatchRepository()
 
+	testRPC := rpc.NewRPC()
 	game := application.NewGameApplication(suite.hub)
 	match := application.NewMatchApplication(suite.hub, matchRepo)
 	player := application.NewPlayerApplication(suite.hub, playerRepo)
-	suite.controller = controller.NewWebSocketController(game, match, player)
+
+	testRPC.HandleFunc("test", func(c *rpc.Command) *rpc.Command {
+		return rpc.NewCommand("test", nil)
+	})
+
+	suite.controller = controller.NewWebSocketController(testRPC, suite.hub, game, match, player)
 
 	e := echo.New()
 	e.GET("/ws", suite.controller.Server)
@@ -86,20 +93,20 @@ func (suite *WebSocketTestSuite) readID() string {
 func (suite *WebSocketTestSuite) TestServer() {
 	suite.readID()
 
-	err := suite.ws.WriteJSON(data.NewCommand("game"))
+	err := suite.ws.WriteJSON(rpc.NewCommand("test", nil))
 	if err != nil {
 		suite.Error(err)
 	}
 
 	time.Sleep(10 * time.Millisecond)
 
-	var command data.Command
+	var command rpc.Command
 	err = suite.ws.ReadJSON(&command)
 	if err != nil {
 		suite.Error(err)
 	}
 
-	assert.Equal(suite.T(), "error", command.Type)
+	assert.Equal(suite.T(), "test", command.Name)
 }
 
 func TestWebSocketController(t *testing.T) {

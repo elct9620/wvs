@@ -5,6 +5,8 @@ import (
 
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/pkg/data"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -15,17 +17,34 @@ var (
 )
 
 type WebSocketController struct {
+	rpc    *rpc.RPC
+	hub    *hub.Hub
 	game   *application.GameApplication
 	match  *application.MatchApplication
 	player *application.PlayerApplication
 }
 
-func NewWebSocketController(game *application.GameApplication, match *application.MatchApplication, player *application.PlayerApplication) *WebSocketController {
+func NewWebSocketController(rpc *rpc.RPC, hub *hub.Hub, game *application.GameApplication, match *application.MatchApplication, player *application.PlayerApplication) *WebSocketController {
 	return &WebSocketController{
+		rpc:    rpc,
+		hub:    hub,
 		game:   game,
 		match:  match,
 		player: player,
 	}
+}
+
+type WebSocketExecutor struct {
+	channelID string
+	hub       *hub.Hub
+}
+
+func (e WebSocketExecutor) Write(command *rpc.Command) error {
+	if command == nil {
+		return nil
+	}
+
+	return e.hub.PublishTo(e.channelID, command)
 }
 
 func (ctrl *WebSocketController) Server(c echo.Context) error {
@@ -45,7 +64,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 	}()
 
 	for {
-		var command data.Command
+		var command rpc.Command
 		err = ws.ReadJSON(&command)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -54,7 +73,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 			break
 		}
 
-		err := ctrl.dispatch(&player, command)
+		err = ctrl.rpc.Process(WebSocketExecutor{channelID: player.ID, hub: ctrl.hub}, &command)
 		if err != nil {
 			c.Logger().Error(err)
 		}
