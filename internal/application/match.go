@@ -53,11 +53,14 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 		return
 	}
 
-	app.engine.NewGameLoop(match.ID, func(deltaTime time.Duration) {})
+	app.engine.NewGameLoop(match.ID, app.Update)
 	app.engine.StartGameLoop(match.ID)
 
 	app.repo.Save(match)
 
 	command := rpc.NewCommand("match/start", nil)
 	app.broadcast.BroadcastToMatch(match, command)
+}
+
+func (app *MatchApplication) Update(deltaTime time.Duration) {
 }
