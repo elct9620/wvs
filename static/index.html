@@ -6,5 +6,48 @@
     <title>Walrus vs Slime (v2)</title>
   </head>
   <body>
+    <div id="app">
+      <div id="mana">Mana: 0/0</div>
+    </div>
+
+    <script type="application/javascript">
+      const params = new URLSearchParams(location.search)
+      const createCommand = (name, parameters) => JSON.stringify({ name, parameters })
+
+      const onCommand = function(socket) {
+        const state = {
+          playerID: null,
+          matchID: null,
+        }
+
+        return (evt) => {
+          const command = JSON.parse(evt.data)
+
+          switch(command.name) {
+            case "connected":
+              state.playerID = command.parameters.id
+              socket.send(createCommand("match/find", { team: Number(params.get('team')) }))
+              break;
+            case "match/init":
+              state.matchID = command.parameters.id
+              break;
+            case "match/start":
+              socket.send(createCommand("match/join", { matchID: state.matchID }))
+              break;
+            case "game/recoverMana":
+              document.getElementById("mana").innerText = `Mana: ${command.parameters.current}/${command.parameters.max}`
+              break;
+          }
+        }
+      }
+
+      const onStart = function() {
+        const protocol = location.protocol.replace('http', 'ws')
+        const socket = new WebSocket(`${protocol}//${location.host}/ws`)
+        socket.onmessage = onCommand(socket)
+      }
+
+      document.addEventListener('DOMContentLoaded', onStart)
+    </script>
   </body>
 </html>

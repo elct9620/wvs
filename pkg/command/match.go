@@ -37,7 +37,7 @@ func (c *MatchCommand) JoinMatch(remoteID string, command *rpc.Command) *rpc.Com
 		return rpc.NewCommand("error", parameter.ErrorParameter{Reason: "invalid match id"})
 	}
 	parameters := command.Parameters.(map[string]interface{})
-	matchID, _ := parameters["match_id"].(string)
+	matchID, _ := parameters["matchID"].(string)
 	if c.app.JoinMatch(matchID, remoteID) {
 		return rpc.NewCommand("match/joined", nil)
 	}

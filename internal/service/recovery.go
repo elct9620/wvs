@@ -26,7 +26,7 @@ func (s *RecoveryService) Recover(player *domain.Player, tower *domain.Tower) {
 			player,
 			rpc.NewCommand(
 				"game/recoverMana",
-				parameter.ManaRecoverParameter{Current: tower.Mana.Current, Max: tower.Mana.Current},
+				parameter.ManaRecoverParameter{Current: tower.Mana.Current, Max: tower.Mana.Max},
 			),
 		)
 	}
