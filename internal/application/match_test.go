@@ -6,6 +6,7 @@ import (
 
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/stretchr/testify/assert"
@@ -14,18 +15,21 @@ import (
 
 type MatchApplicationTestSuite struct {
 	suite.Suite
-	hub *hub.Hub
-	app *application.MatchApplication
+	hub    *hub.Hub
+	engine *engine.Engine
+	app    *application.MatchApplication
 }
 
 func (suite *MatchApplicationTestSuite) SetupTest() {
 	container := container.NewContainer()
+	suite.engine = container.Engine()
 	suite.hub = container.Hub()
 
 	suite.app = application.NewMatchApplication(container.Engine(), container.NewMatchRepository(), container.NewBroadcastService())
 }
 
 func (suite *MatchApplicationTestSuite) TearDownTest() {
+	suite.engine.Stop()
 	suite.hub.Stop()
 }
 

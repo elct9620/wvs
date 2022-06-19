@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"errors"
 )
 
 type Engine struct {
@@ -19,15 +18,6 @@ func NewEngine() *Engine {
 		ctx:    ctx,
 		stop:   stop,
 	}
-}
-
-func (e *Engine) NewGameLoop(id string) error {
-	if _, ok := e.worker[id]; ok == true {
-		return errors.New("loop is created")
-	}
-
-	e.worker[id] = newLoop()
-	return nil
 }
 
 func (e *Engine) Stop() {

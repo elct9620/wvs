@@ -1,6 +1,8 @@
 package application
 
 import (
+	"time"
+
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
@@ -37,7 +39,10 @@ func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.Te
 	app.repo.Save(&match)
 
 	if match.IsReady() {
-		app.StartMatch(&match)
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			app.StartMatch(&match)
+		}()
 	}
 
 	return &match
@@ -49,6 +54,7 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 	}
 
 	app.engine.NewGameLoop(match.ID)
+	app.engine.StartGameLoop(match.ID)
 
 	app.repo.Save(match)
 
