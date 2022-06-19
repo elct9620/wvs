@@ -7,7 +7,7 @@ type Mana struct {
 
 func NewMana(max int) Mana {
 	return Mana{
-		Current: max,
+		Current: 0,
 		Max:     max,
 	}
 }

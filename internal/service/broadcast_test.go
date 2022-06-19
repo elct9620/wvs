@@ -8,6 +8,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/service"
+	"github.com/elct9620/wvs/pkg/command/parameter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -42,6 +43,15 @@ func (suite *BroadcastServiceTestSuite) SetupTest() {
 
 func (suite *BroadcastServiceTestSuite) TearDownTest() {
 	suite.hub.Stop()
+}
+
+func (suite *BroadcastServiceTestSuite) TestPublishToPlayer() {
+	suite.service.PublishToPlayer(suite.player1, rpc.NewCommand("game/recoverMana", parameter.ManaRecoverParameter{Current: 100, Max: 1000}))
+	time.Sleep(10 * time.Millisecond)
+
+	assert.Contains(suite.T(), suite.publisher1.LastData, `"name":"game/recoverMana"`)
+	assert.Contains(suite.T(), suite.publisher1.LastData, `"current":100`)
+	assert.Contains(suite.T(), suite.publisher1.LastData, `"max":1000`)
 }
 
 func (suite *BroadcastServiceTestSuite) TestBroadcastToMatch() {

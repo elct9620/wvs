@@ -19,7 +19,7 @@ func TestMana_Recover(t *testing.T) {
 }
 
 func TestMana_Spend(t *testing.T) {
-	mana := domain.NewMana(1000)
+	mana := domain.NewManaWithInitValue(1000, 1000)
 	assert.Equal(t, 1000, mana.Current)
 
 	mana, ok := mana.Spend(1000)
@@ -32,7 +32,7 @@ func TestMana_Spend(t *testing.T) {
 }
 
 func TestMana_IsSatsify(t *testing.T) {
-	mana := domain.NewMana(1000)
+	mana := domain.NewManaWithInitValue(1000, 1000)
 	assert.Equal(t, 1000, mana.Current)
 
 	ok := mana.IsSatifsy(1000)
@@ -43,7 +43,7 @@ func TestMana_IsSatsify(t *testing.T) {
 }
 
 func TestMana_IsFull(t *testing.T) {
-	mana := domain.NewMana(1000)
+	mana := domain.NewManaWithInitValue(1000, 1000)
 	assert.Equal(t, 1000, mana.Current)
 	assert.True(t, mana.IsFull())
 

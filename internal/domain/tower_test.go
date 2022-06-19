@@ -19,10 +19,10 @@ func (suite *TowerTestSuite) SetupTest() {
 }
 
 func (suite *TowerTestSuite) TestRecover() {
-	assert.False(suite.T(), suite.tower.Recover())
+	assert.True(suite.T(), suite.tower.Recover())
 
 	suite.tower.Spawn()
-	assert.True(suite.T(), suite.tower.Recover())
+	assert.False(suite.T(), suite.tower.Recover())
 }
 
 func TestTower(t *testing.T) {

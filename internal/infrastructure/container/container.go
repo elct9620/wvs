@@ -44,5 +44,9 @@ func (c *Container) NewBroadcastService() *service.BroadcastService {
 }
 
 func (c *Container) NewGameLoopService() *service.GameLoopService {
-	return service.NewGameLoopService(c.NewBroadcastService())
+	return service.NewGameLoopService(c.NewBroadcastService(), c.NewRecoveryService())
+}
+
+func (c *Container) NewRecoveryService() *service.RecoveryService {
+	return service.NewRecoveryService(c.NewBroadcastService())
 }

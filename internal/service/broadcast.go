@@ -16,13 +16,17 @@ func NewBroadcastService(hub *hub.Hub) *BroadcastService {
 	}
 }
 
+func (s *BroadcastService) PublishToPlayer(player *domain.Player, command *rpc.Command) {
+	s.hub.PublishTo(player.ID, command)
+}
+
 func (s *BroadcastService) BroadcastToMatch(match *domain.Match, command *rpc.Command) error {
 	if match.Team1().Member != nil {
-		s.hub.PublishTo(match.Team1().Member.ID, command)
+		s.PublishToPlayer(match.Team1().Member, command)
 	}
 
 	if match.Team1().Member != nil {
-		s.hub.PublishTo(match.Team2().Member.ID, command)
+		s.PublishToPlayer(match.Team2().Member, command)
 	}
 
 	return nil
