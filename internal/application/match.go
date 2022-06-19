@@ -53,7 +53,7 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 		return
 	}
 
-	app.engine.NewGameLoop(match.ID)
+	app.engine.NewGameLoop(match.ID, func(deltaTime time.Duration) {})
 	app.engine.StartGameLoop(match.ID)
 
 	app.repo.Save(match)

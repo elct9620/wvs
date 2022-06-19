@@ -2,6 +2,7 @@ package engine_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/stretchr/testify/assert"
@@ -22,10 +23,10 @@ func (suite *EngineTestSuite) TearDownTest() {
 }
 
 func (suite *EngineTestSuite) TestNewLoop() {
-	err := suite.engine.NewGameLoop("test")
+	err := suite.engine.NewGameLoop("test", func(delta time.Duration) {})
 	assert.Nil(suite.T(), err)
 
-	err = suite.engine.NewGameLoop("test")
+	err = suite.engine.NewGameLoop("test", func(delta time.Duration) {})
 	assert.Error(suite.T(), err, "loop is created")
 }
 

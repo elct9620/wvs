@@ -9,27 +9,30 @@ import (
 const FPS int = 60
 const TickerDuration time.Duration = time.Millisecond / time.Duration(FPS)
 
+type LoopFunc func(time.Duration)
+
 type Loop struct {
 	sync.Mutex
-	ticker  *time.Ticker
-	running bool
-	exit    chan bool
+	ticker   *time.Ticker
+	loopFunc LoopFunc
+	running  bool
+	exit     chan bool
 }
 
-func newLoop() *Loop {
+func newLoop(loopFunc LoopFunc) *Loop {
 	return &Loop{
-		ticker:  time.NewTicker(TickerDuration),
-		running: false,
-		exit:    make(chan bool),
+		loopFunc: loopFunc,
+		running:  false,
+		exit:     make(chan bool),
 	}
 }
 
-func (e *Engine) NewGameLoop(id string) error {
+func (e *Engine) NewGameLoop(id string, loopFunc LoopFunc) error {
 	if _, ok := e.worker[id]; ok == true {
 		return errors.New("loop is created")
 	}
 
-	e.worker[id] = newLoop()
+	e.worker[id] = newLoop(loopFunc)
 	return nil
 }
 
@@ -45,10 +48,14 @@ func (e *Engine) StartGameLoop(id string) error {
 
 	loop.Lock()
 	loop.running = true
+	loop.ticker = time.NewTicker(TickerDuration)
 	go func() {
+		previousTime := time.Now()
+
 		for {
 			select {
-			case <-loop.ticker.C:
+			case currentTime := <-loop.ticker.C:
+				loop.loopFunc(currentTime.Sub(previousTime))
 				continue
 			case <-e.ctx.Done():
 				return
