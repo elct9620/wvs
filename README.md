@@ -6,8 +6,6 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 ## Requirements
 
 * Golang ~> 1.18.2
-* Node.js ~> 16.0
-* Yarn ~> 1.22
 
 ## Usage
 
@@ -45,9 +43,24 @@ The foundation or utils
 * `internal/infrastructure/hub` - the PubSub manager for WebSocket connection
 * `internal/infrastructure/rpc` - the RPC command manager for WebSocket
 * `internal/infrastructure/store` - the in-memory store
+* `internal/engine` - the game loop handler
 
 ## Domain
 
-> **Note**
->
-> TODO
+### Entity
+
+* `Player` - each WebSocket connection will create a `Player`
+* `Match` - a pair of `Players` in same game
+* `Team` - the team of walrus or slime
+* `Tower` - the aggregate root of `Player`'s `Team`
+* `Monster` - TODO
+
+### Value Object
+
+* `Mana` - the value which `Tower` can be used to spawn `Monster`
+
+### Service
+
+* `BroadcastService` - the service to broadcast command to a `Match`
+* `RecoveryService` - the service to manage the `Mana` recovery
+* `LoopService` - the service to create the game loop
