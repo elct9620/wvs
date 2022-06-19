@@ -14,13 +14,15 @@ type MatchApplication struct {
 	engine    *engine.Engine
 	repo      *repository.MatchRepository
 	broadcast *service.BroadcastService
+	gameLoop  *service.GameLoopService
 }
 
-func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository, broadcast *service.BroadcastService) *MatchApplication {
+func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository, broadcast *service.BroadcastService, gameLoop *service.GameLoopService) *MatchApplication {
 	return &MatchApplication{
 		engine:    engine,
 		repo:      repo,
 		broadcast: broadcast,
+		gameLoop:  gameLoop,
 	}
 }
 
@@ -53,14 +55,11 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 		return
 	}
 
-	app.engine.NewGameLoop(match.ID, app.Update)
+	app.engine.NewGameLoop(match.ID, app.gameLoop.CreateLoop(match))
 	app.engine.StartGameLoop(match.ID)
 
 	app.repo.Save(match)
 
 	command := rpc.NewCommand("match/start", nil)
 	app.broadcast.BroadcastToMatch(match, command)
-}
-
-func (app *MatchApplication) Update(deltaTime time.Duration) {
 }

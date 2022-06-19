@@ -42,3 +42,7 @@ func (c *Container) NewMatchRepository() *repository.MatchRepository {
 func (c *Container) NewBroadcastService() *service.BroadcastService {
 	return service.NewBroadcastService(c.hub)
 }
+
+func (c *Container) NewGameLoopService() *service.GameLoopService {
+	return service.NewGameLoopService(c.NewBroadcastService())
+}
