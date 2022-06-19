@@ -26,15 +26,17 @@ func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository
 	}
 }
 
-func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.TeamType) *domain.Match {
+func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.TeamType) (*domain.Match, bool) {
 	waitings := app.repo.WaitingMatches(teamType)
 
 	var match domain.Match
+	isTeam1 := true
 
 	team := domain.NewTeam(teamType, player)
 	if len(waitings) > 0 {
 		match = *waitings[0]
 		match.Join(&team)
+		isTeam1 = false
 	} else {
 		match = domain.NewMatch(&team)
 	}
@@ -47,7 +49,7 @@ func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.Te
 		}()
 	}
 
-	return &match
+	return &match, isTeam1
 }
 
 func (app *MatchApplication) StartMatch(match *domain.Match) {

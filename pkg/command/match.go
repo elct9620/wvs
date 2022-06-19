@@ -24,9 +24,13 @@ func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Com
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(domain.TeamType)
-	match := c.app.FindMatch(player, team)
+	match, isTeam1 := c.app.FindMatch(player, team)
 
-	return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team1().Type})
+	if isTeam1 {
+		return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team1().Type})
+	}
+
+	return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team2().Type})
 }
 
 func (s *RPCService) SetupMatchService() {
