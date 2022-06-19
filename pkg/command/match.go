@@ -18,19 +18,30 @@ func NewMatchCommand(app *application.MatchApplication) *MatchCommand {
 }
 
 func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Command {
-	player := &domain.Player{ID: remoteID}
 	if command.Parameters == nil {
 		return rpc.NewCommand("error", parameter.ErrorParameter{Reason: "invalid team"})
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(float64)
-	match, isTeam1 := c.app.FindMatch(player, domain.TeamType(team))
+	match, isTeam1 := c.app.FindMatch(remoteID, domain.TeamType(team))
 
 	if isTeam1 {
 		return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team1().Type})
 	}
 
 	return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team2().Type})
+}
+
+func (c *MatchCommand) JoinMatch(remoteID string, command *rpc.Command) *rpc.Command {
+	if command.Parameters == nil {
+		return rpc.NewCommand("error", parameter.ErrorParameter{Reason: "invalid match id"})
+	}
+	parameters := command.Parameters.(map[string]interface{})
+	matchID, _ := parameters["match_id"].(string)
+	if c.app.JoinMatch(matchID, remoteID) {
+		return rpc.NewCommand("match/joined", nil)
+	}
+	return rpc.NewCommand("match/joined", nil)
 }
 
 func (s *RPCService) SetupMatchService() {
@@ -42,4 +53,5 @@ func (s *RPCService) SetupMatchService() {
 	)
 	cmd := NewMatchCommand(app)
 	s.HandleFunc("match/find", cmd.FindMatch)
+	s.HandleFunc("match/join", cmd.JoinMatch)
 }

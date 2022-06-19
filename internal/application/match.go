@@ -26,7 +26,8 @@ func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository
 	}
 }
 
-func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.TeamType) (*domain.Match, bool) {
+func (app *MatchApplication) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool) {
+	player := &domain.Player{ID: playerID}
 	waitings := app.repo.WaitingMatches(teamType)
 
 	var match domain.Match
@@ -62,4 +63,21 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 
 	command := rpc.NewCommand("match/start", nil)
 	app.broadcast.BroadcastToMatch(match, command)
+}
+
+func (app *MatchApplication) JoinMatch(matchID string, playerID string) bool {
+	player := domain.Player{ID: playerID}
+	match := app.repo.Find(matchID)
+	if match == nil {
+		return false
+	}
+
+	match.MarkReady(player.ID)
+	app.repo.Save(match)
+
+	if match.IsReady() {
+		app.engine.StartGameLoop(match.ID)
+	}
+
+	return true
 }

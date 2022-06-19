@@ -51,7 +51,7 @@ func (suite *MatchApplicationTestSuite) newPlayer() (*domain.Player, *hub.Simple
 func (suite *MatchApplicationTestSuite) TestFindMatch() {
 	player := domain.NewPlayer()
 
-	match, isTeam1 := suite.app.FindMatch(&player, domain.TeamWalrus)
+	match, isTeam1 := suite.app.FindMatch(player.ID, domain.TeamWalrus)
 	assert.NotNil(suite.T(), match.ID)
 	assert.Equal(suite.T(), match.Team1().Type, domain.TeamWalrus)
 	assert.True(suite.T(), isTeam1)

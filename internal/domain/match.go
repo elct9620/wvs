@@ -76,13 +76,13 @@ func (m *Match) IsReady() bool {
 	return m.team1.IsReady && m.team2.IsReady
 }
 
-func (m *Match) MarkReady(team *Team) {
-	if m.team1.Equal(team) {
+func (m *Match) MarkReady(id string) {
+	if m.team1.ID() == id {
 		m.team1.ToReady()
 		return
 	}
 
-	if m.team2.Equal(team) {
+	if m.team2.ID() == id {
 		m.team2.ToReady()
 		return
 	}
