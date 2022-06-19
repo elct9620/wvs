@@ -32,7 +32,7 @@ func (suite *LoopTestSuite) TestStartGameLoop() {
 	}
 
 	err = suite.engine.StartGameLoop("test")
-	time.Sleep(2 * engine.TickerDuration)
+	time.Sleep(10 * engine.TickerDuration)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), executed)
 
