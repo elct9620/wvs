@@ -9,14 +9,16 @@ const (
 )
 
 type Team struct {
-	Type   TeamType
-	Member *Player
+	Type    TeamType
+	Member  *Player
+	IsReady bool
 }
 
 func NewTeam(team TeamType, player *Player) Team {
 	return Team{
-		Type:   team,
-		Member: player,
+		Type:    team,
+		Member:  player,
+		IsReady: false,
 	}
 }
 
@@ -25,6 +27,10 @@ func (t *Team) ID() string {
 		return ""
 	}
 	return t.Member.ID
+}
+
+func (t *Team) ToReady() {
+	t.IsReady = true
 }
 
 func (t *Team) IsValid() bool {
@@ -41,4 +47,8 @@ func (t *Team) IsValid() bool {
 	}
 
 	return true
+}
+
+func (t *Team) Equal(other *Team) bool {
+	return t.ID() == other.ID()
 }

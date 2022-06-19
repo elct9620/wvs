@@ -60,7 +60,7 @@ func (m *Match) Join(team2 *Team) {
 	m.team2 = team2
 }
 
-func (m *Match) IsReady() bool {
+func (m *Match) IsMatched() bool {
 	if m.team1 == nil || m.team2 == nil {
 		return false
 	}
@@ -68,8 +68,28 @@ func (m *Match) IsReady() bool {
 	return m.team1.IsValid() && m.team2.IsValid()
 }
 
+func (m *Match) IsReady() bool {
+	if m.team1 == nil || m.team2 == nil {
+		return false
+	}
+
+	return m.team1.IsReady && m.team2.IsReady
+}
+
+func (m *Match) MarkReady(team *Team) {
+	if m.team1.Equal(team) {
+		m.team1.ToReady()
+		return
+	}
+
+	if m.team2.Equal(team) {
+		m.team2.ToReady()
+		return
+	}
+}
+
 func (m *Match) Start() bool {
-	if !m.IsReady() {
+	if !m.IsMatched() {
 		return false
 	}
 

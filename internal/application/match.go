@@ -42,7 +42,7 @@ func (app *MatchApplication) FindMatch(player *domain.Player, teamType domain.Te
 	}
 	app.repo.Save(&match)
 
-	if match.IsReady() {
+	if match.IsMatched() {
 		go func() {
 			time.Sleep(10 * time.Millisecond)
 			app.StartMatch(&match)
@@ -58,8 +58,6 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 	}
 
 	app.engine.NewGameLoop(match.ID, app.gameLoop.CreateLoop(match))
-	app.engine.StartGameLoop(match.ID)
-
 	app.repo.Save(match)
 
 	command := rpc.NewCommand("match/start", nil)

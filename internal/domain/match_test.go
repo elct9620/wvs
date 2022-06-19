@@ -29,11 +29,24 @@ func TestMatch_Join(t *testing.T) {
 	assert.Equal(t, team2, match.Team2())
 }
 
+func TestMatch_IsMatched(t *testing.T) {
+	match := newMatch()
+	assert.False(t, match.IsMatched())
+
+	match.Join(newTeam(domain.TeamWalrus))
+	assert.True(t, match.IsMatched())
+}
+
 func TestMatch_IsReady(t *testing.T) {
 	match := newMatch()
 	assert.False(t, match.IsReady())
 
-	match.Join(newTeam(domain.TeamWalrus))
+	match.Team1().ToReady()
+	assert.False(t, match.IsReady())
+
+	team2 := newTeam(domain.TeamWalrus)
+	match.Join(team2)
+	match.Team2().ToReady()
 	assert.True(t, match.IsReady())
 }
 
