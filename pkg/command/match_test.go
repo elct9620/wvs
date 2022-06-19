@@ -37,6 +37,9 @@ func (suite *MatchCommandTestSuite) TestFindMatch() {
 	suite.service.Process(JSONExecutor{buffer: buffer}, "test", rpc.NewCommand("match/find", map[string]interface{}{"team": domain.TeamWalrus}))
 
 	assert.Contains(suite.T(), string(buffer.Bytes()), `"match/init"`)
+
+	suite.service.Process(JSONExecutor{buffer: buffer}, "test", rpc.NewCommand("match/find", nil))
+	assert.Contains(suite.T(), string(buffer.Bytes()), `"invalid team"`)
 }
 
 func TestMatchCommand(t *testing.T) {

@@ -19,6 +19,9 @@ func NewMatchCommand(app *application.MatchApplication) *MatchCommand {
 
 func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Command {
 	player := &domain.Player{ID: remoteID}
+	if command.Parameters == nil {
+		return rpc.NewCommand("error", parameter.ErrorParameter{Reason: "invalid team"})
+	}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(domain.TeamType)
 	match := c.app.FindMatch(player, team)
