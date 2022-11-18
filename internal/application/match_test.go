@@ -29,7 +29,7 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 
 	container := container.NewContainer(hub, engine, store)
 	suite.engine = container.Engine()
-	suite.hub = container.Hub()
+	suite.hub = hub
 
 	suite.app = application.NewMatchApplication(
 		container.Engine(),

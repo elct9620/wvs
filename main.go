@@ -56,8 +56,8 @@ func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) 
 	return e
 }
 
-func NewController(container *container.Container, service *command.RPCService, playerApp *application.PlayerApplication) *controller.WebSocketController {
-	controller := controller.NewWebSocketController(&service.RPC, container.Hub(), playerApp)
+func NewController(hub *hub.Hub, service *command.RPCService, playerApp *application.PlayerApplication) *controller.WebSocketController {
+	controller := controller.NewWebSocketController(&service.RPC, hub, playerApp)
 
 	return controller
 }

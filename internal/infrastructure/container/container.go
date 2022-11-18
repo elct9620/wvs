@@ -21,10 +21,6 @@ func NewContainer(hub *hub.Hub, engine *engine.Engine, store *store.Store) *Cont
 	}
 }
 
-func (c *Container) Hub() *hub.Hub {
-	return c.hub
-}
-
 func (c *Container) Engine() *engine.Engine {
 	return c.engine
 }

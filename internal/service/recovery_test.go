@@ -27,7 +27,7 @@ func (suite *RecoveryServiceTestSuite) SetupTest() {
 
 	container := container.NewContainer(hub, engine, store)
 
-	suite.hub = container.Hub()
+	suite.hub = hub
 	suite.service = container.NewRecoveryService()
 }
 

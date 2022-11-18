@@ -52,7 +52,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	store := infrastructure.InitStore()
 
 	suite.container = container.NewContainer(hub, engine, store)
-	suite.hub = suite.container.Hub()
+	suite.hub = hub
 
 	playerRepo := repository.NewPlayerRepository(store)
 
