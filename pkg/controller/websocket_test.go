@@ -13,6 +13,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -53,7 +54,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	suite.container = container.NewContainer(hub, engine, store)
 	suite.hub = suite.container.Hub()
 
-	playerRepo := suite.container.NewPlayerRepository()
+	playerRepo := repository.NewPlayerRepository(store)
 
 	testRPC := rpc.NewRPC()
 	player := application.NewPlayerApplication(suite.hub, playerRepo)

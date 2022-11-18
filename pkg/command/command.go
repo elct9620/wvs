@@ -8,17 +8,20 @@ import (
 
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
+	"github.com/elct9620/wvs/internal/repository"
 )
 
 type RPCService struct {
 	rpc.RPC
 	container *container.Container
+	matchRepo *repository.MatchRepository
 }
 
-func NewRPCService(container *container.Container) *RPCService {
+func NewRPCService(container *container.Container, matchRepo *repository.MatchRepository) *RPCService {
 	service := &RPCService{
 		RPC:       *rpc.NewRPC(),
 		container: container,
+		matchRepo: matchRepo,
 	}
 
 	service.setup()

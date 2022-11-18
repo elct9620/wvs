@@ -24,8 +24,11 @@ func main() {
 			NewEngine,
 			NewStore,
 			repository.NewPlayerRepository,
+			repository.NewMatchRepository,
 			application.NewPlayerApplication,
+			application.NewMatchApplication,
 			container.NewContainer,
+			command.NewRPCService,
 			NewController,
 		),
 		fx.Invoke(func(*echo.Echo) {}),
@@ -53,8 +56,7 @@ func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) 
 	return e
 }
 
-func NewController(container *container.Container, playerApp *application.PlayerApplication) *controller.WebSocketController {
-	service := command.NewRPCService(container)
+func NewController(container *container.Container, service *command.RPCService, playerApp *application.PlayerApplication) *controller.WebSocketController {
 	controller := controller.NewWebSocketController(&service.RPC, container.Hub(), playerApp)
 
 	return controller

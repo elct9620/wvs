@@ -10,6 +10,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,7 +33,7 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 
 	suite.app = application.NewMatchApplication(
 		container.Engine(),
-		container.NewMatchRepository(),
+		repository.NewMatchRepository(store),
 		container.NewBroadcastService(),
 		container.NewGameLoopService(),
 	)

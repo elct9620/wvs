@@ -47,7 +47,7 @@ func (c *MatchCommand) JoinMatch(remoteID string, command *rpc.Command) *rpc.Com
 func (s *RPCService) SetupMatchService() {
 	app := application.NewMatchApplication(
 		s.container.Engine(),
-		s.container.NewMatchRepository(),
+		s.matchRepo,
 		s.container.NewBroadcastService(),
 		s.container.NewGameLoopService(),
 	)
