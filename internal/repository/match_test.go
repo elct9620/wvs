@@ -4,7 +4,10 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/engine"
+	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
+	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -16,7 +19,11 @@ type MatchRepositoryTestSuite struct {
 }
 
 func (suite *MatchRepositoryTestSuite) SetupTest() {
-	container := container.NewContainer()
+	hub := hub.NewHub()
+	engine := engine.NewEngine()
+	store := infrastructure.InitStore()
+
+	container := container.NewContainer(hub, engine, store)
 	suite.repo = container.NewMatchRepository()
 }
 

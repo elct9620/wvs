@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/engine"
+	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/service"
@@ -19,7 +21,11 @@ type RecoveryServiceTestSuite struct {
 }
 
 func (suite *RecoveryServiceTestSuite) SetupTest() {
-	container := container.NewContainer()
+	hub := hub.NewHub()
+	engine := engine.NewEngine()
+	store := infrastructure.InitStore()
+
+	container := container.NewContainer(hub, engine, store)
 
 	suite.hub = container.Hub()
 	suite.service = container.NewRecoveryService()

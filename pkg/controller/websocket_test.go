@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/engine"
+	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
@@ -44,7 +46,11 @@ func newContext() echo.Context {
 }
 
 func (suite *WebSocketTestSuite) SetupTest() {
-	suite.container = container.NewContainer()
+	hub := hub.NewHub()
+	engine := engine.NewEngine()
+	store := infrastructure.InitStore()
+
+	suite.container = container.NewContainer(hub, engine, store)
 	suite.hub = suite.container.Hub()
 
 	playerRepo := suite.container.NewPlayerRepository()

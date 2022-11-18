@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/engine"
+	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/repository"
@@ -19,7 +21,11 @@ type PlayerApplicationTestSuite struct {
 }
 
 func (suite *PlayerApplicationTestSuite) SetupTest() {
-	container := container.NewContainer()
+	hub := hub.NewHub()
+	engine := engine.NewEngine()
+	store := infrastructure.InitStore()
+
+	container := container.NewContainer(hub, engine, store)
 	suite.hub = container.Hub()
 
 	suite.playerRepo = container.NewPlayerRepository()
