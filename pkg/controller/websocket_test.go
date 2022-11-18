@@ -9,7 +9,6 @@ import (
 
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/infrastructure"
-	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
@@ -23,7 +22,6 @@ import (
 type WebSocketTestSuite struct {
 	suite.Suite
 	hub        *hub.Hub
-	container  *container.Container
 	controller *controller.WebSocketController
 	server     *httptest.Server
 	ws         *websocket.Conn
@@ -49,7 +47,6 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	hub := hub.NewHub()
 	store := infrastructure.InitStore()
 
-	suite.container = container.NewContainer(hub, store)
 	suite.hub = hub
 
 	playerRepo := repository.NewPlayerRepository(store)

@@ -9,10 +9,10 @@ import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/infrastructure"
-	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/pkg/command"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -37,8 +37,11 @@ func (suite *MatchCommandTestSuite) SetupTest() {
 	store := infrastructure.InitStore()
 	matchRepo := repository.NewMatchRepository(store)
 
-	container := container.NewContainer(hub, store)
-	suite.service = command.NewRPCService(container, engine, matchRepo)
+	broadcastService := service.NewBroadcastService(hub)
+	recoveryService := service.NewRecoveryService(broadcastService)
+	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
+
+	suite.service = command.NewRPCService(engine, matchRepo, broadcastService, gameLoopService)
 }
 
 func (suite *MatchCommandTestSuite) TestFindMatch() {

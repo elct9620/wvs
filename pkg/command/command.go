@@ -7,24 +7,26 @@ import (
 	"regexp"
 
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/service"
 )
 
 type RPCService struct {
 	rpc.RPC
-	container *container.Container
-	engine    *engine.Engine
-	matchRepo *repository.MatchRepository
+	engine           *engine.Engine
+	matchRepo        *repository.MatchRepository
+	broadcastService *service.BroadcastService
+	gameLoopService  *service.GameLoopService
 }
 
-func NewRPCService(container *container.Container, engine *engine.Engine, matchRepo *repository.MatchRepository) *RPCService {
+func NewRPCService(engine *engine.Engine, matchRepo *repository.MatchRepository, broadcastService *service.BroadcastService, gameLoopService *service.GameLoopService) *RPCService {
 	service := &RPCService{
-		RPC:       *rpc.NewRPC(),
-		container: container,
-		engine:    engine,
-		matchRepo: matchRepo,
+		RPC:              *rpc.NewRPC(),
+		engine:           engine,
+		matchRepo:        matchRepo,
+		broadcastService: broadcastService,
+		gameLoopService:  gameLoopService,
 	}
 
 	service.setup()

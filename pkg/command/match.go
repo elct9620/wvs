@@ -48,8 +48,8 @@ func (s *RPCService) SetupMatchService() {
 	app := application.NewMatchApplication(
 		s.engine,
 		s.matchRepo,
-		s.container.NewBroadcastService(),
-		s.container.NewGameLoopService(),
+		s.broadcastService,
+		s.gameLoopService,
 	)
 	cmd := NewMatchCommand(app)
 	s.HandleFunc("match/find", cmd.FindMatch)

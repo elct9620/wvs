@@ -4,10 +4,10 @@ import (
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/infrastructure"
-	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/pkg/command"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/labstack/echo/v4"
@@ -25,9 +25,11 @@ func main() {
 			NewStore,
 			repository.NewPlayerRepository,
 			repository.NewMatchRepository,
+			service.NewBroadcastService,
+			service.NewRecoveryService,
+			service.NewGameLoopService,
 			application.NewPlayerApplication,
 			application.NewMatchApplication,
-			container.NewContainer,
 			command.NewRPCService,
 			NewController,
 		),

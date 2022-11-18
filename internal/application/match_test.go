@@ -8,9 +8,9 @@ import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/infrastructure"
-	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -27,14 +27,17 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 	engine := engine.NewEngine()
 	store := infrastructure.InitStore()
 
-	container := container.NewContainer(hub, store)
+	broadcastService := service.NewBroadcastService(hub)
+	recoveryService := service.NewRecoveryService(broadcastService)
+	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
+
 	suite.hub = hub
 
 	suite.app = application.NewMatchApplication(
 		engine,
 		repository.NewMatchRepository(store),
-		container.NewBroadcastService(),
-		container.NewGameLoopService(),
+		broadcastService,
+		gameLoopService,
 	)
 }
 

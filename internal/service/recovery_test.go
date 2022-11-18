@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/internal/infrastructure"
-	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/stretchr/testify/assert"
@@ -21,12 +19,10 @@ type RecoveryServiceTestSuite struct {
 
 func (suite *RecoveryServiceTestSuite) SetupTest() {
 	hub := hub.NewHub()
-	store := infrastructure.InitStore()
-
-	container := container.NewContainer(hub, store)
+	broadcastService := service.NewBroadcastService(hub)
 
 	suite.hub = hub
-	suite.service = container.NewRecoveryService()
+	suite.service = service.NewRecoveryService(broadcastService)
 }
 
 func (suite *RecoveryServiceTestSuite) TestRecover() {
