@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/internal/infrastructure/store"
+	"github.com/elct9620/wvs/pkg/store"
 )
 
 type PlayerRepository struct {

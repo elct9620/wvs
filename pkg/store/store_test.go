@@ -3,7 +3,7 @@ package store_test
 import (
 	"testing"
 
-	"github.com/elct9620/wvs/internal/infrastructure/store"
+	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
