@@ -7,9 +7,9 @@ import (
 	"regexp"
 
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
+	"github.com/elct9620/wvs/pkg/rpc"
 )
 
 type RPCService struct {

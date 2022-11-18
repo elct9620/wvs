@@ -3,8 +3,8 @@ package command
 import (
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/pkg/command/parameter"
+	"github.com/elct9620/wvs/pkg/rpc"
 )
 
 type MatchCommand struct {

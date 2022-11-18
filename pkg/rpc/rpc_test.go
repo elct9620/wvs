@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/elct9620/wvs/internal/infrastructure/rpc"
+	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
