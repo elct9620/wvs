@@ -27,12 +27,11 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 	engine := engine.NewEngine()
 	store := infrastructure.InitStore()
 
-	container := container.NewContainer(hub, engine, store)
-	suite.engine = container.Engine()
+	container := container.NewContainer(hub, store)
 	suite.hub = hub
 
 	suite.app = application.NewMatchApplication(
-		container.Engine(),
+		engine,
 		repository.NewMatchRepository(store),
 		container.NewBroadcastService(),
 		container.NewGameLoopService(),
@@ -40,7 +39,6 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 }
 
 func (suite *MatchApplicationTestSuite) TearDownTest() {
-	suite.engine.Stop()
 	suite.hub.Stop()
 }
 

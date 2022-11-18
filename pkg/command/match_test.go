@@ -37,8 +37,8 @@ func (suite *MatchCommandTestSuite) SetupTest() {
 	store := infrastructure.InitStore()
 	matchRepo := repository.NewMatchRepository(store)
 
-	container := container.NewContainer(hub, engine, store)
-	suite.service = command.NewRPCService(container, matchRepo)
+	container := container.NewContainer(hub, store)
+	suite.service = command.NewRPCService(container, engine, matchRepo)
 }
 
 func (suite *MatchCommandTestSuite) TestFindMatch() {

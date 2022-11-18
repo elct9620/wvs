@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 
+	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
 	"github.com/elct9620/wvs/internal/repository"
@@ -14,13 +15,15 @@ import (
 type RPCService struct {
 	rpc.RPC
 	container *container.Container
+	engine    *engine.Engine
 	matchRepo *repository.MatchRepository
 }
 
-func NewRPCService(container *container.Container, matchRepo *repository.MatchRepository) *RPCService {
+func NewRPCService(container *container.Container, engine *engine.Engine, matchRepo *repository.MatchRepository) *RPCService {
 	service := &RPCService{
 		RPC:       *rpc.NewRPC(),
 		container: container,
+		engine:    engine,
 		matchRepo: matchRepo,
 	}
 
