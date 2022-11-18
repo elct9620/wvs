@@ -2,7 +2,6 @@ package container
 
 import (
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
@@ -15,11 +14,11 @@ type Container struct {
 	store  *store.Store
 }
 
-func NewContainer() *Container {
+func NewContainer(hub *hub.Hub, engine *engine.Engine, store *store.Store) *Container {
 	return &Container{
-		hub:    hub.NewHub(),
-		engine: engine.NewEngine(),
-		store:  infrastructure.InitStore(),
+		hub:    hub,
+		engine: engine,
+		store:  store,
 	}
 }
 
