@@ -41,13 +41,13 @@ func (suite *PlayerTestSuite) TestRegister() {
 
 func (suite *PlayerTestSuite) TestUnregister() {
 	subscriber := &hub.SimpleSubscriber{}
-	player, err := suite.app.Register(subscriber)
+	playerID, err := suite.app.Register(subscriber)
 	if err != nil {
 		suite.Error(err)
 	}
 
-	suite.app.Unregister(player.ID)
-	res, err := suite.playerRepo.Find(player.ID)
+	suite.app.Unregister(playerID)
+	res, err := suite.playerRepo.Find(playerID)
 	assert.Nil(suite.T(), res)
 	assert.Error(suite.T(), err, "player not exists")
 }
