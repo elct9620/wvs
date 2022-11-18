@@ -1,28 +1,28 @@
-package application_test
+package usecase_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
+	"github.com/elct9620/wvs/internal/usecase"
+	"github.com/elct9620/wvs/pkg/hub"
+	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type MatchApplicationTestSuite struct {
+type MatchTestSuite struct {
 	suite.Suite
 	hub    *hub.Hub
 	engine *engine.Engine
-	app    *application.MatchApplication
+	app    *usecase.Match
 }
 
-func (suite *MatchApplicationTestSuite) SetupTest() {
+func (suite *MatchTestSuite) SetupTest() {
 	hub := hub.NewHub()
 	engine := engine.NewEngine()
 	store := store.NewStore()
@@ -34,7 +34,7 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 
 	suite.hub = hub
 
-	suite.app = application.NewMatchApplication(
+	suite.app = usecase.NewMatch(
 		engine,
 		repository.NewMatchRepository(store),
 		broadcastService,
@@ -42,11 +42,11 @@ func (suite *MatchApplicationTestSuite) SetupTest() {
 	)
 }
 
-func (suite *MatchApplicationTestSuite) TearDownTest() {
+func (suite *MatchTestSuite) TearDownTest() {
 	suite.hub.Stop()
 }
 
-func (suite *MatchApplicationTestSuite) newPlayer() (*domain.Player, *hub.SimplePublisher) {
+func (suite *MatchTestSuite) newPlayer() (*domain.Player, *hub.SimplePublisher) {
 	publisher := &hub.SimplePublisher{}
 	player := domain.NewPlayer()
 
@@ -56,7 +56,7 @@ func (suite *MatchApplicationTestSuite) newPlayer() (*domain.Player, *hub.Simple
 	return &player, publisher
 }
 
-func (suite *MatchApplicationTestSuite) TestFindMatch() {
+func (suite *MatchTestSuite) TestFindMatch() {
 	player := domain.NewPlayer()
 
 	match, isTeam1 := suite.app.FindMatch(player.ID, domain.TeamWalrus)
@@ -65,7 +65,7 @@ func (suite *MatchApplicationTestSuite) TestFindMatch() {
 	assert.True(suite.T(), isTeam1)
 }
 
-func (suite *MatchApplicationTestSuite) TestStartMatch() {
+func (suite *MatchTestSuite) TestStartMatch() {
 	player1, publisher1 := suite.newPlayer()
 	player2, publisher2 := suite.newPlayer()
 
@@ -81,6 +81,6 @@ func (suite *MatchApplicationTestSuite) TestStartMatch() {
 	assert.Contains(suite.T(), publisher2.LastData, `"name":"match/start"`)
 }
 
-func TestMatchApplication(t *testing.T) {
-	suite.Run(t, new(MatchApplicationTestSuite))
+func TestMatch(t *testing.T) {
+	suite.Run(t, new(MatchTestSuite))
 }

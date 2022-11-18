@@ -1,4 +1,4 @@
-package application
+package usecase
 
 import (
 	"time"
@@ -10,15 +10,15 @@ import (
 	"github.com/elct9620/wvs/pkg/rpc"
 )
 
-type MatchApplication struct {
+type Match struct {
 	engine    *engine.Engine
 	repo      *repository.MatchRepository
 	broadcast *service.BroadcastService
 	gameLoop  *service.GameLoopService
 }
 
-func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository, broadcast *service.BroadcastService, gameLoop *service.GameLoopService) *MatchApplication {
-	return &MatchApplication{
+func NewMatch(engine *engine.Engine, repo *repository.MatchRepository, broadcast *service.BroadcastService, gameLoop *service.GameLoopService) *Match {
+	return &Match{
 		engine:    engine,
 		repo:      repo,
 		broadcast: broadcast,
@@ -26,7 +26,7 @@ func NewMatchApplication(engine *engine.Engine, repo *repository.MatchRepository
 	}
 }
 
-func (app *MatchApplication) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool) {
+func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool) {
 	player := &domain.Player{ID: playerID}
 	waitings := app.repo.WaitingMatches(teamType)
 
@@ -53,7 +53,7 @@ func (app *MatchApplication) FindMatch(playerID string, teamType domain.TeamType
 	return &match, isTeam1
 }
 
-func (app *MatchApplication) StartMatch(match *domain.Match) {
+func (app *Match) StartMatch(match *domain.Match) {
 	if !match.Start() {
 		return
 	}
@@ -65,7 +65,7 @@ func (app *MatchApplication) StartMatch(match *domain.Match) {
 	app.broadcast.BroadcastToMatch(match, command)
 }
 
-func (app *MatchApplication) JoinMatch(matchID string, playerID string) bool {
+func (app *Match) JoinMatch(matchID string, playerID string) bool {
 	player := domain.Player{ID: playerID}
 	match := app.repo.Find(matchID)
 	if match == nil {

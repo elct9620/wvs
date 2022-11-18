@@ -1,19 +1,19 @@
 package command
 
 import (
-	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/command/parameter"
 	"github.com/elct9620/wvs/pkg/rpc"
 )
 
 type MatchCommand struct {
-	app *application.MatchApplication
+	usecase *usecase.Match
 }
 
-func NewMatchCommand(app *application.MatchApplication) *MatchCommand {
+func NewMatchCommand(usecase *usecase.Match) *MatchCommand {
 	return &MatchCommand{
-		app: app,
+		usecase: usecase,
 	}
 }
 
@@ -23,7 +23,7 @@ func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Com
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(float64)
-	match, isTeam1 := c.app.FindMatch(remoteID, domain.TeamType(team))
+	match, isTeam1 := c.usecase.FindMatch(remoteID, domain.TeamType(team))
 
 	if isTeam1 {
 		return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team1().Type})
@@ -38,14 +38,14 @@ func (c *MatchCommand) JoinMatch(remoteID string, command *rpc.Command) *rpc.Com
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	matchID, _ := parameters["matchID"].(string)
-	if c.app.JoinMatch(matchID, remoteID) {
+	if c.usecase.JoinMatch(matchID, remoteID) {
 		return rpc.NewCommand("match/joined", nil)
 	}
 	return rpc.NewCommand("match/joined", nil)
 }
 
 func (s *RPCService) SetupMatchService() {
-	app := application.NewMatchApplication(
+	app := usecase.NewMatch(
 		s.engine,
 		s.matchRepo,
 		s.broadcastService,

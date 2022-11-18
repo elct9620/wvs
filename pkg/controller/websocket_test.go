@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/usecase"
+	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/elct9620/wvs/pkg/store"
-	"github.com/elct9620/wvs/internal/repository"
-	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -53,7 +53,7 @@ func (suite *WebSocketTestSuite) SetupTest() {
 	playerRepo := repository.NewPlayerRepository(store)
 
 	testRPC := rpc.NewRPC()
-	player := application.NewPlayerApplication(suite.hub, playerRepo)
+	player := usecase.NewPlayer(suite.hub, playerRepo)
 
 	testRPC.HandleFunc("test", func(id string, c *rpc.Command) *rpc.Command {
 		return rpc.NewCommand("test", nil)

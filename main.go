@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/command"
 	"github.com/elct9620/wvs/pkg/controller"
+	"github.com/elct9620/wvs/pkg/hub"
+	"github.com/elct9620/wvs/pkg/store"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/fx"
@@ -27,8 +27,8 @@ func main() {
 			service.NewBroadcastService,
 			service.NewRecoveryService,
 			service.NewGameLoopService,
-			application.NewPlayerApplication,
-			application.NewMatchApplication,
+			usecase.NewPlayer,
+			usecase.NewMatch,
 			command.NewRPCService,
 			NewController,
 		),
@@ -57,7 +57,7 @@ func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) 
 	return e
 }
 
-func NewController(hub *hub.Hub, service *command.RPCService, playerApp *application.PlayerApplication) *controller.WebSocketController {
+func NewController(hub *hub.Hub, service *command.RPCService, playerApp *usecase.Player) *controller.WebSocketController {
 	controller := controller.NewWebSocketController(&service.RPC, hub, playerApp)
 
 	return controller

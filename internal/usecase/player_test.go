@@ -1,45 +1,45 @@
-package application_test
+package usecase_test
 
 import (
 	"testing"
 
-	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/store"
-	"github.com/elct9620/wvs/internal/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type PlayerApplicationTestSuite struct {
+type PlayerTestSuite struct {
 	suite.Suite
 	hub        *hub.Hub
-	app        *application.PlayerApplication
+	app        *usecase.Player
 	playerRepo *repository.PlayerRepository
 }
 
-func (suite *PlayerApplicationTestSuite) SetupTest() {
+func (suite *PlayerTestSuite) SetupTest() {
 	store := store.NewStore()
 	store.CreateTable("players")
 
 	suite.playerRepo = repository.NewPlayerRepository(store)
 
 	suite.hub = hub.NewHub()
-	suite.app = application.NewPlayerApplication(suite.hub, suite.playerRepo)
+	suite.app = usecase.NewPlayer(suite.hub, suite.playerRepo)
 }
 
-func (suite *PlayerApplicationTestSuite) TearDownTest() {
+func (suite *PlayerTestSuite) TearDownTest() {
 	suite.hub.Stop()
 }
 
-func (suite *PlayerApplicationTestSuite) TestRegister() {
+func (suite *PlayerTestSuite) TestRegister() {
 	publisher := &hub.SimplePublisher{}
 	_, err := suite.app.Register(publisher)
 
 	assert.Nil(suite.T(), err)
 }
 
-func (suite *PlayerApplicationTestSuite) TestUnregister() {
+func (suite *PlayerTestSuite) TestUnregister() {
 	publisher := &hub.SimplePublisher{}
 	player, err := suite.app.Register(publisher)
 	if err != nil {
@@ -52,6 +52,6 @@ func (suite *PlayerApplicationTestSuite) TestUnregister() {
 	assert.Error(suite.T(), err, "player not exists")
 }
 
-func TestPlayerApplication(t *testing.T) {
-	suite.Run(t, new(PlayerApplicationTestSuite))
+func TestPlayer(t *testing.T) {
+	suite.Run(t, new(PlayerTestSuite))
 }

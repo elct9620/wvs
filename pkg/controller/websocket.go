@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/elct9620/wvs/internal/application"
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/gorilla/websocket"
@@ -15,10 +15,10 @@ var (
 type WebSocketController struct {
 	rpc    *rpc.RPC
 	hub    *hub.Hub
-	player *application.PlayerApplication
+	player *usecase.Player
 }
 
-func NewWebSocketController(rpc *rpc.RPC, hub *hub.Hub, player *application.PlayerApplication) *WebSocketController {
+func NewWebSocketController(rpc *rpc.RPC, hub *hub.Hub, player *usecase.Player) *WebSocketController {
 	return &WebSocketController{
 		rpc:    rpc,
 		hub:    hub,

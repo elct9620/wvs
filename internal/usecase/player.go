@@ -1,26 +1,26 @@
-package application
+package usecase
 
 import (
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/command/parameter"
+	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 )
 
-type PlayerApplication struct {
+type Player struct {
 	hub        *hub.Hub
 	playerRepo *repository.PlayerRepository
 }
 
-func NewPlayerApplication(hub *hub.Hub, playerRepo *repository.PlayerRepository) *PlayerApplication {
-	return &PlayerApplication{
+func NewPlayer(hub *hub.Hub, playerRepo *repository.PlayerRepository) *Player {
+	return &Player{
 		hub:        hub,
 		playerRepo: playerRepo,
 	}
 }
 
-func (app *PlayerApplication) Register(conn hub.Publisher) (domain.Player, error) {
+func (app *Player) Register(conn hub.Publisher) (domain.Player, error) {
 	player := domain.NewPlayer()
 	err := app.playerRepo.Insert(player)
 	if err != nil {
@@ -41,7 +41,7 @@ func (app *PlayerApplication) Register(conn hub.Publisher) (domain.Player, error
 	return player, err
 }
 
-func (app *PlayerApplication) Unregister(id string) {
+func (app *Player) Unregister(id string) {
 	app.hub.RemoveChannel(id)
 	app.playerRepo.Delete(id)
 }
