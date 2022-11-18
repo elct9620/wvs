@@ -7,6 +7,7 @@ import (
 	"github.com/elct9620/wvs/internal/infrastructure/container"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/command"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/labstack/echo/v4"
@@ -22,6 +23,8 @@ func main() {
 			NewHub,
 			NewEngine,
 			NewStore,
+			repository.NewPlayerRepository,
+			application.NewPlayerApplication,
 			container.NewContainer,
 			NewController,
 		),
@@ -50,12 +53,9 @@ func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) 
 	return e
 }
 
-func NewController(container *container.Container) *controller.WebSocketController {
-	playerRepo := container.NewPlayerRepository()
-
+func NewController(container *container.Container, playerApp *application.PlayerApplication) *controller.WebSocketController {
 	service := command.NewRPCService(container)
-	player := application.NewPlayerApplication(container.Hub(), playerRepo)
-	controller := controller.NewWebSocketController(&service.RPC, container.Hub(), player)
+	controller := controller.NewWebSocketController(&service.RPC, container.Hub(), playerApp)
 
 	return controller
 }
