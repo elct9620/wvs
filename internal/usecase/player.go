@@ -20,7 +20,7 @@ func NewPlayer(hub *hub.Hub, playerRepo *repository.PlayerRepository) *Player {
 	}
 }
 
-func (app *Player) Register(conn hub.Publisher) (domain.Player, error) {
+func (app *Player) Register(conn hub.Subscriber) (domain.Player, error) {
 	player := domain.NewPlayer()
 	err := app.playerRepo.Insert(player)
 	if err != nil {

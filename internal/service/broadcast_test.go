@@ -5,22 +5,22 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/pkg/command/parameter"
+	"github.com/elct9620/wvs/pkg/hub"
+	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
 type BroadcastServiceTestSuite struct {
 	suite.Suite
-	hub        *hub.Hub
-	service    *service.BroadcastService
-	player1    *domain.Player
-	player2    *domain.Player
-	publisher1 *hub.SimplePublisher
-	publisher2 *hub.SimplePublisher
+	hub         *hub.Hub
+	service     *service.BroadcastService
+	player1     *domain.Player
+	player2     *domain.Player
+	subscriber1 *hub.SimpleSubscriber
+	subscriber2 *hub.SimpleSubscriber
 }
 
 func (suite *BroadcastServiceTestSuite) SetupTest() {
@@ -31,11 +31,11 @@ func (suite *BroadcastServiceTestSuite) SetupTest() {
 	suite.service = service.NewBroadcastService(suite.hub)
 	suite.player1 = &player1
 	suite.player2 = &player2
-	suite.publisher1 = &hub.SimplePublisher{}
-	suite.publisher2 = &hub.SimplePublisher{}
+	suite.subscriber1 = &hub.SimpleSubscriber{}
+	suite.subscriber2 = &hub.SimpleSubscriber{}
 
-	suite.hub.NewChannel(player1.ID, suite.publisher1)
-	suite.hub.NewChannel(player2.ID, suite.publisher2)
+	suite.hub.NewChannel(player1.ID, suite.subscriber1)
+	suite.hub.NewChannel(player2.ID, suite.subscriber2)
 
 	suite.hub.StartChannel(player1.ID)
 	suite.hub.StartChannel(player2.ID)
@@ -49,9 +49,9 @@ func (suite *BroadcastServiceTestSuite) TestPublishToPlayer() {
 	suite.service.PublishToPlayer(suite.player1, rpc.NewCommand("game/recoverMana", parameter.ManaRecoverParameter{Current: 100, Max: 1000}))
 	time.Sleep(10 * time.Millisecond)
 
-	assert.Contains(suite.T(), suite.publisher1.LastData, `"name":"game/recoverMana"`)
-	assert.Contains(suite.T(), suite.publisher1.LastData, `"current":100`)
-	assert.Contains(suite.T(), suite.publisher1.LastData, `"max":1000`)
+	assert.Contains(suite.T(), suite.subscriber1.LastData, `"name":"game/recoverMana"`)
+	assert.Contains(suite.T(), suite.subscriber1.LastData, `"current":100`)
+	assert.Contains(suite.T(), suite.subscriber1.LastData, `"max":1000`)
 }
 
 func (suite *BroadcastServiceTestSuite) TestBroadcastToMatch() {
@@ -64,8 +64,8 @@ func (suite *BroadcastServiceTestSuite) TestBroadcastToMatch() {
 	suite.service.BroadcastToMatch(&match, command)
 	time.Sleep(10 * time.Millisecond)
 
-	assert.Contains(suite.T(), suite.publisher1.LastData, `"name":"match/start"`)
-	assert.Contains(suite.T(), suite.publisher2.LastData, `"name":"match/start"`)
+	assert.Contains(suite.T(), suite.subscriber1.LastData, `"name":"match/start"`)
+	assert.Contains(suite.T(), suite.subscriber2.LastData, `"name":"match/start"`)
 }
 
 func TestBroadcastService(t *testing.T) {

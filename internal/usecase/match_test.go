@@ -46,14 +46,14 @@ func (suite *MatchTestSuite) TearDownTest() {
 	suite.hub.Stop()
 }
 
-func (suite *MatchTestSuite) newPlayer() (*domain.Player, *hub.SimplePublisher) {
-	publisher := &hub.SimplePublisher{}
+func (suite *MatchTestSuite) newPlayer() (*domain.Player, *hub.SimpleSubscriber) {
+	subscriber := &hub.SimpleSubscriber{}
 	player := domain.NewPlayer()
 
-	suite.hub.NewChannel(player.ID, publisher)
+	suite.hub.NewChannel(player.ID, subscriber)
 	suite.hub.StartChannel(player.ID)
 
-	return &player, publisher
+	return &player, subscriber
 }
 
 func (suite *MatchTestSuite) TestFindMatch() {
@@ -66,8 +66,8 @@ func (suite *MatchTestSuite) TestFindMatch() {
 }
 
 func (suite *MatchTestSuite) TestStartMatch() {
-	player1, publisher1 := suite.newPlayer()
-	player2, publisher2 := suite.newPlayer()
+	player1, subscriber1 := suite.newPlayer()
+	player2, subscriber2 := suite.newPlayer()
 
 	team1 := domain.NewTeam(domain.TeamSlime, player1)
 	team2 := domain.NewTeam(domain.TeamWalrus, player2)
@@ -77,8 +77,8 @@ func (suite *MatchTestSuite) TestStartMatch() {
 	time.Sleep(10 * time.Millisecond)
 
 	assert.Equal(suite.T(), match.State(), domain.MatchStarted)
-	assert.Contains(suite.T(), publisher1.LastData, `"name":"match/start"`)
-	assert.Contains(suite.T(), publisher2.LastData, `"name":"match/start"`)
+	assert.Contains(suite.T(), subscriber1.LastData, `"name":"match/start"`)
+	assert.Contains(suite.T(), subscriber2.LastData, `"name":"match/start"`)
 }
 
 func TestMatch(t *testing.T) {

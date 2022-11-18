@@ -33,15 +33,15 @@ func (suite *PlayerTestSuite) TearDownTest() {
 }
 
 func (suite *PlayerTestSuite) TestRegister() {
-	publisher := &hub.SimplePublisher{}
-	_, err := suite.app.Register(publisher)
+	subscriber := &hub.SimpleSubscriber{}
+	_, err := suite.app.Register(subscriber)
 
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *PlayerTestSuite) TestUnregister() {
-	publisher := &hub.SimplePublisher{}
-	player, err := suite.app.Register(publisher)
+	subscriber := &hub.SimpleSubscriber{}
+	player, err := suite.app.Register(subscriber)
 	if err != nil {
 		suite.Error(err)
 	}

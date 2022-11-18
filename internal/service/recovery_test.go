@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/internal/service"
+	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -28,15 +28,15 @@ func (suite *RecoveryServiceTestSuite) SetupTest() {
 func (suite *RecoveryServiceTestSuite) TestRecover() {
 	tower := domain.NewTower()
 	player := domain.NewPlayer()
-	publisher := &hub.SimplePublisher{}
+	subscriber := &hub.SimpleSubscriber{}
 
-	suite.hub.NewChannel(player.ID, publisher)
+	suite.hub.NewChannel(player.ID, subscriber)
 	suite.hub.StartChannel(player.ID)
 
 	suite.service.Recover(&player, &tower)
 	time.Sleep(10 * time.Millisecond)
 
-	assert.Contains(suite.T(), publisher.LastData, `"name":"game/recoverMana"`)
+	assert.Contains(suite.T(), subscriber.LastData, `"name":"game/recoverMana"`)
 }
 
 func TestRecoveryService(t *testing.T) {

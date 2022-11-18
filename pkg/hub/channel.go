@@ -1,28 +1,47 @@
 package hub
 
 import (
+	"encoding/json"
 	"errors"
 	"sync"
 )
 
-type channel struct {
-	sync.Mutex
-	publisher Publisher
-	messages  chan interface{}
-	running   bool
-	exit      chan bool
+type Subscriber interface {
+	WriteJSON(interface{}) error
 }
 
-func (hub *Hub) NewChannel(id string, publisher Publisher) error {
+type SimpleSubscriber struct {
+	LastData string
+}
+
+func (p *SimpleSubscriber) WriteJSON(v interface{}) error {
+	data, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	p.LastData = string(data)
+	return nil
+}
+
+type channel struct {
+	sync.Mutex
+	subscriber Subscriber
+	messages   chan interface{}
+	running    bool
+	exit       chan bool
+}
+
+func (hub *Hub) NewChannel(id string, subscriber Subscriber) error {
 	if _, ok := hub.channels[id]; ok == true {
 		return errors.New("channel is exists")
 	}
 
 	hub.channels[id] = &channel{
-		publisher: publisher,
-		messages:  make(chan interface{}, 100),
-		running:   false,
-		exit:      make(chan bool),
+		subscriber: subscriber,
+		messages:   make(chan interface{}, 100),
+		running:    false,
+		exit:       make(chan bool),
 	}
 
 	return nil
@@ -44,10 +63,10 @@ func (hub *Hub) StartChannel(id string) error {
 		for {
 			select {
 			case msg := <-channel.messages:
-				if channel.publisher == nil {
+				if channel.subscriber == nil {
 					return
 				}
-				channel.publisher.WriteJSON(msg)
+				channel.subscriber.WriteJSON(msg)
 			case <-hub.ctx.Done():
 				return
 			case <-channel.exit:
