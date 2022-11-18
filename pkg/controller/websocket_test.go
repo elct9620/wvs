@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/application"
-	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/gorilla/websocket"
@@ -45,7 +45,8 @@ func newContext() echo.Context {
 
 func (suite *WebSocketTestSuite) SetupTest() {
 	hub := hub.NewHub()
-	store := infrastructure.InitStore()
+	store := store.NewStore()
+	store.CreateTable("players")
 
 	suite.hub = hub
 

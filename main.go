@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/elct9620/wvs/internal/application"
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
@@ -78,7 +77,12 @@ func NewHub(lc fx.Lifecycle) *hub.Hub {
 }
 
 func NewStore() *store.Store {
-	return infrastructure.InitStore()
+	store := store.NewStore()
+
+	store.CreateTable("players")
+	store.CreateTable("matches")
+
+	return store
 }
 
 func NewEngine(lc fx.Lifecycle) *engine.Engine {

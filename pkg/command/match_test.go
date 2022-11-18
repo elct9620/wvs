@@ -8,9 +8,9 @@ import (
 
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/internal/infrastructure"
 	"github.com/elct9620/wvs/internal/infrastructure/hub"
 	"github.com/elct9620/wvs/internal/infrastructure/rpc"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/pkg/command"
@@ -34,7 +34,9 @@ type MatchCommandTestSuite struct {
 func (suite *MatchCommandTestSuite) SetupTest() {
 	hub := hub.NewHub()
 	engine := engine.NewEngine()
-	store := infrastructure.InitStore()
+	store := store.NewStore()
+	store.CreateTable("matches")
+
 	matchRepo := repository.NewMatchRepository(store)
 
 	broadcastService := service.NewBroadcastService(hub)

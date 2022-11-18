@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/internal/infrastructure"
+	"github.com/elct9620/wvs/internal/infrastructure/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -16,7 +16,9 @@ type PlayerRepositoryTestSuite struct {
 }
 
 func (suite *PlayerRepositoryTestSuite) SetupTest() {
-	store := infrastructure.InitStore()
+	store := store.NewStore()
+	store.CreateTable("players")
+
 	suite.repo = repository.NewPlayerRepository(store)
 }
 
