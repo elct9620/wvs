@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/elct9620/wvs/internal/application"
-	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/internal/infrastructure/hub"
+	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/pkg/command/parameter"
