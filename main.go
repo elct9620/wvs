@@ -38,9 +38,7 @@ func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) 
 	lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				go func() {
-					e.Logger.Fatal(e.Start(":8080"))
-				}()
+				go e.Start(":8080")
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
