@@ -73,6 +73,7 @@ func (rpc *RPC) Serve(c echo.Context) error {
 
 	defer func() {
 		rpc.hub.StopChannel(sessionID)
+		rpc.hub.RemoveChannel(sessionID)
 		session.Close()
 	}()
 

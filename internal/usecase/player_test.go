@@ -5,7 +5,6 @@ import (
 
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -13,7 +12,6 @@ import (
 
 type PlayerTestSuite struct {
 	suite.Suite
-	hub        *hub.Hub
 	app        *usecase.Player
 	playerRepo *repository.PlayerRepository
 }
@@ -23,13 +21,7 @@ func (suite *PlayerTestSuite) SetupTest() {
 	store.CreateTable("players")
 
 	suite.playerRepo = repository.NewPlayerRepository(store)
-
-	suite.hub = hub.NewHub()
-	suite.app = usecase.NewPlayer(suite.hub, suite.playerRepo)
-}
-
-func (suite *PlayerTestSuite) TearDownTest() {
-	suite.hub.Stop()
+	suite.app = usecase.NewPlayer(suite.playerRepo)
 }
 
 func (suite *PlayerTestSuite) TestRegister() {
