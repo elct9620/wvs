@@ -13,6 +13,17 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+type PingCommand struct {
+}
+
+func (*PingCommand) Name() string {
+	return "ping"
+}
+
+func (*PingCommand) Execute(sessionID uuid.UUID, command *rpc.Command) *rpc.Command {
+	return rpc.NewCommand("pong", nil)
+}
+
 type IOSession struct {
 	io io.Writer
 }
@@ -45,23 +56,24 @@ type RPCTestSuite struct {
 
 func (suite *RPCTestSuite) SetupTest() {
 	hub := hub.NewHub()
-	suite.rpc = rpc.NewRPC(hub)
+	rpc := rpc.NewRPC(hub)
+
+	rpc.Handle(new(PingCommand))
+
+	suite.rpc = rpc
 }
 
-func (suite *RPCTestSuite) TestHandlerFunc() {
+func (suite *RPCTestSuite) TestProcess() {
 	buffer := new(bytes.Buffer)
 	session := IOSession{io: buffer}
 	command := rpc.NewCommand("match/init", nil)
 	err := suite.rpc.Process(session, command)
 	assert.Error(suite.T(), err, "unknown command")
 
-	suite.rpc.HandleFunc("match/init", func(id uuid.UUID, command *rpc.Command) *rpc.Command {
-		return rpc.NewCommand("match/ready", nil)
-	})
-
+	command = rpc.NewCommand("ping", nil)
 	err = suite.rpc.Process(session, command)
 	assert.Nil(suite.T(), err)
-	assert.Contains(suite.T(), string(buffer.Bytes()), `"name":"match/ready"`)
+	assert.Contains(suite.T(), string(buffer.Bytes()), `"name":"pong"`)
 }
 
 func TestRPC(t *testing.T) {

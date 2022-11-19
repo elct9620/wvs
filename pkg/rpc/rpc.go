@@ -31,18 +31,16 @@ func (h *EventSubscriber) WriteJSON(data interface{}) error {
 
 type RPC struct {
 	hub      *hub.Hub
+	sessions map[uuid.UUID]Session
 	commands map[string]HandlerFunc
 }
 
 func NewRPC(hub *hub.Hub) *RPC {
 	return &RPC{
 		hub:      hub,
+		sessions: make(map[uuid.UUID]Session),
 		commands: make(map[string]HandlerFunc),
 	}
-}
-
-func (rpc *RPC) HandleFunc(command string, handler HandlerFunc) {
-	rpc.commands[command] = handler
 }
 
 func (rpc *RPC) Handle(handler CommandHandler) {
@@ -71,10 +69,13 @@ func (rpc *RPC) Serve(c echo.Context) error {
 	rpc.hub.NewChannel(sessionID, &subscriber)
 	go rpc.hub.StartChannel(sessionID)
 
+	rpc.attachSession(session)
+
 	defer func() {
 		rpc.hub.StopChannel(sessionID)
 		rpc.hub.RemoveChannel(sessionID)
 		session.Close()
+		rpc.detachSession(session)
 	}()
 
 	for {
@@ -94,4 +95,12 @@ func (rpc *RPC) Serve(c echo.Context) error {
 	}
 
 	return nil
+}
+
+func (rpc *RPC) attachSession(session Session) {
+	rpc.sessions[session.ID()] = session
+}
+
+func (rpc *RPC) detachSession(session Session) {
+	delete(rpc.sessions, session.ID())
 }
