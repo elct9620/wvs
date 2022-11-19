@@ -32,11 +32,12 @@ func main() {
 			service.NewGameLoopService,
 			usecase.NewPlayer,
 			usecase.NewMatch,
+			AsRPCHandler(command.NewLoginCommand),
 			AsRPCHandler(command.NewFindMatchCommand),
 			AsRPCHandler(command.NewJoinMatchCommand),
 			fx.Annotate(
 				NewRPC,
-				fx.ParamTags(`group:"handlers"`),
+				fx.ParamTags("hub", `group:"handlers"`),
 			),
 			NewHTTPServer,
 		),
@@ -70,8 +71,8 @@ func NewHTTPServer(lc fx.Lifecycle, rpc *rpc.RPC) *server.Server {
 	return server
 }
 
-func NewRPC(handlers []rpc.CommandHandler) *rpc.RPC {
-	rpc := rpc.NewRPC()
+func NewRPC(hub *hub.Hub, handlers []rpc.CommandHandler) *rpc.RPC {
+	rpc := rpc.NewRPC(hub)
 
 	for _, handler := range handlers {
 		rpc.Handle(handler)

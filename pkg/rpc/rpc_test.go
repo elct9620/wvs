@@ -6,6 +6,7 @@ import (
 	"io"
 	"testing"
 
+	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -43,7 +44,8 @@ type RPCTestSuite struct {
 }
 
 func (suite *RPCTestSuite) SetupTest() {
-	suite.rpc = rpc.NewRPC()
+	hub := hub.NewHub()
+	suite.rpc = rpc.NewRPC(hub)
 }
 
 func (suite *RPCTestSuite) TestHandlerFunc() {

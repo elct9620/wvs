@@ -51,6 +51,7 @@
           const protocol = location.protocol.replace('http', 'ws')
           this.socket = new WebSocket(`${protocol}//${location.host}/ws`)
           this.socket.onmessage = this.onCommandReceive
+          this.socket.onopen = () => { this.executeCommand("login") }
         },
         onCommandReceive(evt) {
           const cmd = JSON.parse(evt.data)

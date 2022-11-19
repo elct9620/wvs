@@ -34,5 +34,5 @@ func (cmd *FindMatchCommand) Execute(sessionID uuid.UUID, command *rpc.Command) 
 		return rpc.NewCommand("match/init", result.MatchInit{ID: match.ID, Team: match.Team1().Type})
 	}
 
-	return rpc.NewCommand("match/init", nil)
+	return rpc.NewCommand("match/init", result.MatchInit{ID: match.ID, Team: match.Team2().Type})
 }
