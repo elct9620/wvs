@@ -1,6 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
@@ -96,4 +101,26 @@ func NewEngine(lc fx.Lifecycle) *engine.Engine {
 	})
 
 	return engine
+}
+
+func NewEventRouter(lc fx.Lifecycle) *message.Router {
+	router, err := message.NewRouter(
+		message.RouterConfig{},
+		watermill.NewStdLogger(false, false),
+	)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "unable to start event router: %s", err)
+		return nil
+	}
+
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			return router.Run(ctx)
+		},
+		OnStop: func(ctx context.Context) error {
+			return router.Close()
+		},
+	})
+
+	return router
 }
