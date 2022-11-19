@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/elct9620/wvs/pkg/command/parameter"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/gorilla/websocket"
@@ -51,20 +50,7 @@ func (ctrl *WebSocketController) Server(c echo.Context) error {
 		return err
 	}
 
-	err = ctrl.hub.NewChannel(playerID, ws)
-	if err != nil {
-		return err
-	}
-
-	err = ctrl.hub.StartChannel(playerID)
-	if err != nil {
-		return err
-	}
-
-	err = ctrl.hub.PublishTo(playerID, rpc.NewCommand("connected", parameter.ConnectedParameter{ID: playerID}))
-
 	defer func() {
-		ctrl.hub.RemoveChannel(playerID)
 		ctrl.player.Unregister(playerID)
 		ws.Close()
 	}()
