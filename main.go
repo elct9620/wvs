@@ -8,14 +8,13 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/server"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/command"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/elct9620/wvs/pkg/store"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/fx"
 	"golang.org/x/net/context"
 )
@@ -37,29 +36,26 @@ func main() {
 			usecase.NewMatch,
 			command.NewRPCService,
 		),
-		fx.Invoke(func(*echo.Echo) {}),
+		fx.Invoke(func(*server.Server) {}),
 	).Run()
 }
 
-func NewHTTPServer(lc fx.Lifecycle, rpc *rpc.RPC) *echo.Echo {
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Static("static"))
-	e.GET("/ws", rpc.Serve)
+func NewHTTPServer(lc fx.Lifecycle, rpc *rpc.RPC) *server.Server {
+	server := server.NewServer(rpc)
 
 	lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				go e.Start(":8080")
+				go server.Start()
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				return e.Shutdown(ctx)
+				return server.Shutdown(ctx)
 			},
 		},
 	)
 
-	return e
+	return server
 }
 
 func NewHub(lc fx.Lifecycle) *hub.Hub {
