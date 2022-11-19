@@ -3,7 +3,6 @@ module github.com/elct9620/wvs
 go 1.18
 
 require (
-	github.com/ThreeDotsLabs/watermill v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/labstack/echo/v4 v4.9.0
@@ -16,11 +15,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
-	github.com/lithammer/shortuuid/v3 v3.0.4 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/oklog/ulid v1.3.1 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
