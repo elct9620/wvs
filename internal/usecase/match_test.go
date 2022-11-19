@@ -46,9 +46,9 @@ func (suite *MatchTestSuite) TearDownTest() {
 	suite.hub.Stop()
 }
 
-func (suite *MatchTestSuite) newPlayer() (*domain.Player, *hub.SimpleSubscriber) {
+func (suite *MatchTestSuite) newPlayer(id string) (*domain.Player, *hub.SimpleSubscriber) {
 	subscriber := &hub.SimpleSubscriber{}
-	player := domain.NewPlayer()
+	player := domain.NewPlayer(id)
 
 	suite.hub.NewChannel(player.ID, subscriber)
 	suite.hub.StartChannel(player.ID)
@@ -57,7 +57,7 @@ func (suite *MatchTestSuite) newPlayer() (*domain.Player, *hub.SimpleSubscriber)
 }
 
 func (suite *MatchTestSuite) TestFindMatch() {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 
 	match, isTeam1 := suite.app.FindMatch(player.ID, domain.TeamWalrus)
 	assert.NotNil(suite.T(), match.ID)
@@ -66,8 +66,8 @@ func (suite *MatchTestSuite) TestFindMatch() {
 }
 
 func (suite *MatchTestSuite) TestStartMatch() {
-	player1, subscriber1 := suite.newPlayer()
-	player2, subscriber2 := suite.newPlayer()
+	player1, subscriber1 := suite.newPlayer("P1")
+	player2, subscriber2 := suite.newPlayer("P2")
 
 	team1 := domain.NewTeam(domain.TeamSlime, player1)
 	team2 := domain.NewTeam(domain.TeamWalrus, player2)

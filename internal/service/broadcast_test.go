@@ -24,8 +24,8 @@ type BroadcastServiceTestSuite struct {
 }
 
 func (suite *BroadcastServiceTestSuite) SetupTest() {
-	player1 := domain.NewPlayer()
-	player2 := domain.NewPlayer()
+	player1 := domain.NewPlayer("P1")
+	player2 := domain.NewPlayer("P2")
 
 	suite.hub = hub.NewHub()
 	suite.service = service.NewBroadcastService(suite.hub)

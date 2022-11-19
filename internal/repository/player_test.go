@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -23,7 +23,7 @@ func (suite *PlayerRepositoryTestSuite) SetupTest() {
 }
 
 func (suite *PlayerRepositoryTestSuite) TestFind() {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 
 	_, err := suite.repo.Find(player.ID)
 	assert.Error(suite.T(), err, "player not exists")
@@ -40,7 +40,7 @@ func (suite *PlayerRepositoryTestSuite) TestFind() {
 }
 
 func (suite *PlayerRepositoryTestSuite) TestInsert() {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	defer suite.repo.Delete(player.ID)
 
 	err := suite.repo.Insert(player)
@@ -51,7 +51,7 @@ func (suite *PlayerRepositoryTestSuite) TestInsert() {
 }
 
 func (suite *PlayerRepositoryTestSuite) TestDelete() {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	err := suite.repo.Insert(player)
 	if err != nil {
 		suite.Error(err)

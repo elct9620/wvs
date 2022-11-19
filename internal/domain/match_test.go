@@ -8,7 +8,7 @@ import (
 )
 
 func newTeam(teamType domain.TeamType) *domain.Team {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	team := domain.NewTeam(teamType, &player)
 	return &team
 }

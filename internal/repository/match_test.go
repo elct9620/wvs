@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -23,7 +23,7 @@ func (suite *MatchRepositoryTestSuite) SetupTest() {
 }
 
 func (suite *MatchRepositoryTestSuite) TestWaitingMatches() {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	team := domain.NewTeam(domain.TeamWalrus, &player)
 	match := domain.NewMatch(&team)
 	suite.repo.Save(&match)
@@ -37,7 +37,7 @@ func (suite *MatchRepositoryTestSuite) TestWaitingMatches() {
 }
 
 func (suite *MatchRepositoryTestSuite) TestSave() {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	team := domain.NewTeam(domain.TeamWalrus, &player)
 	match := domain.NewMatch(&team)
 	suite.repo.Save(&match)

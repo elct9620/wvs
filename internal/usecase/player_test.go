@@ -33,21 +33,19 @@ func (suite *PlayerTestSuite) TearDownTest() {
 }
 
 func (suite *PlayerTestSuite) TestRegister() {
-	subscriber := &hub.SimpleSubscriber{}
-	_, err := suite.app.Register(subscriber)
+	err := suite.app.Register("P1")
 
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *PlayerTestSuite) TestUnregister() {
-	subscriber := &hub.SimpleSubscriber{}
-	playerID, err := suite.app.Register(subscriber)
+	err := suite.app.Register("P1")
 	if err != nil {
 		suite.Error(err)
 	}
 
-	suite.app.Unregister(playerID)
-	res, err := suite.playerRepo.Find(playerID)
+	suite.app.Unregister("P1")
+	res, err := suite.playerRepo.Find("P1")
 	assert.Nil(suite.T(), res)
 	assert.Error(suite.T(), err, "player not exists")
 }

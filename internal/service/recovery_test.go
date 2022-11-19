@@ -27,7 +27,7 @@ func (suite *RecoveryServiceTestSuite) SetupTest() {
 
 func (suite *RecoveryServiceTestSuite) TestRecover() {
 	tower := domain.NewTower()
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	subscriber := &hub.SimpleSubscriber{}
 
 	suite.hub.NewChannel(player.ID, subscriber)

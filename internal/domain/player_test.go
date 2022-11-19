@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewPlayer(t *testing.T) {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 
 	assert.NotEmpty(t, player.ID)
 }

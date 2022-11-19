@@ -8,7 +8,7 @@ import (
 )
 
 func TestTeam_IsValid(t *testing.T) {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 
 	team := domain.NewTeam(domain.TeamUnknown, &player)
 	assert.False(t, team.IsValid())
@@ -22,7 +22,7 @@ func TestTeam_IsValid(t *testing.T) {
 }
 
 func TestTeam_ToReady(t *testing.T) {
-	player := domain.NewPlayer()
+	player := domain.NewPlayer("P1")
 	team := domain.NewTeam(domain.TeamSlime, &player)
 	assert.False(t, team.IsReady)
 
