@@ -3,7 +3,7 @@ package usecase
 import (
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/repository"
-	"github.com/elct9620/wvs/pkg/command/parameter"
+	"github.com/elct9620/wvs/internal/server/result"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 )
@@ -37,7 +37,7 @@ func (app *Player) Register(conn hub.Subscriber) (string, error) {
 		return player.ID, err
 	}
 
-	err = app.hub.PublishTo(player.ID, rpc.NewCommand("connected", parameter.ConnectedParameter{ID: player.ID}))
+	err = app.hub.PublishTo(player.ID, rpc.NewCommand("connected", result.Connected{ID: player.ID}))
 	if err != nil {
 		return player.ID, err
 	}

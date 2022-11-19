@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/command/parameter"
+	"github.com/elct9620/wvs/internal/server/result"
 	"github.com/elct9620/wvs/pkg/rpc"
 )
 
@@ -26,7 +26,7 @@ func (s *RecoveryService) Recover(player *domain.Player, tower *domain.Tower) {
 			player,
 			rpc.NewCommand(
 				"game/recoverMana",
-				parameter.ManaRecoverParameter{Current: tower.Mana.Current, Max: tower.Mana.Max},
+				result.ManaRecover{Current: tower.Mana.Current, Max: tower.Mana.Max},
 			),
 		)
 	}

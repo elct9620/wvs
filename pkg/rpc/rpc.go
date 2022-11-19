@@ -14,8 +14,9 @@ var (
 
 type HandlerFunc func(remoteID uuid.UUID, command *Command) *Command
 
-type CommandExecutor interface {
-	Write(command *Command) error
+type CommandHandler interface {
+	Name() string
+	Execute(sessionID uuid.UUID, command *Command) *Command
 }
 
 type RPC struct {
@@ -30,6 +31,10 @@ func NewRPC() *RPC {
 
 func (rpc *RPC) HandleFunc(command string, handler HandlerFunc) {
 	rpc.commands[command] = handler
+}
+
+func (rpc *RPC) Handle(handler CommandHandler) {
+	rpc.commands[handler.Name()] = handler.Execute
 }
 
 func (rpc *RPC) Process(session Session, command *Command) error {

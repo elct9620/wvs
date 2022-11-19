@@ -9,9 +9,9 @@ import (
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/server"
+	"github.com/elct9620/wvs/internal/server/command"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/elct9620/wvs/pkg/command"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/elct9620/wvs/pkg/store"
@@ -22,8 +22,6 @@ import (
 func main() {
 	fx.New(
 		fx.Provide(
-			rpc.NewRPC,
-			NewHTTPServer,
 			NewHub,
 			NewEngine,
 			NewStore,
@@ -34,10 +32,24 @@ func main() {
 			service.NewGameLoopService,
 			usecase.NewPlayer,
 			usecase.NewMatch,
-			command.NewRPCService,
+			AsRPCHandler(command.NewFindMatchCommand),
+			AsRPCHandler(command.NewJoinMatchCommand),
+			fx.Annotate(
+				NewRPC,
+				fx.ParamTags(`group:"handlers"`),
+			),
+			NewHTTPServer,
 		),
 		fx.Invoke(func(*server.Server) {}),
 	).Run()
+}
+
+func AsRPCHandler(handler any) any {
+	return fx.Annotate(
+		handler,
+		fx.As(new(rpc.CommandHandler)),
+		fx.ResultTags(`group:"handlers"`),
+	)
 }
 
 func NewHTTPServer(lc fx.Lifecycle, rpc *rpc.RPC) *server.Server {
@@ -56,6 +68,16 @@ func NewHTTPServer(lc fx.Lifecycle, rpc *rpc.RPC) *server.Server {
 	)
 
 	return server
+}
+
+func NewRPC(handlers []rpc.CommandHandler) *rpc.RPC {
+	rpc := rpc.NewRPC()
+
+	for _, handler := range handlers {
+		rpc.Handle(handler)
+	}
+
+	return rpc
 }
 
 func NewHub(lc fx.Lifecycle) *hub.Hub {

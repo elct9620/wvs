@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/server/result"
 	"github.com/elct9620/wvs/internal/service"
-	"github.com/elct9620/wvs/pkg/command/parameter"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/stretchr/testify/assert"
@@ -46,7 +46,7 @@ func (suite *BroadcastServiceTestSuite) TearDownTest() {
 }
 
 func (suite *BroadcastServiceTestSuite) TestPublishToPlayer() {
-	suite.service.PublishToPlayer(suite.player1, rpc.NewCommand("game/recoverMana", parameter.ManaRecoverParameter{Current: 100, Max: 1000}))
+	suite.service.PublishToPlayer(suite.player1, rpc.NewCommand("game/recoverMana", result.ManaRecover{Current: 100, Max: 1000}))
 	time.Sleep(10 * time.Millisecond)
 
 	assert.Contains(suite.T(), suite.subscriber1.LastData, `"name":"game/recoverMana"`)
