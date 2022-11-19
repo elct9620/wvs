@@ -11,8 +11,8 @@ import (
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/command"
-	"github.com/elct9620/wvs/pkg/controller"
 	"github.com/elct9620/wvs/pkg/hub"
+	"github.com/elct9620/wvs/pkg/rpc"
 	"github.com/elct9620/wvs/pkg/store"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,6 +23,7 @@ import (
 func main() {
 	fx.New(
 		fx.Provide(
+			rpc.NewRPC,
 			NewHTTPServer,
 			NewHub,
 			NewEngine,
@@ -35,17 +36,16 @@ func main() {
 			usecase.NewPlayer,
 			usecase.NewMatch,
 			command.NewRPCService,
-			NewController,
 		),
 		fx.Invoke(func(*echo.Echo) {}),
 	).Run()
 }
 
-func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) *echo.Echo {
+func NewHTTPServer(lc fx.Lifecycle, rpc *rpc.RPC) *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Static("static"))
-	e.GET("/ws", controller.Server)
+	e.GET("/ws", rpc.Serve)
 
 	lc.Append(
 		fx.Hook{
@@ -60,12 +60,6 @@ func NewHTTPServer(lc fx.Lifecycle, controller *controller.WebSocketController) 
 	)
 
 	return e
-}
-
-func NewController(hub *hub.Hub, service *command.RPCService, playerApp *usecase.Player) *controller.WebSocketController {
-	controller := controller.NewWebSocketController(&service.RPC, hub, playerApp)
-
-	return controller
 }
 
 func NewHub(lc fx.Lifecycle) *hub.Hub {

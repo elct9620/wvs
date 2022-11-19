@@ -5,6 +5,7 @@ import (
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/command/parameter"
 	"github.com/elct9620/wvs/pkg/rpc"
+	"github.com/google/uuid"
 )
 
 type MatchCommand struct {
@@ -17,13 +18,13 @@ func NewMatchCommand(usecase *usecase.Match) *MatchCommand {
 	}
 }
 
-func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Command {
+func (c *MatchCommand) FindMatch(remoteID uuid.UUID, command *rpc.Command) *rpc.Command {
 	if command.Parameters == nil {
 		return rpc.NewCommand("error", parameter.ErrorParameter{Reason: "invalid team"})
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(float64)
-	match, isTeam1 := c.usecase.FindMatch(remoteID, domain.TeamType(team))
+	match, isTeam1 := c.usecase.FindMatch(remoteID.String(), domain.TeamType(team))
 
 	if isTeam1 {
 		return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team1().Type})
@@ -32,13 +33,13 @@ func (c *MatchCommand) FindMatch(remoteID string, command *rpc.Command) *rpc.Com
 	return rpc.NewCommand("match/init", parameter.MatchInitParameter{ID: match.ID, Team: match.Team2().Type})
 }
 
-func (c *MatchCommand) JoinMatch(remoteID string, command *rpc.Command) *rpc.Command {
+func (c *MatchCommand) JoinMatch(remoteID uuid.UUID, command *rpc.Command) *rpc.Command {
 	if command.Parameters == nil {
 		return rpc.NewCommand("error", parameter.ErrorParameter{Reason: "invalid match id"})
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	matchID, _ := parameters["matchID"].(string)
-	if c.usecase.JoinMatch(matchID, remoteID) {
+	if c.usecase.JoinMatch(matchID, remoteID.String()) {
 		return rpc.NewCommand("match/joined", nil)
 	}
 	return rpc.NewCommand("match/joined", nil)

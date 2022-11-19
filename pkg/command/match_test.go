@@ -8,22 +8,40 @@ import (
 
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
-	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/elct9620/wvs/pkg/rpc"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/pkg/command"
+	"github.com/elct9620/wvs/pkg/hub"
+	"github.com/elct9620/wvs/pkg/rpc"
+	"github.com/elct9620/wvs/pkg/store"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type JSONExecutor struct {
-	buffer io.Writer
+type IOSession struct {
+	io io.Writer
 }
 
-func (e JSONExecutor) Write(command *rpc.Command) error {
-	return json.NewEncoder(e.buffer).Encode(command)
+func (e IOSession) ID() uuid.UUID {
+	return uuid.New()
+}
+
+func (e IOSession) Read(command *rpc.Command) error {
+	return nil
+}
+
+func (e IOSession) Write(command *rpc.Command) error {
+	data, err := json.Marshal(command)
+	if err != nil {
+		return err
+	}
+	e.io.Write(data)
+	return nil
+}
+
+func (e IOSession) Close() error {
+	return nil
 }
 
 type MatchCommandTestSuite struct {
@@ -48,11 +66,11 @@ func (suite *MatchCommandTestSuite) SetupTest() {
 
 func (suite *MatchCommandTestSuite) TestFindMatch() {
 	buffer := new(bytes.Buffer)
-	suite.service.Process(JSONExecutor{buffer: buffer}, "test", rpc.NewCommand("match/find", map[string]interface{}{"team": domain.TeamWalrus}))
+	suite.service.Process(IOSession{io: buffer}, rpc.NewCommand("match/find", map[string]interface{}{"team": domain.TeamWalrus}))
 
 	assert.Contains(suite.T(), string(buffer.Bytes()), `"match/init"`)
 
-	suite.service.Process(JSONExecutor{buffer: buffer}, "test", rpc.NewCommand("match/find", nil))
+	suite.service.Process(IOSession{io: buffer}, rpc.NewCommand("match/find", nil))
 	assert.Contains(suite.T(), string(buffer.Bytes()), `"invalid team"`)
 }
 
