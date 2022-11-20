@@ -84,6 +84,15 @@ func (rpc *RPC) Serve(c echo.Context) error {
 	return nil
 }
 
+func (rpc *RPC) Session(id SessionID) Session {
+	session, ok := rpc.sessions[id]
+	if !ok {
+		return nil
+	}
+
+	return session
+}
+
 func (rpc *RPC) attachSession(session Session) {
 	rpc.sessions[session.ID()] = session
 }

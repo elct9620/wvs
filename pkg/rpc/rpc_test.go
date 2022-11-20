@@ -82,6 +82,11 @@ func (suite *RPCTestSuite) TestProcess() {
 	assert.Contains(suite.T(), string(buffer.Bytes()), `"name":"pong"`)
 }
 
+func (suite *RPCTestSuite) TestSession() {
+	session := suite.rpc.Session(rpc.SessionID("P1"))
+	assert.Nil(suite.T(), session)
+}
+
 func TestRPC(t *testing.T) {
 	suite.Run(t, new(RPCTestSuite))
 }
