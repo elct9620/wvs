@@ -22,17 +22,15 @@ func (suite *ChannelTestSuite) TearDownTest() {
 }
 
 func (suite *ChannelTestSuite) TestNewChannel() {
-	subscriber := &hub.SimpleSubscriber{}
-	err := suite.hub.NewChannel("1", subscriber)
+	err := suite.hub.NewChannel("1")
 	assert.Nil(suite.T(), err)
 
-	err = suite.hub.NewChannel("1", subscriber)
+	err = suite.hub.NewChannel("1")
 	assert.Error(suite.T(), err, "channel is exists")
 }
 
 func (suite *ChannelTestSuite) TestStartChannel() {
-	subscriber := &hub.SimpleSubscriber{}
-	err := suite.hub.NewChannel("1", subscriber)
+	err := suite.hub.NewChannel("1")
 	if err != nil {
 		suite.Error(err)
 	}
@@ -41,16 +39,12 @@ func (suite *ChannelTestSuite) TestStartChannel() {
 	defer suite.hub.StopChannel("1")
 	assert.Nil(suite.T(), err)
 
-	err = suite.hub.StartChannel("1")
-	assert.Error(suite.T(), err, "channel is running")
-
 	err = suite.hub.StartChannel("2")
 	assert.Error(suite.T(), err, "channel not exists")
 }
 
 func (suite *ChannelTestSuite) TestRemoveChannel() {
-	subscriber := &hub.SimpleSubscriber{}
-	err := suite.hub.NewChannel("1", subscriber)
+	err := suite.hub.NewChannel("1")
 	if err != nil {
 		suite.Error(err)
 	}
@@ -63,6 +57,20 @@ func (suite *ChannelTestSuite) TestRemoveChannel() {
 	suite.hub.RemoveChannel("1")
 	err = suite.hub.StartChannel("1")
 	assert.Error(suite.T(), err, "channel not exists")
+}
+
+func (suite *ChannelTestSuite) TestAddHandler() {
+	subscriber := &hub.SimpleSubscriber{}
+	err := suite.hub.AddHandler("1", subscriber.OnEvent)
+	assert.Error(suite.T(), err)
+
+	err = suite.hub.NewChannel("1")
+	if err != nil {
+		suite.Error(err)
+	}
+
+	err = suite.hub.AddHandler("1", subscriber.OnEvent)
+	assert.Nil(suite.T(), err)
 }
 
 func TestChannel(t *testing.T) {

@@ -32,7 +32,8 @@ func (suite *BroadcastServiceTestSuite) SetupTest() {
 	suite.player2 = &player2
 	suite.subscriber = &hub.SimpleSubscriber{}
 
-	suite.hub.NewChannel("serverEvent", suite.subscriber)
+	suite.hub.NewChannel("serverEvent")
+	suite.hub.AddHandler("serverEvent", suite.subscriber.OnEvent)
 	suite.hub.StartChannel("serverEvent")
 }
 

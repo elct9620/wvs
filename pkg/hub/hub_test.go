@@ -24,7 +24,12 @@ func (suite *HubTestSuite) TearDownTest() {
 
 func (suite *HubTestSuite) newChannel(id string) *hub.SimpleSubscriber {
 	subscriber := &hub.SimpleSubscriber{}
-	err := suite.hub.NewChannel(id, subscriber)
+	err := suite.hub.NewChannel(id)
+	if err != nil {
+		suite.Error(err)
+	}
+
+	err = suite.hub.AddHandler(id, subscriber.OnEvent)
 	if err != nil {
 		suite.Error(err)
 	}

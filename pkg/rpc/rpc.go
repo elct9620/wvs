@@ -32,7 +32,8 @@ func NewRPC(hub *hub.Hub) *RPC {
 		commands: make(map[string]HandlerFunc),
 	}
 
-	hub.NewChannel("serverEvent", rpc)
+	hub.NewChannel("serverEvent")
+	hub.AddHandler("serverEvent", rpc.OnEvent)
 	hub.StartChannel("serverEvent")
 
 	return rpc

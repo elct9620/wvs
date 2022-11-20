@@ -34,7 +34,8 @@ func (suite *RecoveryServiceTestSuite) TestRecover() {
 	player := domain.NewPlayer("P1")
 	subscriber := &hub.SimpleSubscriber{}
 
-	suite.hub.NewChannel("serverEvent", subscriber)
+	suite.hub.NewChannel("serverEvent")
+	suite.hub.AddHandler("serverEvent", subscriber.OnEvent)
 	suite.hub.StartChannel("serverEvent")
 
 	suite.service.Recover(&player, &tower)

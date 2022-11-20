@@ -36,7 +36,8 @@ func (suite *MatchTestSuite) SetupTest() {
 	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
 
 	suite.hub = hub
-	suite.hub.NewChannel("serverEvent", suite.subscriber)
+	suite.hub.NewChannel("serverEvent")
+	suite.hub.AddHandler("serverEvent", suite.subscriber.OnEvent)
 	suite.hub.StartChannel("serverEvent")
 
 	suite.app = usecase.NewMatch(

@@ -5,9 +5,9 @@ import (
 	"sync"
 )
 
-type Subscriber interface {
-	OnEvent([]byte) error
-}
+var ErrChannelNotExists = errors.New("channel not exists")
+
+type EventHandler func([]byte) error
 
 type SimpleSubscriber struct {
 	LastData string
@@ -20,22 +20,22 @@ func (p *SimpleSubscriber) OnEvent(v []byte) error {
 
 type channel struct {
 	sync.Mutex
-	subscriber Subscriber
-	messages   chan []byte
-	running    bool
-	exit       chan bool
+	handlers []EventHandler
+	messages chan []byte
+	running  bool
+	exit     chan bool
 }
 
-func (hub *Hub) NewChannel(id string, subscriber Subscriber) error {
+func (hub *Hub) NewChannel(id string) error {
 	if _, ok := hub.channels[id]; ok == true {
-		return errors.New("channel is exists")
+		return ErrChannelNotExists
 	}
 
 	hub.channels[id] = &channel{
-		subscriber: subscriber,
-		messages:   make(chan []byte, 100),
-		running:    false,
-		exit:       make(chan bool),
+		handlers: []EventHandler{},
+		messages: make(chan []byte, 100),
+		running:  false,
+		exit:     make(chan bool),
 	}
 
 	return nil
@@ -44,11 +44,11 @@ func (hub *Hub) NewChannel(id string, subscriber Subscriber) error {
 func (hub *Hub) StartChannel(id string) error {
 	channel, ok := hub.channels[id]
 	if ok != true {
-		return errors.New("channel not exists")
+		return ErrChannelNotExists
 	}
 
 	if channel.running == true {
-		return errors.New("channel is running")
+		return nil
 	}
 
 	channel.Lock()
@@ -57,10 +57,9 @@ func (hub *Hub) StartChannel(id string) error {
 		for {
 			select {
 			case event := <-channel.messages:
-				if channel.subscriber == nil {
-					return
+				for _, handler := range channel.handlers {
+					handler(event)
 				}
-				channel.subscriber.OnEvent(event)
 			case <-hub.ctx.Done():
 				return
 			case <-channel.exit:
@@ -75,11 +74,11 @@ func (hub *Hub) StartChannel(id string) error {
 func (hub *Hub) StopChannel(id string) error {
 	channel, ok := hub.channels[id]
 	if ok != true {
-		return errors.New("channel not exists")
+		return ErrChannelNotExists
 	}
 
 	if channel.running == false {
-		return errors.New("channel not running")
+		return nil
 	}
 
 	channel.Lock()
@@ -92,4 +91,14 @@ func (hub *Hub) StopChannel(id string) error {
 func (hub *Hub) RemoveChannel(id string) {
 	hub.StopChannel(id)
 	delete(hub.channels, id)
+}
+
+func (hub *Hub) AddHandler(id string, handler EventHandler) error {
+	channel, ok := hub.channels[id]
+	if ok != true {
+		return ErrChannelNotExists
+	}
+
+	channel.handlers = append(channel.handlers, handler)
+	return nil
 }
