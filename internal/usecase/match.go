@@ -2,22 +2,16 @@ package usecase
 
 import (
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/repository"
-	"github.com/elct9620/wvs/internal/service"
 )
 
 type Match struct {
-	engine   *engine.Engine
-	repo     *repository.MatchRepository
-	gameLoop *service.GameLoopService
+	repo *repository.MatchRepository
 }
 
-func NewMatch(engine *engine.Engine, repo *repository.MatchRepository, gameLoop *service.GameLoopService) *Match {
+func NewMatch(repo *repository.MatchRepository) *Match {
 	return &Match{
-		engine:   engine,
-		repo:     repo,
-		gameLoop: gameLoop,
+		repo: repo,
 	}
 }
 
@@ -36,37 +30,22 @@ func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.
 	} else {
 		match = domain.NewMatch(&team)
 	}
-	app.repo.Save(&match)
 
-	if match.IsMatched() {
-		app.StartMatch(&match)
-	}
+	match.Start()
+	app.repo.Save(&match)
 
 	return &match, isTeam1, match.IsMatched()
 }
 
-func (app *Match) StartMatch(match *domain.Match) {
-	if !match.Start() {
-		return
-	}
-
-	app.engine.NewGameLoop(match.ID, app.gameLoop.CreateLoop(match))
-	app.repo.Save(match)
-}
-
-func (app *Match) JoinMatch(matchID string, playerID string) bool {
+func (app *Match) JoinMatch(matchID string, playerID string) *domain.Match {
 	player := domain.Player{ID: playerID}
 	match := app.repo.Find(matchID)
 	if match == nil {
-		return false
+		return nil
 	}
 
 	match.MarkReady(player.ID)
 	app.repo.Save(match)
 
-	if match.IsReady() {
-		app.engine.StartGameLoop(match.ID)
-	}
-
-	return true
+	return match
 }

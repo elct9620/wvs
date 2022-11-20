@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/server/result"
 	"github.com/elct9620/wvs/internal/service"
 	"github.com/elct9620/wvs/internal/usecase"
@@ -12,12 +13,14 @@ import (
 
 type FindMatchCommand struct {
 	usecase   *usecase.Match
+	engine    *engine.Engine
 	broadcast *service.BroadcastService
 }
 
-func NewFindMatchCommand(usecase *usecase.Match, broadcast *service.BroadcastService) *FindMatchCommand {
+func NewFindMatchCommand(usecase *usecase.Match, engine *engine.Engine, broadcast *service.BroadcastService) *FindMatchCommand {
 	return &FindMatchCommand{
 		usecase:   usecase,
+		engine:    engine,
 		broadcast: broadcast,
 	}
 }

@@ -29,11 +29,9 @@ func (suite *FindMatchCommandTestSuite) SetupTest() {
 	engine := engine.NewEngine()
 	repo := repository.NewMatchRepository(store)
 	broadcastService := service.NewBroadcastService(hub)
-	recoveryService := service.NewRecoveryService(broadcastService)
-	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
-	usecase := usecase.NewMatch(engine, repo, gameLoopService)
+	usecase := usecase.NewMatch(repo)
 
-	suite.command = command.NewFindMatchCommand(usecase, broadcastService)
+	suite.command = command.NewFindMatchCommand(usecase, engine, broadcastService)
 }
 
 func (suite *FindMatchCommandTestSuite) TestExecute() {

@@ -24,7 +24,6 @@ func main() {
 			repository.NewMatchRepository,
 			service.NewBroadcastService,
 			service.NewRecoveryService,
-			service.NewGameLoopService,
 			usecase.NewPlayer,
 			usecase.NewMatch,
 			AsRPCHandler(command.NewLoginCommand),

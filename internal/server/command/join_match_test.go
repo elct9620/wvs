@@ -3,6 +3,7 @@ package command_test
 import (
 	"testing"
 
+	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/server/command"
@@ -18,6 +19,7 @@ import (
 
 type JoinMatchCommandTestSuite struct {
 	suite.Suite
+	usecase *usecase.Match
 	command *command.JoinMatchCommand
 }
 
@@ -30,10 +32,10 @@ func (suite *JoinMatchCommandTestSuite) SetupTest() {
 	repo := repository.NewMatchRepository(store)
 	broadcastService := service.NewBroadcastService(hub)
 	recoveryService := service.NewRecoveryService(broadcastService)
-	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
-	usecase := usecase.NewMatch(engine, repo, gameLoopService)
+	usecase := usecase.NewMatch(repo)
 
-	suite.command = command.NewJoinMatchCommand(usecase)
+	suite.usecase = usecase
+	suite.command = command.NewJoinMatchCommand(usecase, engine, recoveryService)
 }
 
 func (suite *JoinMatchCommandTestSuite) TestExecute() {
@@ -43,7 +45,8 @@ func (suite *JoinMatchCommandTestSuite) TestExecute() {
 	res := suite.command.Execute(sid, command)
 	assert.Equal(suite.T(), "error", res.Name)
 
-	command = rpc.NewCommand("match/join", map[string]interface{}{"matchID": "demo"})
+	match, _, _ := suite.usecase.FindMatch("P1", domain.TeamWalrus)
+	command = rpc.NewCommand("match/join", map[string]interface{}{"matchID": match.ID})
 	res = suite.command.Execute(sid, command)
 	assert.Equal(suite.T(), "match/joined", res.Name)
 }
