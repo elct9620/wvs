@@ -3,8 +3,6 @@ package rpc
 import (
 	"encoding/json"
 	"errors"
-
-	"github.com/google/uuid"
 )
 
 type ServerEvent struct {
@@ -26,11 +24,10 @@ func (rpc *RPC) OnEvent(payload []byte) error {
 		return err
 	}
 
-	uuid, err := uuid.Parse(event.PlayerID)
 	if err != nil {
 		return err
 	}
-	session, ok := rpc.sessions[uuid]
+	session, ok := rpc.sessions[SessionID(event.PlayerID)]
 	if !ok {
 		return errors.New("session not found")
 	}

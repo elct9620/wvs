@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -13,23 +12,23 @@ var (
 	upgrader = websocket.Upgrader{}
 )
 
-type HandlerFunc func(remoteID uuid.UUID, command *Command) *Command
+type HandlerFunc func(sessionID SessionID, command *Command) *Command
 
 type CommandHandler interface {
 	Name() string
-	Execute(sessionID uuid.UUID, command *Command) *Command
+	Execute(sessionID SessionID, command *Command) *Command
 }
 
 type RPC struct {
 	hub      *hub.Hub
-	sessions map[uuid.UUID]Session
+	sessions map[SessionID]Session
 	commands map[string]HandlerFunc
 }
 
 func NewRPC(hub *hub.Hub) *RPC {
 	rpc := &RPC{
 		hub:      hub,
-		sessions: make(map[uuid.UUID]Session),
+		sessions: make(map[SessionID]Session),
 		commands: make(map[string]HandlerFunc),
 	}
 

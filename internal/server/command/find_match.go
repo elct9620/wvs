@@ -5,7 +5,6 @@ import (
 	"github.com/elct9620/wvs/internal/server/result"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/rpc"
-	"github.com/google/uuid"
 )
 
 type FindMatchCommand struct {
@@ -22,13 +21,13 @@ func (*FindMatchCommand) Name() string {
 	return "match/find"
 }
 
-func (cmd *FindMatchCommand) Execute(sessionID uuid.UUID, command *rpc.Command) *rpc.Command {
+func (cmd *FindMatchCommand) Execute(sessionID rpc.SessionID, command *rpc.Command) *rpc.Command {
 	if command.Parameters == nil {
 		return rpc.NewCommand("error", result.Error{Reason: "invalid team"})
 	}
 	parameters := command.Parameters.(map[string]interface{})
 	team, _ := parameters["team"].(float64)
-	match, isTeam1 := cmd.usecase.FindMatch(sessionID.String(), domain.TeamType(team))
+	match, isTeam1 := cmd.usecase.FindMatch(string(sessionID), domain.TeamType(team))
 
 	if isTeam1 {
 		return rpc.NewCommand("match/init", result.MatchInit{ID: match.ID, Team: match.Team1().Type})

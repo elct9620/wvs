@@ -29,7 +29,7 @@ func (suite *LoginCommandTestSuite) SetupTest() {
 }
 
 func (suite *LoginCommandTestSuite) TestExecute() {
-	sid := uuid.New()
+	sid := rpc.SessionID(uuid.NewString())
 	command := rpc.NewCommand("noop", nil)
 
 	res := suite.command.Execute(sid, command)

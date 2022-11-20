@@ -37,7 +37,7 @@ func (suite *FindMatchCommandTestSuite) SetupTest() {
 }
 
 func (suite *FindMatchCommandTestSuite) TestExecute() {
-	sid := uuid.New()
+	sid := rpc.SessionID(uuid.NewString())
 
 	command := rpc.NewCommand("match/find", nil)
 	res := suite.command.Execute(sid, command)

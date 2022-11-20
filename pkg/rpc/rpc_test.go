@@ -20,7 +20,7 @@ func (*PingCommand) Name() string {
 	return "ping"
 }
 
-func (*PingCommand) Execute(sessionID uuid.UUID, command *rpc.Command) *rpc.Command {
+func (*PingCommand) Execute(sessionID rpc.SessionID, command *rpc.Command) *rpc.Command {
 	return rpc.NewCommand("pong", nil)
 }
 
@@ -28,8 +28,8 @@ type IOSession struct {
 	io io.Writer
 }
 
-func (e IOSession) ID() uuid.UUID {
-	return uuid.New()
+func (e IOSession) ID() rpc.SessionID {
+	return rpc.SessionID(uuid.NewString())
 }
 
 func (e IOSession) Read(command *rpc.Command) error {

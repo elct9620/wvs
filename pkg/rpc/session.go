@@ -5,26 +5,27 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type SessionID string
 type Session interface {
-	ID() uuid.UUID
+	ID() SessionID
 	Read(*Command) error
 	Write(*Command) error
 	Close() error
 }
 
 type WebSocketSession struct {
-	id   uuid.UUID
+	id   SessionID
 	conn *websocket.Conn
 }
 
 func NewWebSocketSession(conn *websocket.Conn) *WebSocketSession {
 	return &WebSocketSession{
-		id:   uuid.New(),
+		id:   SessionID(uuid.NewString()),
 		conn: conn,
 	}
 }
 
-func (s *WebSocketSession) ID() uuid.UUID {
+func (s *WebSocketSession) ID() SessionID {
 	return s.id
 }
 

@@ -4,7 +4,6 @@ import (
 	"github.com/elct9620/wvs/internal/server/result"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/rpc"
-	"github.com/google/uuid"
 )
 
 type LoginCommand struct {
@@ -19,10 +18,10 @@ func (*LoginCommand) Name() string {
 	return "login"
 }
 
-func (cmd *LoginCommand) Execute(sessionID uuid.UUID, command *rpc.Command) *rpc.Command {
-	err := cmd.usecase.Register(sessionID.String())
+func (cmd *LoginCommand) Execute(sessionID rpc.SessionID, command *rpc.Command) *rpc.Command {
+	err := cmd.usecase.Register(string(sessionID))
 	if err != nil {
 		return rpc.NewCommand("error", result.Error{Reason: "unable to join game"})
 	}
-	return rpc.NewCommand("connected", result.Connected{ID: sessionID.String()})
+	return rpc.NewCommand("connected", result.Connected{ID: string(sessionID)})
 }
