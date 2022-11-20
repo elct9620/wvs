@@ -20,7 +20,10 @@ func main() {
 			NewHub,
 			NewEngine,
 			NewStore,
-			repository.NewPlayerRepository,
+			fx.Annotate(
+				repository.NewSimplePlayerRepository,
+				fx.As(new(repository.Players)),
+			),
 			repository.NewMatchRepository,
 			service.NewBroadcastService,
 			service.NewRecoveryService,

@@ -7,7 +7,6 @@ import (
 	"github.com/elct9620/wvs/internal/server/command"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/rpc"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -19,10 +18,7 @@ type LoginCommandTestSuite struct {
 }
 
 func (suite *LoginCommandTestSuite) SetupTest() {
-	store := store.NewStore()
-	store.CreateTable("players")
-
-	repo := repository.NewPlayerRepository(store)
+	repo := repository.NewSimplePlayerRepository()
 	usecase := usecase.NewPlayer(repo)
 
 	suite.command = command.NewLoginCommand(usecase)

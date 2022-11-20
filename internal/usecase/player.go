@@ -1,30 +1,28 @@
 package usecase
 
 import (
-	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/repository"
 )
 
 type Player struct {
-	playerRepo *repository.PlayerRepository
+	players repository.Players
 }
 
-func NewPlayer(playerRepo *repository.PlayerRepository) *Player {
+func NewPlayer(players repository.Players) *Player {
 	return &Player{
-		playerRepo: playerRepo,
+		players: players,
 	}
 }
 
-func (app *Player) Register(sessionID string) error {
-	player := domain.NewPlayer(sessionID)
-	err := app.playerRepo.Insert(player)
+func (usecase *Player) Register(sessionID string) error {
+	err := usecase.players.Create(sessionID)
 	if err != nil {
 		return err
 	}
 
-	return err
+	return nil
 }
 
-func (app *Player) Unregister(id string) {
-	app.playerRepo.Delete(id)
+func (usecase *Player) Unregister(id string) {
+	usecase.players.Delete(id)
 }

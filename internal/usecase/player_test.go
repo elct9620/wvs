@@ -5,7 +5,6 @@ import (
 
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -13,14 +12,11 @@ import (
 type PlayerTestSuite struct {
 	suite.Suite
 	app        *usecase.Player
-	playerRepo *repository.PlayerRepository
+	playerRepo *repository.SimplePlayerRepository
 }
 
 func (suite *PlayerTestSuite) SetupTest() {
-	store := store.NewStore()
-	store.CreateTable("players")
-
-	suite.playerRepo = repository.NewPlayerRepository(store)
+	suite.playerRepo = repository.NewSimplePlayerRepository()
 	suite.app = usecase.NewPlayer(suite.playerRepo)
 }
 

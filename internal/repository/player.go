@@ -4,39 +4,52 @@ import (
 	"errors"
 
 	"github.com/elct9620/wvs/internal/domain"
-	"github.com/elct9620/wvs/pkg/store"
 )
 
-type PlayerRepository struct {
-	store *store.Store
+var ErrPlayerNotFound = errors.New("player not found")
+var ErrPlayerIDExists = errors.New("player id is exists")
+
+type Players interface {
+	Find(id string) (*domain.Player, error)
+	Create(id string) error
+	Delete(id string) error
 }
 
-func NewPlayerRepository(store *store.Store) *PlayerRepository {
-	return &PlayerRepository{
-		store: store,
+type PlayerRecord struct {
+	ID string
+}
+
+type SimplePlayerRepository struct {
+	players map[string]PlayerRecord
+}
+
+func NewSimplePlayerRepository() *SimplePlayerRepository {
+	return &SimplePlayerRepository{
+		players: make(map[string]PlayerRecord),
 	}
 }
 
-func (repo *PlayerRepository) Find(id string) (*domain.Player, error) {
-	res, err := repo.store.Table("players").Find(id)
-	if err != nil {
-		return nil, errors.New("player not exists")
+func (repo *SimplePlayerRepository) Find(id string) (*domain.Player, error) {
+	record, ok := repo.players[id]
+	if ok == false {
+		return nil, ErrPlayerNotFound
 	}
 
-	player := res.(domain.Player)
-
+	player := domain.NewPlayer(record.ID)
 	return &player, nil
 }
 
-func (repo *PlayerRepository) Insert(player domain.Player) error {
-	err := repo.store.Table("players").Insert(player.ID, player)
-	if err != nil {
-		return errors.New("player is exists")
+func (repo *SimplePlayerRepository) Create(id string) error {
+	_, ok := repo.players[id]
+	if ok {
+		return ErrPlayerIDExists
 	}
 
+	repo.players[id] = PlayerRecord{id}
 	return nil
 }
 
-func (repo *PlayerRepository) Delete(id string) {
-	repo.store.Table("players").Delete(id)
+func (repo *SimplePlayerRepository) Delete(id string) error {
+	delete(repo.players, id)
+	return nil
 }
