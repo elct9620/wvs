@@ -1,32 +1,27 @@
 package usecase
 
 import (
-	"time"
-
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/internal/engine"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/service"
-	"github.com/elct9620/wvs/pkg/rpc"
 )
 
 type Match struct {
-	engine    *engine.Engine
-	repo      *repository.MatchRepository
-	broadcast *service.BroadcastService
-	gameLoop  *service.GameLoopService
+	engine   *engine.Engine
+	repo     *repository.MatchRepository
+	gameLoop *service.GameLoopService
 }
 
-func NewMatch(engine *engine.Engine, repo *repository.MatchRepository, broadcast *service.BroadcastService, gameLoop *service.GameLoopService) *Match {
+func NewMatch(engine *engine.Engine, repo *repository.MatchRepository, gameLoop *service.GameLoopService) *Match {
 	return &Match{
-		engine:    engine,
-		repo:      repo,
-		broadcast: broadcast,
-		gameLoop:  gameLoop,
+		engine:   engine,
+		repo:     repo,
+		gameLoop: gameLoop,
 	}
 }
 
-func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool) {
+func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool, bool) {
 	player := &domain.Player{ID: playerID}
 	waitings := app.repo.WaitingMatches(teamType)
 
@@ -44,13 +39,10 @@ func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.
 	app.repo.Save(&match)
 
 	if match.IsMatched() {
-		go func() {
-			time.Sleep(10 * time.Millisecond)
-			app.StartMatch(&match)
-		}()
+		app.StartMatch(&match)
 	}
 
-	return &match, isTeam1
+	return &match, isTeam1, match.IsMatched()
 }
 
 func (app *Match) StartMatch(match *domain.Match) {
@@ -60,9 +52,6 @@ func (app *Match) StartMatch(match *domain.Match) {
 
 	app.engine.NewGameLoop(match.ID, app.gameLoop.CreateLoop(match))
 	app.repo.Save(match)
-
-	command := rpc.NewCommand("match/start", nil)
-	app.broadcast.BroadcastToMatch(match, command)
 }
 
 func (app *Match) JoinMatch(matchID string, playerID string) bool {

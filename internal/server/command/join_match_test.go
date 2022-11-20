@@ -31,7 +31,7 @@ func (suite *JoinMatchCommandTestSuite) SetupTest() {
 	broadcastService := service.NewBroadcastService(hub)
 	recoveryService := service.NewRecoveryService(broadcastService)
 	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
-	usecase := usecase.NewMatch(engine, repo, broadcastService, gameLoopService)
+	usecase := usecase.NewMatch(engine, repo, gameLoopService)
 
 	suite.command = command.NewJoinMatchCommand(usecase)
 }

@@ -43,7 +43,6 @@ func (suite *MatchTestSuite) SetupTest() {
 	suite.app = usecase.NewMatch(
 		engine,
 		repository.NewMatchRepository(store),
-		broadcastService,
 		gameLoopService,
 	)
 }
@@ -55,10 +54,11 @@ func (suite *MatchTestSuite) TearDownTest() {
 func (suite *MatchTestSuite) TestFindMatch() {
 	player := domain.NewPlayer("P1")
 
-	match, isTeam1 := suite.app.FindMatch(player.ID, domain.TeamWalrus)
+	match, isTeam1, isMatched := suite.app.FindMatch(player.ID, domain.TeamWalrus)
 	assert.NotNil(suite.T(), match.ID)
 	assert.Equal(suite.T(), match.Team1().Type, domain.TeamWalrus)
 	assert.True(suite.T(), isTeam1)
+	assert.False(suite.T(), isMatched)
 }
 
 func (suite *MatchTestSuite) TestStartMatch() {
@@ -73,7 +73,6 @@ func (suite *MatchTestSuite) TestStartMatch() {
 	time.Sleep(10 * time.Millisecond)
 
 	assert.Equal(suite.T(), match.State(), domain.MatchStarted)
-	assert.Contains(suite.T(), suite.subscriber.LastData, `"player_id":"P2"`)
 }
 
 func TestMatch(t *testing.T) {
