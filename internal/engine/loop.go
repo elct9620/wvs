@@ -9,7 +9,7 @@ import (
 const FPS int = 60
 const TickerDuration time.Duration = time.Millisecond / time.Duration(FPS)
 
-type LoopFunc func(time.Duration)
+type LoopFunc func(string, time.Duration)
 
 type Loop struct {
 	sync.Mutex
@@ -55,7 +55,7 @@ func (e *Engine) StartGameLoop(id string) error {
 		for {
 			select {
 			case currentTime := <-loop.ticker.C:
-				loop.loopFunc(currentTime.Sub(previousTime))
+				loop.loopFunc(id, currentTime.Sub(previousTime))
 				continue
 			case <-e.ctx.Done():
 				return

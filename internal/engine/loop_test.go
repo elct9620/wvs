@@ -24,7 +24,7 @@ func (suite *LoopTestSuite) TearDownTest() {
 
 func (suite *LoopTestSuite) TestStartGameLoop() {
 	executed := false
-	err := suite.engine.NewGameLoop("test", func(delta time.Duration) {
+	err := suite.engine.NewGameLoop("test", func(id string, delta time.Duration) {
 		executed = true
 	})
 	if err != nil {
@@ -44,7 +44,7 @@ func (suite *LoopTestSuite) TestStartGameLoop() {
 }
 
 func (suite *LoopTestSuite) TestStopGameLoop() {
-	err := suite.engine.NewGameLoop("test", func(delta time.Duration) {})
+	err := suite.engine.NewGameLoop("test", func(id string, delta time.Duration) {})
 	if err != nil {
 		suite.Error(err)
 	}
@@ -65,14 +65,14 @@ func (suite *LoopTestSuite) TestStopGameLoop() {
 }
 
 func (suite *LoopTestSuite) TestRemoveGameLoop() {
-	err := suite.engine.NewGameLoop("test", func(delta time.Duration) {})
+	err := suite.engine.NewGameLoop("test", func(id string, delta time.Duration) {})
 	if err != nil {
 		suite.Error(err)
 	}
 
 	suite.engine.RemoveGameLoop("test")
 
-	err = suite.engine.NewGameLoop("test", func(delta time.Duration) {})
+	err = suite.engine.NewGameLoop("test", func(id string, delta time.Duration) {})
 	assert.Nil(suite.T(), err)
 }
 

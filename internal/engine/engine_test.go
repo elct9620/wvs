@@ -23,10 +23,10 @@ func (suite *EngineTestSuite) TearDownTest() {
 }
 
 func (suite *EngineTestSuite) TestNewLoop() {
-	err := suite.engine.NewGameLoop("test", func(delta time.Duration) {})
+	err := suite.engine.NewGameLoop("test", func(id string, delta time.Duration) {})
 	assert.Nil(suite.T(), err)
 
-	err = suite.engine.NewGameLoop("test", func(delta time.Duration) {})
+	err = suite.engine.NewGameLoop("test", func(id string, delta time.Duration) {})
 	assert.Error(suite.T(), err, "loop is created")
 }
 
