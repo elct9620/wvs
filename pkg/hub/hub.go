@@ -21,14 +21,14 @@ func NewHub() *Hub {
 	}
 }
 
-func (hub *Hub) PublishTo(channelID string, data interface{}) error {
+func (hub *Hub) PublishTo(channelID string, payload []byte) error {
 	channel, ok := hub.channels[channelID]
 	if ok != true {
 		return errors.New("channel not exists")
 	}
 
 	channel.Lock()
-	channel.messages <- data
+	channel.messages <- payload
 	channel.Unlock()
 
 	return nil

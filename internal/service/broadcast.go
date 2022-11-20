@@ -1,6 +1,8 @@
 package service
 
 import (
+	"encoding/json"
+
 	"github.com/elct9620/wvs/internal/domain"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
@@ -17,7 +19,8 @@ func NewBroadcastService(hub *hub.Hub) *BroadcastService {
 }
 
 func (s *BroadcastService) PublishToPlayer(player *domain.Player, command *rpc.Command) {
-	s.hub.PublishTo(player.ID, command)
+	payload, _ := json.Marshal(command)
+	s.hub.PublishTo(player.ID, payload)
 }
 
 func (s *BroadcastService) BroadcastToMatch(match *domain.Match, command *rpc.Command) error {

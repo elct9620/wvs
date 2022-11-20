@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/elct9620/wvs/pkg/hub"
@@ -24,9 +25,13 @@ type EventSubscriber struct {
 	session Session
 }
 
-func (h *EventSubscriber) WriteJSON(data interface{}) error {
-	command := data.(*Command)
-	return h.session.Write(command)
+func (h *EventSubscriber) OnEvent(payload []byte) error {
+	var command Command
+	err := json.Unmarshal(payload, &command)
+	if err != nil {
+		return err
+	}
+	return h.session.Write(&command)
 }
 
 type RPC struct {

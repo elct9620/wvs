@@ -1,33 +1,27 @@
 package hub
 
 import (
-	"encoding/json"
 	"errors"
 	"sync"
 )
 
 type Subscriber interface {
-	WriteJSON(interface{}) error
+	OnEvent([]byte) error
 }
 
 type SimpleSubscriber struct {
 	LastData string
 }
 
-func (p *SimpleSubscriber) WriteJSON(v interface{}) error {
-	data, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	p.LastData = string(data)
+func (p *SimpleSubscriber) OnEvent(v []byte) error {
+	p.LastData = string(v)
 	return nil
 }
 
 type channel struct {
 	sync.Mutex
 	subscriber Subscriber
-	messages   chan interface{}
+	messages   chan []byte
 	running    bool
 	exit       chan bool
 }
@@ -39,7 +33,7 @@ func (hub *Hub) NewChannel(id string, subscriber Subscriber) error {
 
 	hub.channels[id] = &channel{
 		subscriber: subscriber,
-		messages:   make(chan interface{}, 100),
+		messages:   make(chan []byte, 100),
 		running:    false,
 		exit:       make(chan bool),
 	}
@@ -62,11 +56,11 @@ func (hub *Hub) StartChannel(id string) error {
 	go func() {
 		for {
 			select {
-			case msg := <-channel.messages:
+			case event := <-channel.messages:
 				if channel.subscriber == nil {
 					return
 				}
-				channel.subscriber.WriteJSON(msg)
+				channel.subscriber.OnEvent(event)
 			case <-hub.ctx.Done():
 				return
 			case <-channel.exit:

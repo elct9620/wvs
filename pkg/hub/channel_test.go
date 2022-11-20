@@ -1,26 +1,12 @@
 package hub_test
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
-
-type TestPublisher struct {
-	LastData string
-}
-
-func (p *TestPublisher) WriteJSON(v interface{}) error {
-	data, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	p.LastData = string(data)
-	return nil
-}
 
 type ChannelTestSuite struct {
 	suite.Suite
@@ -32,17 +18,17 @@ func (suite *ChannelTestSuite) SetupTest() {
 }
 
 func (suite *ChannelTestSuite) TestNewChannel() {
-	publisher := &TestPublisher{}
-	err := suite.hub.NewChannel("1", publisher)
+	subscriber := &hub.SimpleSubscriber{}
+	err := suite.hub.NewChannel("1", subscriber)
 	assert.Nil(suite.T(), err)
 
-	err = suite.hub.NewChannel("1", publisher)
+	err = suite.hub.NewChannel("1", subscriber)
 	assert.Error(suite.T(), err, "channel is exists")
 }
 
 func (suite *ChannelTestSuite) TestStartChannel() {
-	publisher := &TestPublisher{}
-	err := suite.hub.NewChannel("1", publisher)
+	subscriber := &hub.SimpleSubscriber{}
+	err := suite.hub.NewChannel("1", subscriber)
 	if err != nil {
 		suite.Error(err)
 	}
@@ -59,8 +45,8 @@ func (suite *ChannelTestSuite) TestStartChannel() {
 }
 
 func (suite *ChannelTestSuite) TestRemoveChannel() {
-	publisher := &TestPublisher{}
-	err := suite.hub.NewChannel("1", publisher)
+	subscriber := &hub.SimpleSubscriber{}
+	err := suite.hub.NewChannel("1", subscriber)
 	if err != nil {
 		suite.Error(err)
 	}

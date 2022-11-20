@@ -22,13 +22,13 @@ func (suite *HubTestSuite) TearDownTest() {
 	suite.hub.Stop()
 }
 
-func (suite *HubTestSuite) newChannel(id string) *TestPublisher {
-	publisher := &TestPublisher{}
-	err := suite.hub.NewChannel(id, publisher)
+func (suite *HubTestSuite) newChannel(id string) *hub.SimpleSubscriber {
+	subscriber := &hub.SimpleSubscriber{}
+	err := suite.hub.NewChannel(id, subscriber)
 	if err != nil {
 		suite.Error(err)
 	}
-	return publisher
+	return subscriber
 }
 
 func (suite *HubTestSuite) startChannel(id string) func() {
@@ -41,16 +41,16 @@ func (suite *HubTestSuite) startChannel(id string) func() {
 }
 
 func (suite *HubTestSuite) TestPublishTo() {
-	err := suite.hub.PublishTo("1", true)
+	err := suite.hub.PublishTo("1", []byte("true"))
 	assert.Error(suite.T(), err, "channel not exists")
 
-	publisher := suite.newChannel("1")
+	subscriber := suite.newChannel("1")
 	defer suite.startChannel("1")()
 
-	err = suite.hub.PublishTo("1", true)
+	err = suite.hub.PublishTo("1", []byte("true"))
 	time.Sleep(10 * time.Millisecond)
 	assert.Nil(suite.T(), err)
-	assert.Equal(suite.T(), "true", publisher.LastData)
+	assert.Equal(suite.T(), "true", subscriber.LastData)
 }
 
 func (suite *HubTestSuite) TestStop() {
