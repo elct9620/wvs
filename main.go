@@ -9,7 +9,6 @@ import (
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
-	"github.com/elct9620/wvs/pkg/store"
 	"go.uber.org/fx"
 	"golang.org/x/net/context"
 )
@@ -19,7 +18,6 @@ func main() {
 		fx.Provide(
 			NewHub,
 			NewEngine,
-			NewStore,
 			fx.Annotate(
 				repository.NewSimplePlayerRepository,
 				fx.As(new(repository.Players)),
@@ -92,15 +90,6 @@ func NewHub(lc fx.Lifecycle) *hub.Hub {
 	})
 
 	return hub
-}
-
-func NewStore() *store.Store {
-	store := store.NewStore()
-
-	store.CreateTable("players")
-	store.CreateTable("matches")
-
-	return store
 }
 
 func NewEngine(lc fx.Lifecycle) *engine.Engine {
