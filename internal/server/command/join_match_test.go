@@ -11,7 +11,6 @@ import (
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/hub"
 	"github.com/elct9620/wvs/pkg/rpc"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -24,12 +23,9 @@ type JoinMatchCommandTestSuite struct {
 }
 
 func (suite *JoinMatchCommandTestSuite) SetupTest() {
-	store := store.NewStore()
-	store.CreateTable("matches")
-
 	hub := hub.NewHub()
 	engine := engine.NewEngine()
-	repo := repository.NewMatchRepository(store)
+	repo := repository.NewSimpleMatchRepository()
 	broadcastService := service.NewBroadcastService(hub)
 	recoveryService := service.NewRecoveryService(broadcastService)
 	usecase := usecase.NewMatch(repo)

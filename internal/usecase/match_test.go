@@ -8,7 +8,6 @@ import (
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/elct9620/wvs/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -25,8 +24,6 @@ func (suite *MatchTestSuite) SetupTest() {
 	suite.subscriber = &hub.SimpleSubscriber{}
 
 	hub := hub.NewHub()
-	store := store.NewStore()
-	store.CreateTable("matches")
 
 	suite.hub = hub
 	suite.hub.NewChannel("serverEvent")
@@ -34,7 +31,7 @@ func (suite *MatchTestSuite) SetupTest() {
 	suite.hub.StartChannel("serverEvent")
 
 	suite.app = usecase.NewMatch(
-		repository.NewMatchRepository(store),
+		repository.NewSimpleMatchRepository(),
 	)
 }
 

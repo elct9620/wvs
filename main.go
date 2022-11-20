@@ -24,7 +24,10 @@ func main() {
 				repository.NewSimplePlayerRepository,
 				fx.As(new(repository.Players)),
 			),
-			repository.NewMatchRepository,
+			fx.Annotate(
+				repository.NewSimpleMatchRepository,
+				fx.As(new(repository.Matches)),
+			),
 			service.NewBroadcastService,
 			service.NewRecoveryService,
 			usecase.NewPlayer,

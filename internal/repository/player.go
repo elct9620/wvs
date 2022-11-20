@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/elct9620/wvs/internal/domain"
+	"github.com/elct9620/wvs/internal/repository/schema"
 )
 
 var ErrPlayerNotFound = errors.New("player not found")
@@ -15,22 +16,18 @@ type Players interface {
 	Delete(id string) error
 }
 
-type PlayerRecord struct {
-	ID string
-}
-
 type SimplePlayerRepository struct {
-	players map[string]PlayerRecord
+	items map[string]schema.Player
 }
 
 func NewSimplePlayerRepository() *SimplePlayerRepository {
 	return &SimplePlayerRepository{
-		players: make(map[string]PlayerRecord),
+		items: make(map[string]schema.Player),
 	}
 }
 
 func (repo *SimplePlayerRepository) Find(id string) (*domain.Player, error) {
-	record, ok := repo.players[id]
+	record, ok := repo.items[id]
 	if ok == false {
 		return nil, ErrPlayerNotFound
 	}
@@ -40,16 +37,16 @@ func (repo *SimplePlayerRepository) Find(id string) (*domain.Player, error) {
 }
 
 func (repo *SimplePlayerRepository) Create(id string) error {
-	_, ok := repo.players[id]
+	_, ok := repo.items[id]
 	if ok {
 		return ErrPlayerIDExists
 	}
 
-	repo.players[id] = PlayerRecord{id}
+	repo.items[id] = schema.Player{ID: id}
 	return nil
 }
 
 func (repo *SimplePlayerRepository) Delete(id string) error {
-	delete(repo.players, id)
+	delete(repo.items, id)
 	return nil
 }

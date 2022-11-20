@@ -6,25 +6,25 @@ import (
 )
 
 type Match struct {
-	repo *repository.MatchRepository
+	matches repository.Matches
 }
 
-func NewMatch(repo *repository.MatchRepository) *Match {
+func NewMatch(matches repository.Matches) *Match {
 	return &Match{
-		repo: repo,
+		matches: matches,
 	}
 }
 
-func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool, bool) {
+func (usecase *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.Match, bool, bool) {
 	player := &domain.Player{ID: playerID}
-	waitings := app.repo.WaitingMatches(teamType)
+	availableMatchs := usecase.matches.ListAvaiable(teamType)
 
 	var match domain.Match
 	isTeam1 := true
 
 	team := domain.NewTeam(teamType, player)
-	if len(waitings) > 0 {
-		match = *waitings[0]
+	if len(availableMatchs) > 0 {
+		match = *availableMatchs[0]
 		match.Join(&team)
 		isTeam1 = false
 	} else {
@@ -32,20 +32,20 @@ func (app *Match) FindMatch(playerID string, teamType domain.TeamType) (*domain.
 	}
 
 	match.Start()
-	app.repo.Save(&match)
+	usecase.matches.Save(&match)
 
 	return &match, isTeam1, match.IsMatched()
 }
 
-func (app *Match) JoinMatch(matchID string, playerID string) *domain.Match {
+func (usecase *Match) JoinMatch(matchID string, playerID string) *domain.Match {
 	player := domain.Player{ID: playerID}
-	match := app.repo.Find(matchID)
-	if match == nil {
+	match, err := usecase.matches.Find(matchID)
+	if err != nil {
 		return nil
 	}
 
 	match.MarkReady(player.ID)
-	app.repo.Save(match)
+	usecase.matches.Save(match)
 
 	return match
 }
