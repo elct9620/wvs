@@ -52,6 +52,7 @@ func (e IOSession) Close() error {
 type RPCTestSuite struct {
 	suite.Suite
 	rpc *rpc.RPC
+	hub *hub.Hub
 }
 
 func (suite *RPCTestSuite) SetupTest() {
@@ -60,7 +61,12 @@ func (suite *RPCTestSuite) SetupTest() {
 
 	rpc.Handle(new(PingCommand))
 
+	suite.hub = hub
 	suite.rpc = rpc
+}
+
+func (suite *RPCTestSuite) TearDownTest() {
+	suite.hub.Stop()
 }
 
 func (suite *RPCTestSuite) TestProcess() {

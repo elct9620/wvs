@@ -20,7 +20,13 @@ func NewBroadcastService(hub *hub.Hub) *BroadcastService {
 
 func (s *BroadcastService) PublishToPlayer(player *domain.Player, command *rpc.Command) {
 	payload, _ := json.Marshal(command)
-	s.hub.PublishTo(player.ID, payload)
+	event := rpc.ServerEvent{
+		PlayerID: player.ID,
+		Type:     "command",
+		Payload:  payload,
+	}
+	eventBody, _ := json.Marshal(event)
+	s.hub.PublishTo("serverEvent", eventBody)
 }
 
 func (s *BroadcastService) BroadcastToMatch(match *domain.Match, command *rpc.Command) error {

@@ -1,7 +1,6 @@
 package rpc
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/elct9620/wvs/pkg/hub"
@@ -21,19 +20,6 @@ type CommandHandler interface {
 	Execute(sessionID uuid.UUID, command *Command) *Command
 }
 
-type EventSubscriber struct {
-	session Session
-}
-
-func (h *EventSubscriber) OnEvent(payload []byte) error {
-	var command Command
-	err := json.Unmarshal(payload, &command)
-	if err != nil {
-		return err
-	}
-	return h.session.Write(&command)
-}
-
 type RPC struct {
 	hub      *hub.Hub
 	sessions map[uuid.UUID]Session
@@ -41,11 +27,16 @@ type RPC struct {
 }
 
 func NewRPC(hub *hub.Hub) *RPC {
-	return &RPC{
+	rpc := &RPC{
 		hub:      hub,
 		sessions: make(map[uuid.UUID]Session),
 		commands: make(map[string]HandlerFunc),
 	}
+
+	hub.NewChannel("serverEvent", rpc)
+	hub.StartChannel("serverEvent")
+
+	return rpc
 }
 
 func (rpc *RPC) Handle(handler CommandHandler) {
@@ -68,17 +59,9 @@ func (rpc *RPC) Serve(c echo.Context) error {
 	}
 
 	session := NewWebSocketSession(ws)
-	sessionID := session.ID().String()
-
-	subscriber := EventSubscriber{session}
-	rpc.hub.NewChannel(sessionID, &subscriber)
-	go rpc.hub.StartChannel(sessionID)
-
 	rpc.attachSession(session)
 
 	defer func() {
-		rpc.hub.StopChannel(sessionID)
-		rpc.hub.RemoveChannel(sessionID)
 		session.Close()
 		rpc.detachSession(session)
 	}()

@@ -17,12 +17,15 @@ import (
 
 type MatchTestSuite struct {
 	suite.Suite
-	hub    *hub.Hub
-	engine *engine.Engine
-	app    *usecase.Match
+	hub        *hub.Hub
+	engine     *engine.Engine
+	app        *usecase.Match
+	subscriber *hub.SimpleSubscriber
 }
 
 func (suite *MatchTestSuite) SetupTest() {
+	suite.subscriber = &hub.SimpleSubscriber{}
+
 	hub := hub.NewHub()
 	engine := engine.NewEngine()
 	store := store.NewStore()
@@ -33,6 +36,8 @@ func (suite *MatchTestSuite) SetupTest() {
 	gameLoopService := service.NewGameLoopService(broadcastService, recoveryService)
 
 	suite.hub = hub
+	suite.hub.NewChannel("serverEvent", suite.subscriber)
+	suite.hub.StartChannel("serverEvent")
 
 	suite.app = usecase.NewMatch(
 		engine,
@@ -46,16 +51,6 @@ func (suite *MatchTestSuite) TearDownTest() {
 	suite.hub.Stop()
 }
 
-func (suite *MatchTestSuite) newPlayer(id string) (*domain.Player, *hub.SimpleSubscriber) {
-	subscriber := &hub.SimpleSubscriber{}
-	player := domain.NewPlayer(id)
-
-	suite.hub.NewChannel(player.ID, subscriber)
-	suite.hub.StartChannel(player.ID)
-
-	return &player, subscriber
-}
-
 func (suite *MatchTestSuite) TestFindMatch() {
 	player := domain.NewPlayer("P1")
 
@@ -66,19 +61,18 @@ func (suite *MatchTestSuite) TestFindMatch() {
 }
 
 func (suite *MatchTestSuite) TestStartMatch() {
-	player1, subscriber1 := suite.newPlayer("P1")
-	player2, subscriber2 := suite.newPlayer("P2")
+	player1 := domain.NewPlayer("P1")
+	player2 := domain.NewPlayer("P2")
 
-	team1 := domain.NewTeam(domain.TeamSlime, player1)
-	team2 := domain.NewTeam(domain.TeamWalrus, player2)
+	team1 := domain.NewTeam(domain.TeamSlime, &player1)
+	team2 := domain.NewTeam(domain.TeamWalrus, &player2)
 
 	match := domain.NewMatchFromData("0000", domain.MatchCreated, &team1, &team2)
 	suite.app.StartMatch(&match)
 	time.Sleep(10 * time.Millisecond)
 
 	assert.Equal(suite.T(), match.State(), domain.MatchStarted)
-	assert.Contains(suite.T(), subscriber1.LastData, `"name":"match/start"`)
-	assert.Contains(suite.T(), subscriber2.LastData, `"name":"match/start"`)
+	assert.Contains(suite.T(), suite.subscriber.LastData, `"player_id":"P2"`)
 }
 
 func TestMatch(t *testing.T) {

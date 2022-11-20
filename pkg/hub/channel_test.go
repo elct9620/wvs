@@ -17,6 +17,10 @@ func (suite *ChannelTestSuite) SetupTest() {
 	suite.hub = hub.NewHub()
 }
 
+func (suite *ChannelTestSuite) TearDownTest() {
+	suite.hub.Stop()
+}
+
 func (suite *ChannelTestSuite) TestNewChannel() {
 	subscriber := &hub.SimpleSubscriber{}
 	err := suite.hub.NewChannel("1", subscriber)

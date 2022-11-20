@@ -25,18 +25,22 @@ func (suite *RecoveryServiceTestSuite) SetupTest() {
 	suite.service = service.NewRecoveryService(broadcastService)
 }
 
+func (suite *RecoveryServiceTestSuite) TearDownTest() {
+	suite.hub.Stop()
+}
+
 func (suite *RecoveryServiceTestSuite) TestRecover() {
 	tower := domain.NewTower()
 	player := domain.NewPlayer("P1")
 	subscriber := &hub.SimpleSubscriber{}
 
-	suite.hub.NewChannel(player.ID, subscriber)
-	suite.hub.StartChannel(player.ID)
+	suite.hub.NewChannel("serverEvent", subscriber)
+	suite.hub.StartChannel("serverEvent")
 
 	suite.service.Recover(&player, &tower)
 	time.Sleep(10 * time.Millisecond)
 
-	assert.Contains(suite.T(), subscriber.LastData, `"name":"game/recoverMana"`)
+	assert.Contains(suite.T(), subscriber.LastData, `"player_id":"P1"`)
 }
 
 func TestRecoveryService(t *testing.T) {
