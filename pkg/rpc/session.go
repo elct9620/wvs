@@ -1,8 +1,11 @@
 package rpc
 
 import (
+	"context"
+
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
+	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wsjson"
 )
 
 type SessionID string
@@ -30,13 +33,13 @@ func (s *WebSocketSession) ID() SessionID {
 }
 
 func (s *WebSocketSession) Read(command *Command) error {
-	return s.conn.ReadJSON(command)
+	return wsjson.Read(context.Background(), s.conn, command)
 }
 
 func (s *WebSocketSession) Write(command *Command) error {
-	return s.conn.WriteJSON(command)
+	return wsjson.Write(context.Background(), s.conn, command)
 }
 
 func (s *WebSocketSession) Close() error {
-	return s.conn.Close()
+	return s.conn.Close(websocket.StatusNormalClosure, "")
 }

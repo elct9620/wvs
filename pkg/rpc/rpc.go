@@ -4,12 +4,8 @@ import (
 	"errors"
 
 	"github.com/elct9620/wvs/pkg/hub"
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-)
-
-var (
-	upgrader = websocket.Upgrader{}
+	"nhooyr.io/websocket"
 )
 
 type HandlerFunc func(sessionID SessionID, command *Command) *Command
@@ -53,7 +49,7 @@ func (rpc *RPC) Process(session Session, command *Command) error {
 }
 
 func (rpc *RPC) Serve(c echo.Context) error {
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	ws, err := websocket.Accept(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
@@ -70,9 +66,7 @@ func (rpc *RPC) Serve(c echo.Context) error {
 		var command Command
 		err = session.Read(&command)
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				c.Logger().Error(err)
-			}
+			c.Logger().Error(err)
 			break
 		}
 
