@@ -7,7 +7,7 @@ require (
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/stretchr/testify v1.7.2
 	go.uber.org/fx v1.18.2
-	golang.org/x/net v0.1.0
+	golang.org/x/net v0.7.0
 	nhooyr.io/websocket v1.8.7
 )
 
@@ -27,8 +27,8 @@ require (
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
