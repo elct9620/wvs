@@ -14,7 +14,8 @@ import (
 
 func Test_WithWebSocket(t *testing.T) {
 	rpcServer := newEchoRPC(t)
-	mux := server.NewMux(server.WithWebSocket(rpcServer))
+	sessions := server.NewSessionStore()
+	mux := server.NewMux(server.WithWebSocket(rpcServer, sessions))
 	httpServer := httptest.NewServer(mux)
 	defer httpServer.Close()
 

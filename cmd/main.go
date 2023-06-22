@@ -18,8 +18,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	sessions := server.NewSessionStore()
+
 	mux := server.NewMux(
-		server.WithWebSocket(rpcServer),
+		server.WithWebSocket(rpcServer, sessions),
 	)
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
