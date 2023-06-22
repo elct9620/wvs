@@ -12,13 +12,13 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-func Test_ServeWebsocket(t *testing.T) {
+func Test_WithWebSocket(t *testing.T) {
 	rpcServer := newEchoRPC(t)
-	server := server.New(rpcServer)
-	httpServer := httptest.NewServer(websocket.Handler(server.ServeWebsocket))
+	mux := server.NewMux(server.WithWebSocket(rpcServer))
+	httpServer := httptest.NewServer(mux)
 	defer httpServer.Close()
 
-	conn, err := websocket.Dial(strings.Replace(httpServer.URL, "http", "ws", -1), "", httpServer.URL)
+	conn, err := websocket.Dial(strings.Replace(httpServer.URL, "http", "ws", -1)+"/ws", "", httpServer.URL)
 	if err != nil {
 		t.Fatal("unable connect to websocket", err)
 	}
