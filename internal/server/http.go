@@ -5,6 +5,7 @@ import (
 	"net/rpc"
 	"net/rpc/jsonrpc"
 
+	"go.uber.org/zap"
 	"golang.org/x/net/websocket"
 )
 
@@ -20,7 +21,7 @@ func NewMux(options ...HTTPOptionFn) *http.ServeMux {
 	return mux
 }
 
-func WithWebSocket(server *rpc.Server, sessions *Sessions) HTTPOptionFn {
+func WithWebSocket(server *rpc.Server, sessions *Sessions, logger *zap.Logger) HTTPOptionFn {
 	return func(mux *http.ServeMux) {
 		mux.Handle(
 			"/ws",
@@ -28,8 +29,12 @@ func WithWebSocket(server *rpc.Server, sessions *Sessions) HTTPOptionFn {
 				id := sessions.Register(conn)
 				defer sessions.Unregister(id)
 
+				logger.Info("session registered", zap.String("id", id))
+
 				codec := jsonrpc.NewServerCodec(conn)
 				server.ServeCodec(codec)
+
+				logger.Info("session unregistered", zap.String("id", id))
 			}),
 		)
 	}

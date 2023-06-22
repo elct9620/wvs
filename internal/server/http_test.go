@@ -9,13 +9,15 @@ import (
 
 	"github.com/elct9620/wvs/internal/server"
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/zap"
 	"golang.org/x/net/websocket"
 )
 
 func Test_WithWebSocket(t *testing.T) {
+	logger := zap.NewNop()
 	rpcServer := newEchoRPC(t)
 	sessions := server.NewSessionStore()
-	mux := server.NewMux(server.WithWebSocket(rpcServer, sessions))
+	mux := server.NewMux(server.WithWebSocket(rpcServer, sessions, logger))
 	httpServer := httptest.NewServer(mux)
 	defer httpServer.Close()
 
