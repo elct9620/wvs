@@ -18,7 +18,7 @@ func Test_Memory_ListWaitings(t *testing.T) {
 		t.Fatal("unable to find rooms", err)
 	}
 
-	if len(rooms) < 0 {
+	if len(rooms) == 0 {
 		t.Fatal("rooms should be empty")
 	}
 }
