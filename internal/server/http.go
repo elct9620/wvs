@@ -35,7 +35,7 @@ func WithRoot(sessions SessionStore) HTTPOptionFn {
 	}
 }
 
-func WithWebSocket(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTPOptionFn {
+func WithRPC(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTPOptionFn {
 	return func(mux *http.ServeMux) {
 		mux.Handle(
 			"/rpc",

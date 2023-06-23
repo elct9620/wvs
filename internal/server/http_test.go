@@ -68,7 +68,7 @@ func Test_WithWebSocket(t *testing.T) {
 	logger := zap.NewNop()
 	rpcServer := newEchoRPC(t)
 	sessions := &MockSessionStore{RemoteAddr: "127.0.0.1"}
-	mux := server.NewMux(server.WithWebSocket(rpcServer, sessions, logger))
+	mux := server.NewMux(server.WithRPC(rpcServer, sessions, logger))
 	httpServer := httptest.NewServer(mux)
 	defer httpServer.Close()
 

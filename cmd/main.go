@@ -27,7 +27,7 @@ func main() {
 
 	mux := server.NewMux(
 		server.WithRoot(sessions),
-		server.WithWebSocket(rpcServer, sessions, logger),
+		server.WithRPC(rpcServer, sessions, logger),
 	)
 
 	err = http.ListenAndServe(":8080", mux)
