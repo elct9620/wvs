@@ -15,9 +15,11 @@ func main() {
 	}
 
 	systemCtrl := controller.NewSystem()
+	lobbyCtrl := controller.NewLobby()
 
 	rpcServer, err := server.NewRPC(
 		server.WithRPCService(systemCtrl),
+		server.WithRPCService(lobbyCtrl),
 	)
 	if err != nil {
 		logger.Fatal("unable to setup RPC server", zap.Error(err))
