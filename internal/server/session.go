@@ -2,35 +2,19 @@ package server
 
 import (
 	"io"
-	"sync"
-
-	"github.com/google/uuid"
 )
 
-type Sessions struct {
-	mu    sync.RWMutex
-	items map[string]io.ReadWriteCloser
+type Session struct {
+	id        string
+	lastAddr  string
+	userAgent string
+	publishIO io.ReadWriteCloser
 }
 
-func NewSessionStore() *Sessions {
-	return &Sessions{
-		items: make(map[string]io.ReadWriteCloser),
+func NewSession(id, lastAddr, userAgent string) *Session {
+	return &Session{
+		id:        id,
+		lastAddr:  lastAddr,
+		userAgent: userAgent,
 	}
-}
-
-func (s *Sessions) Register(conn io.ReadWriteCloser) string {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	id := uuid.NewString()
-	s.items[id] = conn
-
-	return id
-}
-
-func (s *Sessions) Unregister(id string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	delete(s.items, id)
 }

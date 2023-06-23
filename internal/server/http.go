@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+	"net"
 	"net/http"
 	"net/rpc"
 	"net/rpc/jsonrpc"
@@ -8,6 +10,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/net/websocket"
 )
+
+var ErrInvaludSession = errors.New("invalid session")
 
 type HTTPOptionFn func(mux *http.ServeMux)
 
@@ -21,21 +25,41 @@ func NewMux(options ...HTTPOptionFn) *http.ServeMux {
 	return mux
 }
 
-func WithWebSocket(server *rpc.Server, sessions *Sessions, logger *zap.Logger) HTTPOptionFn {
+func WithRoot(sessions SessionStore) HTTPOptionFn {
+	return func(mux *http.ServeMux) {
+		mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+			http.SetCookie(w, sessions.Renew(req))
+
+			w.WriteHeader(http.StatusOK)
+		})
+	}
+}
+
+func WithWebSocket(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTPOptionFn {
 	return func(mux *http.ServeMux) {
 		mux.Handle(
 			"/ws",
-			websocket.Handler(func(conn *websocket.Conn) {
-				id := sessions.Register(conn)
-				defer sessions.Unregister(id)
+			&websocket.Server{
+				Handshake: func(config *websocket.Config, req *http.Request) (err error) {
+					config.Origin, err = websocket.Origin(config, req)
 
-				logger.Info("session registered", zap.String("id", id))
+					cookie, err := req.Cookie(SessionCookieName)
+					if err != nil && !errors.Is(err, http.ErrNoCookie) {
+						return err
+					}
 
-				codec := jsonrpc.NewServerCodec(conn)
-				server.ServeCodec(codec)
+					remoteAddr, _, _ := net.SplitHostPort(req.RemoteAddr)
+					if !IsValidSession(sessions, cookie, remoteAddr, req.UserAgent()) {
+						return ErrInvaludSession
+					}
 
-				logger.Info("session unregistered", zap.String("id", id))
-			}),
+					return err
+				},
+				Handler: func(conn *websocket.Conn) {
+					codec := jsonrpc.NewServerCodec(conn)
+					server.ServeCodec(codec)
+				},
+			},
 		)
 	}
 }

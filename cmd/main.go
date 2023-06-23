@@ -23,9 +23,10 @@ func main() {
 		logger.Fatal("unable to setup RPC server", zap.Error(err))
 	}
 
-	sessions := server.NewSessionStore()
+	sessions := server.NewInMemorySession()
 
 	mux := server.NewMux(
+		server.WithRoot(sessions),
 		server.WithWebSocket(rpcServer, sessions, logger),
 	)
 
