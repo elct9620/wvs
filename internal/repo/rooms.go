@@ -28,9 +28,16 @@ func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
 	rooms := []*entity.Room{}
 
 	for row := it.Next(); row != nil; row = it.Next() {
-		room := row.(entity.Room)
-		rooms = append(rooms, &room)
+		room := row.(*entity.Room)
+		rooms = append(rooms, room)
 	}
 
 	return rooms, nil
+}
+
+func (repo *InMemoryRooms) Save(room *entity.Room) error {
+	txn := repo.db.Txn(true)
+	defer txn.Commit()
+
+	return txn.Insert(RoomTableName, room)
 }

@@ -17,7 +17,7 @@ func Test_Room_FindOrCreate(t *testing.T) {
 	room := usecases.NewRoom(roomRepo)
 	res := room.FindOrCreate("MOCK_SSID", 0)
 
-	if res.IsFound {
-		t.Fatal("the room should not be found")
+	if !res.IsFound {
+		t.Fatal("the room should be found")
 	}
 }

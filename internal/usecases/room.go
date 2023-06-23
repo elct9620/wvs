@@ -1,9 +1,13 @@
 package usecases
 
-import "github.com/elct9620/wvs/internal/entity"
+import (
+	"github.com/elct9620/wvs/internal/entity"
+	"github.com/google/uuid"
+)
 
 type RoomRepository interface {
 	ListWaitings() ([]*entity.Room, error)
+	Save(*entity.Room) error
 }
 
 type Room struct {
@@ -33,7 +37,16 @@ func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
 	}
 
 	if len(rooms) == 0 {
-		return &roomNotAvailableResult
+		room := entity.NewRoom(uuid.NewString())
+		err := uc.rooms.Save(room)
+		if err != nil {
+			return &roomNotAvailableResult
+		}
+
+		return &FindRoomResult{
+			RoomID:  room.ID,
+			IsFound: true,
+		}
 	}
 
 	return &roomNotAvailableResult
