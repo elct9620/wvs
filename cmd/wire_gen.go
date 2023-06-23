@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/elct9620/wvs/internal/ctrl"
 	"github.com/elct9620/wvs/internal/server"
+	"github.com/elct9620/wvs/internal/usecases"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -17,7 +18,8 @@ import (
 
 func initServer(logger *zap.Logger) (*http.ServeMux, error) {
 	system := controller.NewSystem()
-	lobby := controller.NewLobby()
+	room := usecases.NewRoom()
+	lobby := controller.NewLobby(room)
 	v := server.NewServices(system, lobby)
 	rpcServer, err := server.NewRPC(v...)
 	if err != nil {
