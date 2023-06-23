@@ -46,18 +46,7 @@ func Test_WithRoot(t *testing.T) {
 		t.Fatal("unable to access root", err)
 	}
 
-	cookies := res.Cookies()
-	var sessionID *http.Cookie
-
-	for _, cookie := range cookies {
-		if cookie.Name == server.SessionCookieName {
-			sessionID = cookie
-		}
-	}
-
-	if sessionID == nil {
-		t.Fatal("session id shoud be exists")
-	}
+	sessionID := findCookie(t, res.Cookies(), server.SessionCookieName)
 
 	if len(sessionID.Value) <= 0 {
 		t.Fatal("session id should have value")
@@ -102,4 +91,17 @@ func getWebsocketConn(url string) (*websocket.Conn, error) {
 	config.Header.Add("Cookie", server.SessionCookieName+"=MOCK_SSID")
 
 	return websocket.DialConfig(config)
+}
+
+func findCookie(t *testing.T, cookies []*http.Cookie, name string) *http.Cookie {
+	t.Helper()
+
+	for _, cookie := range cookies {
+		if cookie.Name == name {
+			return cookie
+		}
+	}
+
+	t.Fatal("unable to find cookie")
+	return nil
 }

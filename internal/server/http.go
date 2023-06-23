@@ -42,6 +42,9 @@ func WithRPC(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTP
 			&websocket.Server{
 				Handshake: func(config *websocket.Config, req *http.Request) (err error) {
 					config.Origin, err = websocket.Origin(config, req)
+					if err != nil {
+						return err
+					}
 
 					cookie, err := req.Cookie(SessionCookieName)
 					if err != nil && !errors.Is(err, http.ErrNoCookie) {
