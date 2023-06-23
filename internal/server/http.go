@@ -38,7 +38,7 @@ func WithRoot(sessions SessionStore) HTTPOptionFn {
 func WithWebSocket(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTPOptionFn {
 	return func(mux *http.ServeMux) {
 		mux.Handle(
-			"/ws",
+			"/rpc",
 			&websocket.Server{
 				Handshake: func(config *websocket.Config, req *http.Request) (err error) {
 					config.Origin, err = websocket.Origin(config, req)

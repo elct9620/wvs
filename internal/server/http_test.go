@@ -95,7 +95,7 @@ func Test_WithWebSocket(t *testing.T) {
 }
 
 func getWebsocketConn(url string) (*websocket.Conn, error) {
-	config, err := websocket.NewConfig(strings.Replace(url, "http", "ws", -1)+"/ws", url)
+	config, err := websocket.NewConfig(strings.Replace(url, "http", "ws", -1)+"/rpc", url)
 	if err != nil {
 		return nil, err
 	}
