@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var ErrInvaludSession = errors.New("invalid session")
+var ErrInvalidSession = errors.New("invalid session")
 
 type HTTPOptionFn func(mux *http.ServeMux)
 
@@ -50,7 +50,8 @@ func WithRPC(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTP
 
 					remoteAddr, _, _ := net.SplitHostPort(req.RemoteAddr)
 					if !IsValidSession(sessions, cookie, remoteAddr, req.UserAgent()) {
-						return ErrInvaludSession
+						logger.Info("invalid session", zap.String("SSID", cookie.Value), zap.String("remoteAddr", remoteAddr), zap.String("userAgent", req.UserAgent()))
+						return ErrInvalidSession
 					}
 
 					return err
@@ -61,5 +62,16 @@ func WithRPC(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTP
 				},
 			},
 		)
+	}
+}
+
+func NewRoutes(
+	server *rpc.Server,
+	sessions SessionStore,
+	logger *zap.Logger,
+) []HTTPOptionFn {
+	return []HTTPOptionFn{
+		WithRoot(sessions),
+		WithRPC(server, sessions, logger),
 	}
 }

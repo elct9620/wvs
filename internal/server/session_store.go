@@ -38,7 +38,7 @@ func (s *InMemorySession) Find(id string) *Session {
 
 func (s *InMemorySession) Renew(req *http.Request) *http.Cookie {
 	cookie, err := req.Cookie(SessionCookieName)
-	if !errors.Is(err, http.ErrNoCookie) {
+	if err != nil && !errors.Is(err, http.ErrNoCookie) {
 		return nil
 	}
 
