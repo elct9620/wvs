@@ -3,8 +3,13 @@
 
 package usecases
 
-import "github.com/google/wire"
+import (
+	repository "github.com/elct9620/wvs/internal/repo"
+	"github.com/google/wire"
+)
 
-var ProviderSet = wire.NewSet(
+var ProviderInMemorySet = wire.NewSet(
+	repository.ProvideInMemorySet,
+	wire.Bind(new(RoomRepository), new(*repository.InMemoryRooms)),
 	NewRoom,
 )

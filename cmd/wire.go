@@ -15,7 +15,7 @@ import (
 
 func initServer(logger *zap.Logger) (*http.ServeMux, error) {
 	wire.Build(
-		usecases.ProviderSet,
+		usecases.ProviderInMemorySet,
 		controller.ProviderSet,
 		server.ProvideInMemorySession,
 		server.NewServices,

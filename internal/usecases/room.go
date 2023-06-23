@@ -1,9 +1,19 @@
 package usecases
 
-type Room struct{}
+import "github.com/elct9620/wvs/internal/entity"
 
-func NewRoom() *Room {
-	return &Room{}
+type RoomRepository interface {
+	ListWaitings() ([]*entity.Room, error)
+}
+
+type Room struct {
+	rooms RoomRepository
+}
+
+func NewRoom(rooms RoomRepository) *Room {
+	return &Room{
+		rooms: rooms,
+	}
 }
 
 type FindRoomResult struct {
@@ -11,9 +21,20 @@ type FindRoomResult struct {
 	IsFound bool
 }
 
+var roomNotAvailableResult = FindRoomResult{
+	RoomID:  "",
+	IsFound: false,
+}
+
 func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
-	return &FindRoomResult{
-		RoomID:  "",
-		IsFound: false,
+	rooms, err := uc.rooms.ListWaitings()
+	if err != nil {
+		return &roomNotAvailableResult
 	}
+
+	if len(rooms) == 0 {
+		return &roomNotAvailableResult
+	}
+
+	return &roomNotAvailableResult
 }

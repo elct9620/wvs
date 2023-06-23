@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/elct9620/wvs/internal/ctrl"
+	"github.com/elct9620/wvs/internal/repo"
 	"github.com/elct9620/wvs/internal/server"
 	"github.com/elct9620/wvs/internal/usecases"
 	"go.uber.org/zap"
@@ -18,7 +19,12 @@ import (
 
 func initServer(logger *zap.Logger) (*http.ServeMux, error) {
 	system := controller.NewSystem()
-	room := usecases.NewRoom()
+	memDB, err := repository.NewMemDB()
+	if err != nil {
+		return nil, err
+	}
+	inMemoryRooms := repository.NewInMemoryRoom(memDB)
+	room := usecases.NewRoom(inMemoryRooms)
 	lobby := controller.NewLobby(room)
 	v := server.NewServices(system, lobby)
 	rpcServer, err := server.NewRPC(v...)
