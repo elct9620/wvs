@@ -5,6 +5,7 @@ import (
 
 	repository "github.com/elct9620/wvs/internal/repo"
 	"github.com/elct9620/wvs/internal/usecases"
+	"github.com/google/uuid"
 )
 
 func Test_Room_FindOrCreate(t *testing.T) {
@@ -14,8 +15,9 @@ func Test_Room_FindOrCreate(t *testing.T) {
 	}
 
 	roomRepo := repository.NewInMemoryRoom(db)
-	room := usecases.NewRoom(roomRepo)
-	res := room.FindOrCreate("MOCK_SSID", 0)
+	playerRepo := repository.NewInMemoryPlayer(db)
+	room := usecases.NewRoom(roomRepo, playerRepo)
+	res := room.FindOrCreate(uuid.NewString(), 0)
 
 	if !res.IsFound {
 		t.Fatal("the room should be found")

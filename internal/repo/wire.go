@@ -8,4 +8,5 @@ import "github.com/google/wire"
 var ProvideInMemorySet = wire.NewSet(
 	NewMemDB,
 	NewInMemoryRoom,
+	NewInMemoryPlayer,
 )

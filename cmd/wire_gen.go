@@ -24,7 +24,8 @@ func initServer(logger *zap.Logger) (*http.ServeMux, error) {
 		return nil, err
 	}
 	inMemoryRooms := repository.NewInMemoryRoom(memDB)
-	room := usecases.NewRoom(inMemoryRooms)
+	inMemoryPlayers := repository.NewInMemoryPlayer(memDB)
+	room := usecases.NewRoom(inMemoryRooms, inMemoryPlayers)
 	lobby := controller.NewLobby(room)
 	v := server.NewServices(system, lobby)
 	rpcServer, err := server.NewRPC(v...)

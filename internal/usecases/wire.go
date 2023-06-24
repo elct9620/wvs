@@ -11,5 +11,6 @@ import (
 var ProviderInMemorySet = wire.NewSet(
 	repository.ProvideInMemorySet,
 	wire.Bind(new(RoomRepository), new(*repository.InMemoryRooms)),
+	wire.Bind(new(PlayerRepository), new(*repository.InMemoryPlayers)),
 	NewRoom,
 )
