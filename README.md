@@ -17,4 +17,11 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 
 > **Note**
 >
-> TODO
+> Working in progress
+
+### Entities
+
+| Aggregate | Entity   | Description                              |
+|-----------|----------|------------------------------------------|
+| `Room`    | -        | Each game have their room with 2 players |
+| `Room`    | `Player` | The player in the room                   |
