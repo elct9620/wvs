@@ -41,8 +41,14 @@ func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
 	}
 
 	if len(rooms) == 0 {
+		player := entity.NewPlayer(sessionID)
 		room := entity.NewRoom(uuid.NewString())
-		err := uc.rooms.Save(room)
+		err := room.AddPlayer(player)
+		if err != nil {
+			return &roomNotAvailableResult
+		}
+
+		err = uc.rooms.Save(room)
 		if err != nil {
 			return &roomNotAvailableResult
 		}

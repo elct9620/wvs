@@ -47,6 +47,10 @@ func defineMemoryPlayerTable(schema *memdb.DBSchema) {
 				Unique:  true,
 				Indexer: &memdb.UUIDFieldIndex{Field: "ID"},
 			},
+			"roomID": {
+				Name:    "roomID",
+				Indexer: &memdb.UUIDFieldIndex{Field: "RoomID"},
+			},
 		},
 	}
 }

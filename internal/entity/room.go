@@ -8,14 +8,16 @@ const (
 type RoomOptionFn = func(room *Room)
 
 type Room struct {
-	ID    string
-	State int
+	ID      string
+	State   int
+	Players []*Player
 }
 
 func NewRoom(id string, options ...RoomOptionFn) *Room {
 	room := &Room{
-		ID:    id,
-		State: RoomWaiting,
+		ID:      id,
+		State:   RoomWaiting,
+		Players: make([]*Player, 0),
 	}
 
 	for _, fn := range options {
@@ -25,8 +27,20 @@ func NewRoom(id string, options ...RoomOptionFn) *Room {
 	return room
 }
 
+func (r *Room) AddPlayer(player *Player) error {
+	r.Players = append(r.Players, player)
+
+	return nil
+}
+
 func WithRoomState(state int) RoomOptionFn {
 	return func(room *Room) {
 		room.State = state
+	}
+}
+
+func WithRoomPlayer(player *Player) RoomOptionFn {
+	return func(room *Room) {
+		room.Players = append(room.Players, player)
 	}
 }

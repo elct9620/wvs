@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func Test_Memory_ListWaitings(t *testing.T) {
+func Test_MemoryRoom_ListWaitings(t *testing.T) {
 	tests := []struct {
 		Name          string
 		Rooms         []*entity.Room

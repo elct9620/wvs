@@ -34,7 +34,8 @@ func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
 
 	for row := it.Next(); row != nil; row = it.Next() {
 		room := row.(*roomSchema)
-		rooms = append(rooms, buildRoomFromSchema(txn, room))
+		entity := buildRoomFromSchema(txn, room)
+		rooms = append(rooms, entity)
 	}
 
 	return rooms, nil
@@ -44,15 +45,44 @@ func (repo *InMemoryRooms) Save(room *entity.Room) error {
 	txn := repo.db.Txn(true)
 	defer txn.Commit()
 
-	return txn.Insert(RoomTableName, &roomSchema{
+	err := txn.Insert(RoomTableName, &roomSchema{
 		ID:    room.ID,
 		State: room.State,
 	})
+	if err != nil {
+		txn.Abort()
+		return err
+	}
+
+	for _, player := range room.Players {
+		err := txn.Insert(PlayerTableName, &playerSchema{
+			ID:     player.ID,
+			RoomID: room.ID,
+		})
+
+		if err != nil {
+			txn.Abort()
+			return err
+		}
+	}
+
+	return nil
 }
 
 func buildRoomFromSchema(txn *memdb.Txn, room *roomSchema) *entity.Room {
-	return entity.NewRoom(
-		room.ID,
+	options := []entity.RoomOptionFn{
 		entity.WithRoomState(room.State),
-	)
+	}
+
+	playerIt, err := txn.Get(PlayerTableName, "roomID", room.ID)
+	if err != nil {
+		return nil
+	}
+
+	for row := playerIt.Next(); row != nil; row = playerIt.Next() {
+		player := buildPlayerFromSchema(row.(*playerSchema))
+		options = append(options, entity.WithRoomPlayer(player))
+	}
+
+	return entity.NewRoom(room.ID, options...)
 }
