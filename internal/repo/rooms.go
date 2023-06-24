@@ -63,20 +63,14 @@ func (repo *InMemoryRooms) Save(room *entity.Room) error {
 	txn := repo.db.Txn(true)
 	defer txn.Commit()
 
-	err := txn.Insert(RoomTableName, &roomSchema{
-		ID:    room.ID,
-		State: room.State,
-	})
+	err := txn.Insert(RoomTableName, buildRoomSchema(room))
 	if err != nil {
 		txn.Abort()
 		return err
 	}
 
 	for _, player := range room.Players {
-		err := txn.Insert(PlayerTableName, &playerSchema{
-			ID:     player.ID,
-			RoomID: room.ID,
-		})
+		err := txn.Insert(PlayerTableName, buildPlayerSchema(room.ID, player))
 
 		if err != nil {
 			txn.Abort()
@@ -85,6 +79,13 @@ func (repo *InMemoryRooms) Save(room *entity.Room) error {
 	}
 
 	return nil
+}
+
+func buildRoomSchema(room *entity.Room) *roomSchema {
+	return &roomSchema{
+		ID:    room.ID,
+		State: room.State,
+	}
 }
 
 func buildRoomFromSchema(txn *memdb.Txn, room *roomSchema) *entity.Room {
