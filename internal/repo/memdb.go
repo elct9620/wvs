@@ -13,6 +13,10 @@ func NewMemDB() (*memdb.MemDB, error) {
 						Unique:  true,
 						Indexer: &memdb.UUIDFieldIndex{Field: "ID"},
 					},
+					"state": {
+						Name:    "state",
+						Indexer: &memdb.IntFieldIndex{Field: "State"},
+					},
 				},
 			},
 		},

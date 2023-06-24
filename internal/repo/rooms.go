@@ -21,7 +21,7 @@ func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
 	txn := repo.db.Txn(false)
 	defer txn.Abort()
 
-	it, err := txn.Get(RoomTableName, "id")
+	it, err := txn.Get(RoomTableName, "state", entity.RoomWaiting)
 	if err != nil {
 		return nil, err
 	}

@@ -27,6 +27,14 @@ func Test_Memory_ListWaitings(t *testing.T) {
 			},
 			ExpectedCount: 1,
 		},
+		{
+			Name: "have 1 available room and 1 started",
+			Rooms: []*entity.Room{
+				entity.NewRoom(uuid.NewString()),
+				entity.NewRoom(uuid.NewString(), entity.WithRoomState(entity.RoomStarted)),
+			},
+			ExpectedCount: 1,
+		},
 	}
 
 	for _, tc := range tests {
