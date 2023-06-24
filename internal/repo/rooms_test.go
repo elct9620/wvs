@@ -9,6 +9,59 @@ import (
 	"github.com/google/uuid"
 )
 
+func Test_MemoryRoom_FindRoomBySessionID(t *testing.T) {
+	sessionID := "c801108d-bf95-419b-8d78-a29d5e80ac4b"
+
+	tests := []struct {
+		Name                string
+		Before              func(repo *repository.InMemoryRooms) error
+		ExpectedPlayerCount int
+	}{
+		{
+			Name:                "no room available",
+			Before:              func(repo *repository.InMemoryRooms) error { return nil },
+			ExpectedPlayerCount: 0,
+		},
+		{
+			Name: "room with 1 player",
+			Before: func(repo *repository.InMemoryRooms) error {
+				player := entity.NewPlayer(sessionID)
+				room := entity.NewRoom(uuid.NewString())
+				err := room.AddPlayer(player)
+				if err != nil {
+					return err
+				}
+
+				return repo.Save(room)
+			},
+			ExpectedPlayerCount: 1,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
+			repo := getInMemoryRoomRepo(t)
+			err := tc.Before(repo)
+			if err != nil {
+				t.Fatal("unable to prepare test", err)
+			}
+
+			room := repo.FindRoomBySessionID(sessionID)
+			if tc.ExpectedPlayerCount == 0 && room != nil {
+				t.Fatal("room should be empty")
+			}
+
+			if room != nil && len(room.Players) != tc.ExpectedPlayerCount {
+				t.Fatal("player amount mismatched", cmp.Diff(tc.ExpectedPlayerCount, len(room.Players)))
+			}
+		})
+	}
+}
+
 func Test_MemoryRoom_ListWaitings(t *testing.T) {
 	tests := []struct {
 		Name          string
@@ -43,11 +96,7 @@ func Test_MemoryRoom_ListWaitings(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 
-			db, err := repository.NewMemDB()
-			if err != nil {
-				t.Fatal("unable to initialize memdb", err)
-			}
-			repo := repository.NewInMemoryRoom(db)
+			repo := getInMemoryRoomRepo(t)
 
 			for _, room := range tc.Rooms {
 				err := repo.Save(room)
@@ -66,4 +115,15 @@ func Test_MemoryRoom_ListWaitings(t *testing.T) {
 			}
 		})
 	}
+}
+
+func getInMemoryRoomRepo(t *testing.T) *repository.InMemoryRooms {
+	t.Helper()
+
+	db, err := repository.NewMemDB()
+	if err != nil {
+		t.Fatal("unable to initialize memdb", err)
+	}
+
+	return repository.NewInMemoryRoom(db)
 }

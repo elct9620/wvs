@@ -22,6 +22,24 @@ func NewInMemoryRoom(db *memdb.MemDB) *InMemoryRooms {
 	}
 }
 
+func (repo *InMemoryRooms) FindRoomBySessionID(id string) *entity.Room {
+	txn := repo.db.Txn(false)
+	defer txn.Abort()
+
+	row, err := txn.First(PlayerTableName, "id", id)
+	if err != nil || row == nil {
+		return nil
+	}
+
+	player := row.(*playerSchema)
+	row, err = txn.First(RoomTableName, "id", player.RoomID)
+	if err != nil || row == nil {
+		return nil
+	}
+
+	return buildRoomFromSchema(txn, row.(*roomSchema))
+}
+
 func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
 	txn := repo.db.Txn(false)
 	defer txn.Abort()
