@@ -3,8 +3,7 @@ package entity
 type PlayerOptionFn = func(player *Player)
 
 type Player struct {
-	ID   string
-	Room *Room
+	ID string
 }
 
 func NewPlayer(id string, options ...PlayerOptionFn) *Player {
@@ -17,15 +16,4 @@ func NewPlayer(id string, options ...PlayerOptionFn) *Player {
 	}
 
 	return player
-}
-
-func (p *Player) Join(room *Room) bool {
-	p.Room = room
-	return true
-}
-
-func WithPlayerRoom(room *Room) PlayerOptionFn {
-	return func(player *Player) {
-		player.Room = room
-	}
 }

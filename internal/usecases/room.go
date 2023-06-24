@@ -15,14 +15,12 @@ type PlayerRepository interface {
 }
 
 type Room struct {
-	rooms   RoomRepository
-	players PlayerRepository
+	rooms RoomRepository
 }
 
-func NewRoom(rooms RoomRepository, players PlayerRepository) *Room {
+func NewRoom(rooms RoomRepository) *Room {
 	return &Room{
-		rooms:   rooms,
-		players: players,
+		rooms: rooms,
 	}
 }
 
@@ -37,11 +35,6 @@ var roomNotAvailableResult = FindRoomResult{
 }
 
 func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
-	player := uc.players.FindOrCreate(sessionID)
-	if player == nil {
-		return &roomNotAvailableResult
-	}
-
 	rooms, err := uc.rooms.ListWaitings()
 	if err != nil {
 		return &roomNotAvailableResult
@@ -49,7 +42,6 @@ func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
 
 	if len(rooms) == 0 {
 		room := entity.NewRoom(uuid.NewString())
-		player.Join(room)
 		err := uc.rooms.Save(room)
 		if err != nil {
 			return &roomNotAvailableResult

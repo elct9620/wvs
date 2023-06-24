@@ -15,8 +15,7 @@ func Test_Room_FindOrCreate(t *testing.T) {
 	}
 
 	roomRepo := repository.NewInMemoryRoom(db)
-	playerRepo := repository.NewInMemoryPlayer(db)
-	room := usecases.NewRoom(roomRepo, playerRepo)
+	room := usecases.NewRoom(roomRepo)
 	res := room.FindOrCreate(uuid.NewString(), 0)
 
 	if !res.IsFound {

@@ -15,8 +15,7 @@ func Test_Lobby_StartMatch(t *testing.T) {
 	}
 
 	roomRepo := repository.NewInMemoryRoom(db)
-	playerRepo := repository.NewInMemoryPlayer(db)
-	room := usecases.NewRoom(roomRepo, playerRepo)
+	room := usecases.NewRoom(roomRepo)
 	lobby := controller.NewLobby(room)
 	args := controller.StartArgs{Team: 0}
 	var reply controller.StartReply
