@@ -34,10 +34,7 @@ func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
 
 	for row := it.Next(); row != nil; row = it.Next() {
 		room := row.(*roomSchema)
-		rooms = append(rooms, entity.NewRoom(
-			room.ID,
-			entity.WithRoomState(room.State),
-		))
+		rooms = append(rooms, buildRoomFromSchema(txn, room))
 	}
 
 	return rooms, nil
@@ -51,4 +48,11 @@ func (repo *InMemoryRooms) Save(room *entity.Room) error {
 		ID:    room.ID,
 		State: room.State,
 	})
+}
+
+func buildRoomFromSchema(txn *memdb.Txn, room *roomSchema) *entity.Room {
+	return entity.NewRoom(
+		room.ID,
+		entity.WithRoomState(room.State),
+	)
 }

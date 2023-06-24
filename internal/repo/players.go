@@ -7,6 +7,11 @@ import (
 
 const PlayerTableName = "players"
 
+type playerSchema struct {
+	ID     string
+	RoomID string
+}
+
 type InMemoryPlayers struct {
 	db *memdb.MemDB
 }
@@ -27,11 +32,14 @@ func (repo *InMemoryPlayers) FindOrCreate(id string) *entity.Player {
 	}
 
 	if row != nil {
-		return row.(*entity.Player)
+		player := row.(*playerSchema)
+		return buildPlayerFromSchema(txn, player)
 	}
 
 	player := entity.NewPlayer(id)
-	err = txn.Insert(PlayerTableName, player)
+	err = txn.Insert(PlayerTableName, &playerSchema{
+		ID: player.ID,
+	})
 	if err != nil {
 		return nil
 	}
@@ -43,5 +51,31 @@ func (repo *InMemoryPlayers) Save(player *entity.Player) error {
 	txn := repo.db.Txn(true)
 	defer txn.Commit()
 
-	return txn.Insert(PlayerTableName, player)
+	var roomID string
+	if player.Room != nil {
+		roomID = player.Room.ID
+	}
+
+	return txn.Insert(PlayerTableName, &playerSchema{
+		ID:     player.ID,
+		RoomID: roomID,
+	})
+}
+
+func buildPlayerFromSchema(txn *memdb.Txn, player *playerSchema) *entity.Player {
+	options := make([]entity.PlayerOptionFn, 0)
+
+	if len(player.RoomID) > 0 {
+		room, err := txn.First(RoomTableName, "id", player.RoomID)
+		if err != nil {
+			return nil
+		}
+
+		options = append(options, entity.WithPlayerRoom(buildRoomFromSchema(txn, room.(*roomSchema))))
+	}
+
+	return entity.NewPlayer(
+		player.ID,
+		options...,
+	)
 }
