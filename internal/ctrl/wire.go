@@ -5,7 +5,7 @@ package controller
 
 import "github.com/google/wire"
 
-var ProviderSet = wire.NewSet(
+var ProvideController = wire.NewSet(
 	NewSystem,
 	NewLobby,
 )

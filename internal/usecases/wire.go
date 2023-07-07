@@ -8,9 +8,8 @@ import (
 	"github.com/google/wire"
 )
 
-var ProviderInMemorySet = wire.NewSet(
+var ProvideInMemoryUseCase = wire.NewSet(
 	repository.ProvideInMemorySet,
 	wire.Bind(new(RoomRepository), new(*repository.InMemoryRooms)),
-	wire.Bind(new(PlayerRepository), new(*repository.InMemoryPlayers)),
 	NewRoom,
 )
