@@ -25,16 +25,6 @@ func NewMux(options ...HTTPOptionFn) *http.ServeMux {
 	return mux
 }
 
-func WithRoot(sessions SessionStore) HTTPOptionFn {
-	return func(mux *http.ServeMux) {
-		mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-			http.SetCookie(w, sessions.Renew(req))
-
-			w.WriteHeader(http.StatusOK)
-		})
-	}
-}
-
 func WithRPC(server *rpc.Server, sessions SessionStore, logger *zap.Logger) HTTPOptionFn {
 	return func(mux *http.ServeMux) {
 		mux.Handle(
@@ -74,7 +64,7 @@ func NewRoutes(
 	logger *zap.Logger,
 ) []HTTPOptionFn {
 	return []HTTPOptionFn{
-		WithRoot(sessions),
+		WithRoot(sessions, logger),
 		WithRPC(server, sessions, logger),
 	}
 }
