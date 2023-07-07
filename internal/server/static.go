@@ -14,7 +14,16 @@ import (
 )
 
 func mustNewAssetsContext(logger *zap.Logger) api.BuildContext {
-	ctx, err := api.Context(api.BuildOptions{})
+	ctx, err := api.Context(api.BuildOptions{
+		EntryPoints: []string{
+			ScriptDir + "/app.ts",
+		},
+		Define: map[string]string{
+			"DEV": "true",
+		},
+		Bundle: true,
+		Outdir: StaticDir + "/js",
+	})
 	if err != nil {
 		for _, msg := range err.Errors {
 			logger.Error(msg.Text)
@@ -33,7 +42,9 @@ func mustWatchAssets(ctx api.BuildContext, logger *zap.Logger) {
 }
 
 func mustServeAssets(ctx api.BuildContext, logger *zap.Logger) *api.ServeResult {
-	res, err := ctx.Serve(api.ServeOptions{})
+	res, err := ctx.Serve(api.ServeOptions{
+		Servedir: StaticDir,
+	})
 	if err != nil {
 		logger.Fatal(err.Error())
 	}

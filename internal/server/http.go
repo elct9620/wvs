@@ -11,6 +11,9 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+const StaticDir = "static"
+const ScriptDir = "assets/js"
+
 var ErrInvalidSession = errors.New("invalid session")
 
 type HTTPOptionFn func(mux *http.ServeMux)
