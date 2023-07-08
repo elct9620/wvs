@@ -3,6 +3,8 @@ module github.com/elct9620/wvs
 go 1.18
 
 require (
+	github.com/elct9620/esbuild-fs v0.0.0-20230708084648-f3911e1d3be0
+	github.com/evanw/esbuild v0.18.11
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
@@ -12,7 +14,6 @@ require (
 )
 
 require (
-	github.com/evanw/esbuild v0.18.11 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	go.uber.org/atomic v1.11.0 // indirect

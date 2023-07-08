@@ -38,7 +38,7 @@ func (s *MockSessionStore) Destroy(id string) error { return nil }
 
 func Test_WithRoot(t *testing.T) {
 	sessions := server.NewInMemorySession()
-	mux := server.NewMux(server.WithRoot(sessions, zap.NewNop()))
+	mux := server.NewMux(server.WithRoot(sessions))
 	httpServer := httptest.NewServer(mux)
 
 	res, err := http.Get(httpServer.URL)
