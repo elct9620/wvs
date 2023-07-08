@@ -6,6 +6,8 @@ github.com/elct9620/esbuild-fs v0.0.0-20230708102411-7540fb434dd6 h1:QYWpyQkts1V
 github.com/elct9620/esbuild-fs v0.0.0-20230708102411-7540fb434dd6/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
 github.com/elct9620/esbuild-fs v0.0.0-20230708134922-549fe65afe71 h1:N4JrE8dpqFAfLRdL4yhJyqgVw5aQUQdsXsHjw4VqAC0=
 github.com/elct9620/esbuild-fs v0.0.0-20230708134922-549fe65afe71/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
+github.com/elct9620/esbuild-fs v0.0.0-20230708141825-585a7f46096d h1:VglsCOlrCITBIKgy1gRukLIQqjpdEQwUF+3hStzKtAI=
+github.com/elct9620/esbuild-fs v0.0.0-20230708141825-585a7f46096d/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
 github.com/evanw/esbuild v0.18.11 h1:Mb0qb9KyJQraob0Y7LA0DOdD8ijJs2TxhqgqrDeGq4w=
 github.com/evanw/esbuild v0.18.11/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=
