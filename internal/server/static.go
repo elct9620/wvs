@@ -17,9 +17,6 @@ var BuildOptions = api.BuildOptions{
 	EntryPoints: []string{
 		"assets/app.ts",
 	},
-	Define: map[string]string{
-		"DEV": "true",
-	},
 	Bundle: true,
 	Outdir: "dist",
 }
