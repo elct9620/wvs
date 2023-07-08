@@ -23,7 +23,7 @@ var BuildOptions = api.BuildOptions{
 }
 
 func WithAssets(logger *zap.Logger) HTTPOptionFn {
-	assets, sse, err := esbuildfs.Serve(BuildOptions, esbuildfs.WithHandlerPrefix("assets"))
+	assets, sse, err := esbuildfs.Serve(BuildOptions, esbuildfs.WithPrefix("assets"))
 
 	if err != nil {
 		logger.Fatal(err.Error())
