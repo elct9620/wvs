@@ -3,7 +3,7 @@ module github.com/elct9620/wvs
 go 1.18
 
 require (
-	github.com/elct9620/esbuild-fs v0.0.0-20230708084648-f3911e1d3be0
+	github.com/elct9620/esbuild-fs v0.0.0-20230708102411-7540fb434dd6
 	github.com/evanw/esbuild v0.18.11
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0

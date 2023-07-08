@@ -17,8 +17,9 @@ var BuildOptions = api.BuildOptions{
 	EntryPoints: []string{
 		"assets/app.ts",
 	},
-	Bundle: true,
-	Outdir: "dist",
+	Bundle:   true,
+	Outdir:   "dist",
+	LogLevel: api.LogLevelDebug,
 }
 
 func WithAssets(logger *zap.Logger) HTTPOptionFn {

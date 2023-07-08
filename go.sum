@@ -1,9 +1,9 @@
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/elct9620/esbuild-fs v0.0.0-20230708063540-21e446e502fd h1:0RDrNlZ+AxqdKjMatt7Hay7W+P7wOiZjIZl8PoMDk8M=
-github.com/elct9620/esbuild-fs v0.0.0-20230708063540-21e446e502fd/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
-github.com/elct9620/esbuild-fs v0.0.0-20230708084648-f3911e1d3be0 h1:4k0kBhwQ7kUqwWNHkDQgmZJhQnmvhKoD8De88DRxdyk=
-github.com/elct9620/esbuild-fs v0.0.0-20230708084648-f3911e1d3be0/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
+github.com/elct9620/esbuild-fs v0.0.0-20230708084851-3a1e6c8ff20a h1:UQuKRgRoY9xRw7ZHFQ+v+1NhVf8i+IFB5NxDJ54Kkc8=
+github.com/elct9620/esbuild-fs v0.0.0-20230708084851-3a1e6c8ff20a/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
+github.com/elct9620/esbuild-fs v0.0.0-20230708102411-7540fb434dd6 h1:QYWpyQkts1V3zMlj2w3+OJtHs0M3rTtzvd/Nb3AceWk=
+github.com/elct9620/esbuild-fs v0.0.0-20230708102411-7540fb434dd6/go.mod h1:1GlEngRwWD2Dw0gzuHkIDmftJoZs9PQ9IPgF68Cpipc=
 github.com/evanw/esbuild v0.18.11 h1:Mb0qb9KyJQraob0Y7LA0DOdD8ijJs2TxhqgqrDeGq4w=
 github.com/evanw/esbuild v0.18.11/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=
