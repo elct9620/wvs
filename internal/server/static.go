@@ -11,6 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const isLiveReload = true
+
 var BuildOptions = api.BuildOptions{
 	EntryPoints: []string{
 		"assets/app.ts",

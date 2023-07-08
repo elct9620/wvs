@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="description" content="" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
+	<title>Walrus vs Slime 2.0</title>
+</head>
+<body>
+  <script src="assets/app.js"></script>
+  {{ if .LiveReload }}
+  <script>
+    new EventSource('/esbuild').addEventListener('change', () => location.reload())
+  </script>
+  {{ end }}
+</body>
+</html>

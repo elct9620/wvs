@@ -1,7 +1,9 @@
 package server
 
 import (
+	_ "embed"
 	"errors"
+	"html/template"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -29,7 +31,15 @@ func WithRoot(sessions SessionStore) HTTPOptionFn {
 	return func(mux *http.ServeMux) {
 		mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 			http.SetCookie(w, sessions.Renew(req))
+
 			w.WriteHeader(http.StatusOK)
+			err := renderRoot(w, rootContext{
+				LiveReload: isLiveReload,
+			})
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		})
 	}
 }
@@ -77,4 +87,20 @@ func NewRoutes(
 		WithRPC(server, sessions, logger),
 		WithAssets(logger),
 	}
+}
+
+//go:embed view/index.html
+var rootHTML string
+
+type rootContext struct {
+	LiveReload bool
+}
+
+func renderRoot(w http.ResponseWriter, ctx rootContext) error {
+	tmpl, err := template.New("root").Parse(rootHTML)
+	if err != nil {
+		return err
+	}
+
+	return tmpl.Execute(w, ctx)
 }
