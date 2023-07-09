@@ -69,26 +69,63 @@ func Test_MemoryRoom_ListAvailable(t *testing.T) {
 	tests := []struct {
 		Name          string
 		Team          int
-		Rooms         []*entity.Room
+		Before        func(repo *repository.InMemoryRooms) error
 		ExpectedCount int
 	}{
 		{
-			Name:          "no rooms",
-			Rooms:         []*entity.Room{},
+			Name: "no rooms",
+			Before: func(repo *repository.InMemoryRooms) error {
+				return nil
+			},
 			ExpectedCount: 0,
 		},
 		{
 			Name: "have 1 available room",
-			Rooms: []*entity.Room{
-				entity.NewRoom(uuid.NewString()),
+			Before: func(repo *repository.InMemoryRooms) error {
+				room := entity.NewRoom(uuid.NewString())
+				return repo.Save(room)
 			},
 			ExpectedCount: 1,
 		},
 		{
 			Name: "have 1 available room and 1 started",
-			Rooms: []*entity.Room{
-				entity.NewRoom(uuid.NewString()),
-				entity.NewRoom(uuid.NewString(), entity.WithRoomState(entity.RoomStarted)),
+			Before: func(repo *repository.InMemoryRooms) error {
+				room := entity.NewRoom(uuid.NewString())
+				err := repo.Save(room)
+				if err != nil {
+					return err
+				}
+
+				room = entity.NewRoom(uuid.NewString(), entity.WithRoomState(entity.RoomStarted))
+				return repo.Save(room)
+			},
+			ExpectedCount: 1,
+		},
+		{
+			Name: "have 1 available room but have same team",
+			Team: entity.TeamWalrus,
+			Before: func(repo *repository.InMemoryRooms) error {
+				room := entity.NewRoom(uuid.NewString())
+				err := room.AddPlayer(uuid.NewString(), entity.TeamWalrus)
+				if err != nil {
+					return err
+				}
+
+				return repo.Save(room)
+			},
+			ExpectedCount: 0,
+		},
+		{
+			Name: "have 1 available room and different team",
+			Team: entity.TeamWalrus,
+			Before: func(repo *repository.InMemoryRooms) error {
+				room := entity.NewRoom(uuid.NewString())
+				err := room.AddPlayer(uuid.NewString(), entity.TeamSlime)
+				if err != nil {
+					return err
+				}
+
+				return repo.Save(room)
 			},
 			ExpectedCount: 1,
 		},
@@ -101,12 +138,9 @@ func Test_MemoryRoom_ListAvailable(t *testing.T) {
 			t.Parallel()
 
 			repo := getInMemoryRoomRepo(t)
-
-			for _, room := range tc.Rooms {
-				err := repo.Save(room)
-				if err != nil {
-					t.Fatal("unable to insert room", err)
-				}
+			err := tc.Before(repo)
+			if err != nil {
+				t.Fatal("unable to prepare test", err)
 			}
 
 			rooms, err := repo.ListAvailable(tc.Team)
