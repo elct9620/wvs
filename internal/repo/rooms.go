@@ -22,21 +22,21 @@ func NewInMemoryRoom(db *memdb.MemDB) *InMemoryRooms {
 	}
 }
 
-func (repo *InMemoryRooms) FindRoomBySessionID(id string) *entity.Room {
+func (repo *InMemoryRooms) FindRoomBySessionID(id string) (*entity.Room, error) {
 	txn := repo.db.Txn(false)
 	defer txn.Abort()
 
 	row, err := txn.First(PlayerTableName, "id", id)
 	isPlayerNotExist := err != nil || row == nil
 	if isPlayerNotExist {
-		return nil
+		return nil, err
 	}
 
 	player := row.(*playerSchema)
 	row, err = txn.First(RoomTableName, "id", player.RoomID)
 	isRoomNotExist := err != nil || row == nil
 	if isRoomNotExist {
-		return nil
+		return nil, err
 	}
 
 	return buildRoomFromSchema(txn, row.(*roomSchema))
@@ -54,7 +54,10 @@ func (repo *InMemoryRooms) ListAvailable(team int) ([]*entity.Room, error) {
 
 	for row := it.Next(); row != nil; row = it.Next() {
 		room := row.(*roomSchema)
-		entity := buildRoomFromSchema(txn, room)
+		entity, err := buildRoomFromSchema(txn, room)
+		if err != nil {
+			return nil, err
+		}
 
 		if entity.HasOpponent(team) {
 			rooms = append(rooms, entity)
@@ -93,18 +96,21 @@ func buildRoomSchema(room *entity.Room) *roomSchema {
 	}
 }
 
-func buildRoomFromSchema(txn *memdb.Txn, roomData *roomSchema) *entity.Room {
+func buildRoomFromSchema(txn *memdb.Txn, roomData *roomSchema) (*entity.Room, error) {
 	room := entity.NewRoom(roomData.ID, entity.WithRoomState(roomData.State))
 
 	playerIt, err := txn.Get(PlayerTableName, "roomID", room.ID)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	for row := playerIt.Next(); row != nil; row = playerIt.Next() {
 		playerData := row.(*playerSchema)
-		room.AddPlayer(playerData.ID, playerData.Team)
+		err := room.AddPlayer(playerData.ID, playerData.Team)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return room
+	return room, nil
 }

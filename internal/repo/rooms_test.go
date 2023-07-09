@@ -49,7 +49,11 @@ func Test_MemoryRoom_FindRoomBySessionID(t *testing.T) {
 				t.Fatal("unable to prepare test", err)
 			}
 
-			room := repo.FindRoomBySessionID(sessionID)
+			room, err := repo.FindRoomBySessionID(sessionID)
+			if err != nil {
+				t.Fatal("unable to find room", err)
+			}
+
 			if tc.ExpectedPlayerCount == 0 && room != nil {
 				t.Fatal("room should be empty")
 			}

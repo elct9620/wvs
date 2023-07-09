@@ -6,7 +6,7 @@ import (
 )
 
 type RoomRepository interface {
-	FindRoomBySessionID(id string) *entity.Room
+	FindRoomBySessionID(id string) (*entity.Room, error)
 	ListAvailable(team int) ([]*entity.Room, error)
 	Save(*entity.Room) error
 }
@@ -32,8 +32,8 @@ var roomNotAvailableResult = FindRoomResult{
 }
 
 func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
-	prevRoom := uc.rooms.FindRoomBySessionID(sessionID)
-	if prevRoom != nil {
+	prevRoom, err := uc.rooms.FindRoomBySessionID(sessionID)
+	if err != nil || prevRoom != nil {
 		return &roomNotAvailableResult
 	}
 

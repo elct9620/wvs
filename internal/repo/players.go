@@ -19,10 +19,3 @@ func buildPlayerSchema(roomID string, player *entity.Player) *playerSchema {
 		RoomID: roomID,
 	}
 }
-
-func buildPlayerFromSchema(player *playerSchema) *entity.Player {
-	return entity.NewPlayer(
-		player.ID,
-		entity.WithTeam(player.Team),
-	)
-}
