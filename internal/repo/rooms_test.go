@@ -25,9 +25,8 @@ func Test_MemoryRoom_FindRoomBySessionID(t *testing.T) {
 		{
 			Name: "room with 1 player",
 			Before: func(repo *repository.InMemoryRooms) error {
-				player := entity.NewPlayer(sessionID)
 				room := entity.NewRoom(uuid.NewString())
-				err := room.AddPlayer(player)
+				err := room.AddPlayer(sessionID)
 				if err != nil {
 					return err
 				}

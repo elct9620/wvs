@@ -27,13 +27,15 @@ func (repo *InMemoryRooms) FindRoomBySessionID(id string) *entity.Room {
 	defer txn.Abort()
 
 	row, err := txn.First(PlayerTableName, "id", id)
-	if err != nil || row == nil {
+	isPlayerNotExist := err != nil || row == nil
+	if isPlayerNotExist {
 		return nil
 	}
 
 	player := row.(*playerSchema)
 	row, err = txn.First(RoomTableName, "id", player.RoomID)
-	if err != nil || row == nil {
+	isRoomNotExist := err != nil || row == nil
+	if isRoomNotExist {
 		return nil
 	}
 

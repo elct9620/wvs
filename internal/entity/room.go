@@ -27,7 +27,8 @@ func NewRoom(id string, options ...RoomOptionFn) *Room {
 	return room
 }
 
-func (r *Room) AddPlayer(player *Player) error {
+func (r *Room) AddPlayer(id string) error {
+	player := NewPlayer(id)
 	r.Players = append(r.Players, player)
 
 	return nil
