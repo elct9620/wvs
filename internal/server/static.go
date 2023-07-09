@@ -23,7 +23,7 @@ var BuildOptions = api.BuildOptions{
 }
 
 func WithAssets(logger *zap.Logger) HTTPOptionFn {
-	assets, sse, err := esbuildfs.Serve(BuildOptions, esbuildfs.WithPrefix("assets"))
+	assets, sse, err := esbuildfs.Serve(BuildOptions)
 
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -31,6 +31,6 @@ func WithAssets(logger *zap.Logger) HTTPOptionFn {
 
 	return func(mux *http.ServeMux) {
 		mux.Handle("/esbuild", sse)
-		mux.Handle("/assets/", assets)
+		mux.Handle(AssetsPattern, http.StripPrefix(AssetsPattern, assets))
 	}
 }

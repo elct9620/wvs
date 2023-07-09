@@ -13,6 +13,8 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+const AssetsPattern = "/assets/"
+
 var ErrInvalidSession = errors.New("invalid session")
 
 type HTTPOptionFn func(mux *http.ServeMux)
