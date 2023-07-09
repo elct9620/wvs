@@ -2,8 +2,14 @@ package entity
 
 type PlayerOptionFn = func(player *Player)
 
+const (
+	TeamWalrus = iota + 1
+	TeamSlime
+)
+
 type Player struct {
-	ID string
+	ID   string
+	Team int
 }
 
 func NewPlayer(id string, options ...PlayerOptionFn) *Player {
@@ -16,4 +22,10 @@ func NewPlayer(id string, options ...PlayerOptionFn) *Player {
 	}
 
 	return player
+}
+
+func WithTeam(team int) PlayerOptionFn {
+	return func(player *Player) {
+		player.Team = team
+	}
 }

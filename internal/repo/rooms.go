@@ -90,10 +90,8 @@ func buildRoomSchema(room *entity.Room) *roomSchema {
 	}
 }
 
-func buildRoomFromSchema(txn *memdb.Txn, room *roomSchema) *entity.Room {
-	options := []entity.RoomOptionFn{
-		entity.WithRoomState(room.State),
-	}
+func buildRoomFromSchema(txn *memdb.Txn, roomData *roomSchema) *entity.Room {
+	room := entity.NewRoom(roomData.ID, entity.WithRoomState(roomData.State))
 
 	playerIt, err := txn.Get(PlayerTableName, "roomID", room.ID)
 	if err != nil {
@@ -101,9 +99,9 @@ func buildRoomFromSchema(txn *memdb.Txn, room *roomSchema) *entity.Room {
 	}
 
 	for row := playerIt.Next(); row != nil; row = playerIt.Next() {
-		player := buildPlayerFromSchema(row.(*playerSchema))
-		options = append(options, entity.WithRoomPlayer(player))
+		playerData := row.(*playerSchema)
+		room.AddPlayer(playerData.ID, playerData.Team)
 	}
 
-	return entity.NewRoom(room.ID, options...)
+	return room
 }

@@ -8,12 +8,14 @@ const PlayerTableName = "players"
 
 type playerSchema struct {
 	ID     string
+	Team   int
 	RoomID string
 }
 
 func buildPlayerSchema(roomID string, player *entity.Player) *playerSchema {
 	return &playerSchema{
 		ID:     player.ID,
+		Team:   player.Team,
 		RoomID: roomID,
 	}
 }
@@ -21,5 +23,6 @@ func buildPlayerSchema(roomID string, player *entity.Player) *playerSchema {
 func buildPlayerFromSchema(player *playerSchema) *entity.Player {
 	return entity.NewPlayer(
 		player.ID,
+		entity.WithTeam(player.Team),
 	)
 }

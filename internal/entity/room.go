@@ -27,8 +27,8 @@ func NewRoom(id string, options ...RoomOptionFn) *Room {
 	return room
 }
 
-func (r *Room) AddPlayer(id string) error {
-	player := NewPlayer(id)
+func (r *Room) AddPlayer(id string, team int) error {
+	player := NewPlayer(id, WithTeam(team))
 	r.Players = append(r.Players, player)
 
 	return nil
@@ -37,11 +37,5 @@ func (r *Room) AddPlayer(id string) error {
 func WithRoomState(state int) RoomOptionFn {
 	return func(room *Room) {
 		room.State = state
-	}
-}
-
-func WithRoomPlayer(player *Player) RoomOptionFn {
-	return func(room *Room) {
-		room.Players = append(room.Players, player)
 	}
 }
