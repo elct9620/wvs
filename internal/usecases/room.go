@@ -7,7 +7,7 @@ import (
 
 type RoomRepository interface {
 	FindRoomBySessionID(id string) *entity.Room
-	ListWaitings() ([]*entity.Room, error)
+	ListAvailable(team int) ([]*entity.Room, error)
 	Save(*entity.Room) error
 }
 
@@ -37,7 +37,7 @@ func (uc *Room) FindOrCreate(sessionID string, team int) *FindRoomResult {
 		return &roomNotAvailableResult
 	}
 
-	rooms, err := uc.rooms.ListWaitings()
+	rooms, err := uc.rooms.ListAvailable(team)
 	if err != nil {
 		return &roomNotAvailableResult
 	}

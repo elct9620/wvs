@@ -61,9 +61,10 @@ func Test_MemoryRoom_FindRoomBySessionID(t *testing.T) {
 	}
 }
 
-func Test_MemoryRoom_ListWaitings(t *testing.T) {
+func Test_MemoryRoom_ListAvailable(t *testing.T) {
 	tests := []struct {
 		Name          string
+		Team          int
 		Rooms         []*entity.Room
 		ExpectedCount int
 	}{
@@ -104,7 +105,7 @@ func Test_MemoryRoom_ListWaitings(t *testing.T) {
 				}
 			}
 
-			rooms, err := repo.ListWaitings()
+			rooms, err := repo.ListAvailable(tc.Team)
 			if err != nil {
 				t.Fatal("unable to find list rooms", err)
 			}

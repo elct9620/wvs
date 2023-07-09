@@ -27,6 +27,17 @@ func NewRoom(id string, options ...RoomOptionFn) *Room {
 	return room
 }
 
+func (r *Room) HasOpponent(team int) bool {
+	for idx := range r.Players {
+		isSameTeam := r.Players[idx].Team == team
+		if isSameTeam {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (r *Room) AddPlayer(id string, team int) error {
 	player := NewPlayer(id, WithTeam(team))
 	r.Players = append(r.Players, player)

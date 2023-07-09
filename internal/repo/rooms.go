@@ -42,7 +42,7 @@ func (repo *InMemoryRooms) FindRoomBySessionID(id string) *entity.Room {
 	return buildRoomFromSchema(txn, row.(*roomSchema))
 }
 
-func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
+func (repo *InMemoryRooms) ListAvailable(team int) ([]*entity.Room, error) {
 	txn := repo.db.Txn(false)
 	defer txn.Abort()
 
@@ -55,7 +55,10 @@ func (repo *InMemoryRooms) ListWaitings() ([]*entity.Room, error) {
 	for row := it.Next(); row != nil; row = it.Next() {
 		room := row.(*roomSchema)
 		entity := buildRoomFromSchema(txn, room)
-		rooms = append(rooms, entity)
+
+		if entity.HasOpponent(team) {
+			rooms = append(rooms, entity)
+		}
 	}
 
 	return rooms, nil
