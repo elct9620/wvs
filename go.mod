@@ -10,7 +10,7 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/hashicorp/go-memdb v1.3.4
 	go.uber.org/zap v1.24.0
-	golang.org/x/net v0.11.0
+	golang.org/x/net v0.17.0
 )
 
 require (
@@ -18,5 +18,5 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 )
