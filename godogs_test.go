@@ -3,15 +3,17 @@ package wvs_test
 import (
 	"context"
 	"errors"
-	"os"
 	"testing"
 
 	"github.com/cucumber/godog"
 	"github.com/elct9620/wvs"
-	"github.com/spf13/pflag"
 )
 
-var opts = godog.Options{}
+var opts = godog.Options{
+	Tags:   "~@wip",
+	Format: "pretty",
+	Paths:  []string{"features"},
+}
 
 func init() {
 	godog.BindCommandLineFlags("godog.", &opts)
@@ -39,19 +41,17 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the response status code should be (\d+)$`, theResponseStatusCodeShouldBe)
 }
 
-func TestMain(m *testing.M) {
-	pflag.Parse()
-	opts.Paths = pflag.Args()
+func TestFeatures(t *testing.T) {
+	o := opts
+	o.TestingT = t
 
 	status := godog.TestSuite{
 		Name:                "walus-vs-slime",
 		ScenarioInitializer: InitializeScenario,
-		Options:             &opts,
+		Options:             &o,
 	}.Run()
 
-	if st := m.Run(); st > status {
-		status = st
+	if status != 0 {
+		t.Errorf("godog failed with status: %d", status)
 	}
-
-	os.Exit(status)
 }
