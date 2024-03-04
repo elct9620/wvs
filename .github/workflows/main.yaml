@@ -1,9 +1,8 @@
-name: BUild
+name: Build
 on:
   push:
     branches:
       - main
-
 
 jobs:
   lint:
