@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/elct9620/wvs/app"
+	"github.com/elct9620/wvs/app/api"
 	"github.com/elct9620/wvs/app/web"
 )
 
@@ -16,6 +17,7 @@ import (
 func Initialize() (*app.Application, error) {
 	scene := web.NewScene()
 	webWeb := web.New(scene)
-	application := app.New(webWeb)
+	apiApi := api.New()
+	application := app.New(webWeb, apiApi)
 	return application, nil
 }
