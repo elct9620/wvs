@@ -9,6 +9,10 @@ jobs:
   lint:
     name: Golang CI Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -16,9 +20,9 @@ jobs:
           go-version: '1.21'
           cache: false
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v5
         with:
-          version: v1.53
+          version: v1.54
   test:
     name: Test
     strategy:
