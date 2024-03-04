@@ -5,23 +5,6 @@ The original project is [BasalticStudio/Walrus-vs-Slime](https://github.com/Basa
 
 ## Requirements
 
-* Golang ~> 1.20.2
+* Golang 1.21+
 
 ## Usage
-
-> **Note**
->
-> TODO
-
-## Architecture
-
-> **Note**
->
-> Working in progress
-
-### Entities
-
-| Aggregate | Entity   | Description                              |
-|-----------|----------|------------------------------------------|
-| `Room`    | -        | Each game have their room with 2 players |
-| `Room`    | `Player` | The player in the room                   |
