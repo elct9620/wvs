@@ -5,6 +5,6 @@ GOTEST=$(GO) test
 .PHONY: test
 
 test:
-	$(GOTEST) -v -coverprofile=coverage.out ./...
+	$(GOTEST) -coverprofile=coverage.out -coverpkg=./... ./...
 	$(GOCOVER) -func=coverage.out
 	$(GOCOVER) -html=coverage.out
