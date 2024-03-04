@@ -5,6 +5,7 @@ import (
 
 	"github.com/elct9620/wvs/app/api"
 	"github.com/elct9620/wvs/app/web"
+	"github.com/elct9620/wvs/app/ws"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 )
@@ -12,6 +13,7 @@ import (
 var DefaultSet = wire.NewSet(
 	web.DefaultSet,
 	api.DefaultSet,
+	ws.DefaultSet,
 	New,
 )
 
@@ -22,11 +24,13 @@ type Application struct {
 func New(
 	web *web.Web,
 	api *api.Api,
+	ws *ws.WebSocket,
 ) *Application {
 	mux := chi.NewRouter()
 
 	mux.Mount("/", web)
 	mux.Mount("/api", api)
+	mux.Mount("/ws", ws)
 
 	return &Application{mux}
 }
