@@ -21,8 +21,11 @@ func Initialize() (*app.Application, error) {
 	webWeb := web.New(scene)
 	apiApi := api.New()
 	webSocket := ws.New()
-	configConfig := config.New()
-	appConfig := app.NewConfig(configConfig)
+	viper, err := config.NewViper()
+	if err != nil {
+		return nil, err
+	}
+	appConfig := app.NewConfig(viper)
 	application := app.New(webWeb, apiApi, webSocket, appConfig)
 	return application, nil
 }

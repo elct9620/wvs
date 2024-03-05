@@ -1,19 +1,15 @@
 package config
 
-import "github.com/google/wire"
-
-var DefaultSet = wire.NewSet(
-	New,
+import (
+	"github.com/google/wire"
+	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Http Http
-}
+var DefaultSet = wire.NewSet(
+	NewViper,
+	wire.Bind(new(Provider), new(*viper.Viper)),
+)
 
-func New() *Config {
-	return &Config{
-		Http: Http{
-			Address: ":8080",
-		},
-	}
+type Provider interface {
+	GetString(key string) string
 }
