@@ -3,9 +3,9 @@ package app
 import (
 	"net/http"
 
-	"github.com/elct9620/wvs/app/api"
-	"github.com/elct9620/wvs/app/web"
-	"github.com/elct9620/wvs/app/ws"
+	"github.com/elct9620/wvs/internal/app/api"
+	"github.com/elct9620/wvs/internal/app/web"
+	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/wire"

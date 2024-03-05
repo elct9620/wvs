@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 
-	"github.com/elct9620/wvs/app"
+	"github.com/elct9620/wvs/internal/app"
 )
 
 type httpResCtxKey struct{}

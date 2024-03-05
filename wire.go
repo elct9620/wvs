@@ -4,7 +4,7 @@
 package wvs
 
 import (
-	"github.com/elct9620/wvs/app"
+	"github.com/elct9620/wvs/internal/app"
 	"github.com/google/wire"
 )
 
