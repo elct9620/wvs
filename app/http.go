@@ -7,6 +7,7 @@ import (
 	"github.com/elct9620/wvs/app/web"
 	"github.com/elct9620/wvs/app/ws"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/wire"
 )
 
@@ -27,6 +28,10 @@ func New(
 	ws *ws.WebSocket,
 ) *Application {
 	mux := chi.NewRouter()
+
+	mux.Use(middleware.Logger)
+	mux.Use(middleware.Recoverer)
+	mux.Use(middleware.RealIP)
 
 	mux.Mount("/", web)
 	mux.Mount("/api", api)
