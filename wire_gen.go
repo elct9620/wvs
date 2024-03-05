@@ -11,6 +11,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/api"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
+	"github.com/elct9620/wvs/internal/config"
 )
 
 // Injectors from wire.go:
@@ -20,6 +21,8 @@ func InitializeTest() (*app.Application, error) {
 	webWeb := web.New(scene)
 	apiApi := api.New()
 	webSocket := ws.New()
-	application := app.New(webWeb, apiApi, webSocket)
+	configConfig := config.New()
+	appConfig := app.NewConfig(configConfig)
+	application := app.New(webWeb, apiApi, webSocket, appConfig)
 	return application, nil
 }

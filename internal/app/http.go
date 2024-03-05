@@ -15,17 +15,20 @@ var DefaultSet = wire.NewSet(
 	web.DefaultSet,
 	api.DefaultSet,
 	ws.DefaultSet,
+	NewConfig,
 	New,
 )
 
 type Application struct {
 	chi.Router
+	config *Config
 }
 
 func New(
 	web *web.Web,
 	api *api.Api,
 	ws *ws.WebSocket,
+	config *Config,
 ) *Application {
 	mux := chi.NewRouter()
 
@@ -37,9 +40,9 @@ func New(
 	mux.Mount("/api", api)
 	mux.Mount("/ws", ws)
 
-	return &Application{mux}
+	return &Application{mux, config}
 }
 
 func (app *Application) Serve() error {
-	return http.ListenAndServe(":8080", app)
+	return http.ListenAndServe(app.config.Address, app)
 }
