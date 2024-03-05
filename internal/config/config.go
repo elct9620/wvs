@@ -6,8 +6,13 @@ import (
 )
 
 var DefaultSet = wire.NewSet(
-	NewViper,
+	NewViperWithDefaults,
 	wire.Bind(new(Provider), new(*viper.Viper)),
+)
+
+const (
+	HttpAddr   = "http.addr"
+	SessionKey = "session.key"
 )
 
 type Provider interface {

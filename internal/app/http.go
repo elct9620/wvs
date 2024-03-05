@@ -6,6 +6,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/api"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
+	"github.com/elct9620/wvs/pkg/session"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/wire"
@@ -35,6 +36,7 @@ func New(
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	mux.Use(middleware.RealIP)
+	mux.Use(session.Middleware(config.SessionKey))
 
 	mux.Mount("/", web)
 	mux.Mount("/api", api)
