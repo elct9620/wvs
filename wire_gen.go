@@ -19,7 +19,8 @@ import (
 func InitializeTest() (*app.Application, error) {
 	scene := web.NewScene()
 	webWeb := web.New(scene)
-	apiApi := api.New()
+	v := api.ProvideRoutes()
+	apiApi := api.New(v...)
 	webSocket := ws.New()
 	viper, err := config.NewViperWithDefaults()
 	if err != nil {
