@@ -3,6 +3,7 @@ package wvs_test
 import (
 	"context"
 	"errors"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/cucumber/godog"
@@ -19,19 +20,38 @@ func init() {
 	godog.BindCommandLineFlags("godog.", &opts)
 }
 
-type appCtxKey struct{}
+type srvCtxKey struct{}
 
 var (
-	ErrAppNotFound = errors.New("app not found in context")
+	ErrServerNotFound = errors.New("server not found")
 )
 
 func beforeScenarioAppHook(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 	app, err := wvs.InitializeTest()
 	if err != nil {
-		return nil, err
+		return ctx, err
 	}
 
-	return context.WithValue(ctx, appCtxKey{}, app), nil
+	srv := httptest.NewServer(app)
+	return context.WithValue(ctx, srvCtxKey{}, srv), nil
+}
+
+func afterScenarioAppHook(ctx context.Context, sc *godog.Scenario, err error) (context.Context, error) {
+	srv, err := GetServer(ctx)
+	if err != nil {
+		return ctx, err
+	}
+
+	srv.Close()
+	return ctx, nil
+}
+
+func GetServer(ctx context.Context) (*httptest.Server, error) {
+	if srv, ok := ctx.Value(srvCtxKey{}).(*httptest.Server); ok {
+		return srv, nil
+	}
+
+	return nil, ErrServerNotFound
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {

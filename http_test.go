@@ -7,10 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/cucumber/godog"
-	"github.com/elct9620/wvs/internal/app"
 	"github.com/elct9620/wvs/pkg/session"
 	"github.com/google/go-cmp/cmp"
 )
@@ -24,8 +22,25 @@ var (
 	ErrHttpResponseNotFound = errors.New("http response not found in context")
 )
 
-func newRequest(ctx context.Context, method, target string, body io.Reader) *http.Request {
-	req := httptest.NewRequest(method, target, body)
+func GetResponse(ctx context.Context) (*http.Response, error) {
+	if res, ok := ctx.Value(httpResCtxKey{}).(*http.Response); ok {
+		return res, nil
+	}
+
+	return nil, ErrHttpResponseNotFound
+}
+
+func newRequest(ctx context.Context, method, target string, body io.Reader) (*http.Request, error) {
+	srv, err := GetServer(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s%s", srv.URL, target)
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
+	if err != nil {
+		return nil, err
+	}
 
 	if sessionId, ok := ctx.Value(sessionIdCtxKey{}).(string); ok {
 		req.AddCookie(&http.Cookie{
@@ -34,44 +49,55 @@ func newRequest(ctx context.Context, method, target string, body io.Reader) *htt
 		})
 	}
 
-	return req
+	return req, nil
 }
 
 func theSessionIdIs(ctx context.Context, id string) (context.Context, error) {
 	encryptedSessionId, err := session.Encrypt([]byte(id), []byte(DefaultSessionKey))
 	if err != nil {
-		return nil, err
+		return ctx, err
 	}
 
 	return context.WithValue(ctx, sessionIdCtxKey{}, encryptedSessionId), nil
 }
 
 func iMakeARequestTo(ctx context.Context, method string, target string) (context.Context, error) {
-	req := newRequest(ctx, method, target, nil)
-	res := httptest.NewRecorder()
-
-	app, ok := ctx.Value(appCtxKey{}).(*app.Application)
-	if !ok {
-		return nil, ErrAppNotFound
+	req, err := newRequest(ctx, method, target, nil)
+	if err != nil {
+		return ctx, err
 	}
 
-	app.ServeHTTP(res, req)
+	srv, err := GetServer(ctx)
+	if err != nil {
+		return ctx, err
+	}
+
+	client := srv.Client()
+	res, err := client.Do(req)
+	if err != nil {
+		return ctx, err
+	}
+
 	return context.WithValue(ctx, httpResCtxKey{}, res), nil
 }
 
 func theResponseBodyShouldBeAValidJson(ctx context.Context, expectedJson *godog.DocString) error {
 	var expected, actual any
 
-	res, ok := ctx.Value(httpResCtxKey{}).(*httptest.ResponseRecorder)
-	if !ok {
-		return ErrHttpResponseNotFound
+	res, err := GetResponse(ctx)
+	if err != nil {
+		return err
 	}
 
 	if err := json.Unmarshal([]byte(expectedJson.Content), &expected); err != nil {
 		return err
 	}
 
-	actualBody := res.Body.Bytes()
+	actualBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if err := json.Unmarshal(actualBody, &actual); err != nil {
 		return fmt.Errorf("response body is not a valid JSON: %s", actualBody)
 	}
@@ -84,13 +110,13 @@ func theResponseBodyShouldBeAValidJson(ctx context.Context, expectedJson *godog.
 }
 
 func theResponseStatusCodeShouldBe(ctx context.Context, code int) error {
-	res, ok := ctx.Value(httpResCtxKey{}).(*httptest.ResponseRecorder)
-	if !ok {
-		return ErrHttpResponseNotFound
+	res, err := GetResponse(ctx)
+	if err != nil {
+		return err
 	}
 
-	if res.Code != code {
-		return fmt.Errorf("expected status code %d, but got %d", code, res.Code)
+	if res.StatusCode != code {
+		return fmt.Errorf("expected status code %d, but got %d", code, res.StatusCode)
 	}
 
 	return nil
