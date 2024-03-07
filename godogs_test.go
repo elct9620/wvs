@@ -37,12 +37,14 @@ func beforeScenarioAppHook(ctx context.Context, sc *godog.Scenario) (context.Con
 }
 
 func afterScenarioAppHook(ctx context.Context, sc *godog.Scenario, err error) (context.Context, error) {
-	srv, err := GetServer(ctx)
-	if err != nil {
-		return ctx, err
+	if srv, err := GetServer(ctx); err == nil {
+		srv.Close()
 	}
 
-	srv.Close()
+	if ws, err := GetWebSocket(ctx); err == nil {
+		ws.Close()
+	}
+
 	return ctx, nil
 }
 
@@ -56,11 +58,15 @@ func GetServer(ctx context.Context) (*httptest.Server, error) {
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Before(beforeScenarioAppHook)
+	ctx.After(afterScenarioAppHook)
 
 	ctx.Step(`^the session id is "([^"]*)"$`, theSessionIdIs)
 	ctx.Step(`^I make a (GET|POST|PUT|DELETE) request to "([^"]*)"$`, iMakeARequestTo)
 	ctx.Step(`^the response body should be a valid JSON$`, theResponseBodyShouldBeAValidJson)
 	ctx.Step(`^the response status code should be (\d+)$`, theResponseStatusCodeShouldBe)
+
+	ctx.Step(`^connect to the websocket$`, connectToTheWebsocket)
+	ctx.Step(`^the websocket event is received$`, theWebsocketEventIsReceived)
 }
 
 func TestFeatures(t *testing.T) {
