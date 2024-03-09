@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.6.0
 	github.com/gorilla/websocket v1.5.1
+	github.com/jmespath/go-jmespath v0.4.0
 	github.com/spf13/viper v1.18.2
 )
 

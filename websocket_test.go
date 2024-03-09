@@ -4,10 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
+	"net/http"
+	"net/http/cookiejar"
+	"net/url"
+	"sync"
 	"time"
 
+	"github.com/elct9620/wvs/pkg/session"
 	"github.com/gorilla/websocket"
+	"github.com/jmespath/go-jmespath"
 )
 
 type wsCtxKey struct{}
@@ -21,34 +26,45 @@ var (
 	ErrWaitTimeout = errors.New("wait timeout")
 )
 
-func GetWebSocket(ctx context.Context) (*websocket.Conn, error) {
-	ws, ok := ctx.Value(wsCtxKey{}).(*websocket.Conn)
+type WebSocketClient struct {
+	mux sync.RWMutex
+	*websocket.Conn
+	events []any
+}
+
+func NewWebSocketClient(ws *websocket.Conn) *WebSocketClient {
+	return &WebSocketClient{
+		Conn:   ws,
+		events: make([]any, 0),
+	}
+}
+
+func (c *WebSocketClient) Events() []any {
+	c.mux.RLock()
+	defer c.mux.RUnlock()
+	return c.events
+}
+
+func (c *WebSocketClient) ReadEvents() {
+	for {
+		var event any
+		if err := c.ReadJSON(&event); err != nil {
+			break
+		}
+
+		c.mux.Lock()
+		c.events = append(c.events, event)
+		c.mux.Unlock()
+	}
+}
+
+func GetWebSocket(ctx context.Context) (*WebSocketClient, error) {
+	ws, ok := ctx.Value(wsCtxKey{}).(*WebSocketClient)
 	if !ok {
 		return nil, ErrNoWebsocket
 	}
+
 	return ws, nil
-}
-
-func readWebsocketEvents(ctx context.Context) (chan any, error) {
-	ws, err := GetWebSocket(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	events := make(chan any)
-
-	go func() {
-		for {
-			var event any
-			if err := ws.ReadJSON(&event); err != nil {
-				return
-			}
-
-			events <- event
-		}
-	}()
-
-	return events, nil
 }
 
 func connectToTheWebsocket(ctx context.Context) (context.Context, error) {
@@ -57,37 +73,96 @@ func connectToTheWebsocket(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	url := fmt.Sprintf("ws://%s/ws", strings.TrimPrefix(srv.URL, "http://"))
-	ws, res, err := websocket.DefaultDialer.Dial(url, nil)
+	url, err := url.Parse(srv.URL)
 	if err != nil {
 		return ctx, err
 	}
 
-	newCtx := context.WithValue(ctx, wsCtxKey{}, ws)
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return ctx, err
+	}
+
+	dailer := websocket.Dialer{Jar: jar}
+
+	if sessionId, ok := ctx.Value(sessionIdCtxKey{}).(string); ok {
+		dailer.Jar.SetCookies(url, []*http.Cookie{
+			{
+				Name:  session.DefaultCookieName,
+				Value: sessionId,
+			},
+		})
+	}
+
+	wsUrl := fmt.Sprintf("ws://%s/ws", url.Host)
+	ws, res, err := dailer.Dial(wsUrl, nil)
+	if err != nil {
+		return ctx, err
+	}
+
+	client := NewWebSocketClient(ws)
+	go client.ReadEvents()
+
+	newCtx := context.WithValue(ctx, wsCtxKey{}, client)
 	return context.WithValue(newCtx, httpResCtxKey{}, res), nil
 }
 
 func theWebsocketEventIsReceived(ctx context.Context, eventType string) error {
-	timeout, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	events, err := readWebsocketEvents(ctx)
+	ws, err := GetWebSocket(ctx)
 	if err != nil {
 		return err
 	}
 
+	timeout := time.After(MaxWebsocketWaitTimeout)
 	for {
 		select {
-		case <-timeout.Done():
+		case <-timeout:
 			return ErrWaitTimeout
-		case actual := <-events:
-			actualValue, ok := actual.(map[string]interface{})
-			if !ok {
-				continue
-			}
+		default:
+			for _, event := range ws.Events() {
+				event, ok := event.(map[string]interface{})
+				if !ok {
+					continue
+				}
 
-			if actualValue["type"] == eventType {
-				return nil
+				if event["type"] == eventType {
+					return nil
+				}
+			}
+		}
+	}
+}
+
+func theWebsocketEventHasWithValue(ctx context.Context, eventType, path, value string) error {
+	ws, err := GetWebSocket(ctx)
+	if err != nil {
+		return err
+	}
+
+	timeout := time.After(MaxWebsocketWaitTimeout)
+	for {
+		select {
+		case <-timeout:
+			return fmt.Errorf("event with path %s and value %s not found in: \n%+v", path, value, ws.Events())
+		default:
+			for _, event := range ws.Events() {
+				event, ok := event.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				if event["type"] != eventType {
+					continue
+				}
+
+				res, err := jmespath.Search(path, event)
+				if err != nil {
+					return err
+				}
+
+				if res == value {
+					return nil
+				}
 			}
 		}
 	}
