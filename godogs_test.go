@@ -66,7 +66,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the response status code should be (\d+)$`, theResponseStatusCodeShouldBe)
 
 	ctx.Step(`^connect to the websocket$`, connectToTheWebsocket)
-	ctx.Step(`^the websocket event is received$`, theWebsocketEventIsReceived)
+	ctx.Step(`^the websocket event "([^"]*)" is received$`, theWebsocketEventIsReceived)
 }
 
 func TestFeatures(t *testing.T) {

@@ -3,6 +3,8 @@ package ws
 import (
 	"net/http"
 
+	"github.com/elct9620/wvs/pkg/event"
+	"github.com/elct9620/wvs/pkg/session"
 	"github.com/google/wire"
 	"github.com/gorilla/websocket"
 )
@@ -30,7 +32,14 @@ func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	_ = conn.WriteMessage(websocket.TextMessage, []byte(`{"event":"ready"}`))
+	sessionId := session.Get(r.Context())
+	if sessionId == "" {
+		http.Error(w, string(WsErrSessionNotFound), http.StatusUnauthorized)
+		return
+	}
+
+	readyEvent := event.NewReadyEvent(sessionId)
+	_ = conn.WriteJSON(readyEvent)
 
 	for {
 		_, _, err := conn.ReadMessage()
