@@ -37,5 +37,6 @@ func New(routes ...Route) *Api {
 func ProvideRoutes() []Route {
 	return []Route{
 		NewGetMe(),
+		NewPostMatch(),
 	}
 }

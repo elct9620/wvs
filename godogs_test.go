@@ -62,6 +62,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.Step(`^the session id is "([^"]*)"$`, theSessionIdIs)
 	ctx.Step(`^I make a (GET|POST|PUT|DELETE) request to "([^"]*)"$`, iMakeARequestTo)
+	ctx.Step(`^I make a (GET|POST|PUT|DELETE) request to "([^"]*)" with body$`, iMakeARequestToWithBody)
 	ctx.Step(`^the response body should be a valid JSON$`, theResponseBodyShouldBeAValidJson)
 	ctx.Step(`^the response status code should be (\d+)$`, theResponseStatusCodeShouldBe)
 

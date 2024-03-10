@@ -1,6 +1,7 @@
 package wvs_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -63,6 +64,26 @@ func theSessionIdIs(ctx context.Context, id string) (context.Context, error) {
 
 func iMakeARequestTo(ctx context.Context, method string, target string) (context.Context, error) {
 	req, err := newRequest(ctx, method, target, nil)
+	if err != nil {
+		return ctx, err
+	}
+
+	srv, err := GetServer(ctx)
+	if err != nil {
+		return ctx, err
+	}
+
+	client := srv.Client()
+	res, err := client.Do(req)
+	if err != nil {
+		return ctx, err
+	}
+
+	return context.WithValue(ctx, httpResCtxKey{}, res), nil
+}
+
+func iMakeARequestToWithBody(ctx context.Context, method string, target string, body *godog.DocString) (context.Context, error) {
+	req, err := newRequest(ctx, method, target, bytes.NewBufferString(body.Content))
 	if err != nil {
 		return ctx, err
 	}
