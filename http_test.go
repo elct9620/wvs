@@ -12,6 +12,7 @@ import (
 	"github.com/cucumber/godog"
 	"github.com/elct9620/wvs/pkg/session"
 	"github.com/google/go-cmp/cmp"
+	"github.com/jmespath/go-jmespath"
 )
 
 type httpResCtxKey struct{}
@@ -125,6 +126,39 @@ func theResponseBodyShouldBeAValidJson(ctx context.Context, expectedJson *godog.
 
 	if diff := cmp.Diff(expected, actual); diff != "" {
 		return fmt.Errorf("the response mismatch (-want, +got):\n%s", diff)
+	}
+
+	return nil
+}
+
+func theResponseJsonShouldHas(ctx context.Context, path string) error {
+	res, err := GetResponse(ctx)
+	if err != nil {
+		return err
+	}
+
+	var actual any
+	actualBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(actualBody, &actual); err != nil {
+		return fmt.Errorf("response body is not a valid JSON: %s", actualBody)
+	}
+
+	value, err := jmespath.Search(path, actual)
+	if err != nil {
+		return err
+	}
+
+	switch v := value.(type) {
+	case string:
+		if v == "" {
+			return fmt.Errorf("expected JSON has no value at path %s", path)
+		}
+	default:
+		return fmt.Errorf("expected JSON has no value at path %s", path)
 	}
 
 	return nil

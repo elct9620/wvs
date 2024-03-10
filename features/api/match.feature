@@ -6,10 +6,5 @@ Feature: Match
         "team": "slime"
       }
       """
-    Then the response body should be a valid JSON
-      """
-      {
-        "ok": true
-      }
-      """
+    Then the response JSON should has "match_id"
     And the response status code should be 200

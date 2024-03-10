@@ -16,7 +16,7 @@ type PostMatchInput struct {
 }
 
 type PostMatchOutput struct {
-	Ok bool `json:"ok"`
+	MatchId string `json:"match_id"`
 }
 
 type PostMatch struct {
@@ -51,7 +51,7 @@ func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionId := session.Get(r.Context())
-	_, err = p.createMatch.Execute(r.Context(), usecase.CreateMatchInput{
+	output, err := p.createMatch.Execute(r.Context(), usecase.CreateMatchInput{
 		PlayerId: sessionId,
 		Team:     input.Team,
 	})
@@ -62,7 +62,7 @@ func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := PostMatchOutput{
-		Ok: true,
+		MatchId: output.MatchId,
 	}
 
 	enc := json.NewEncoder(w)
