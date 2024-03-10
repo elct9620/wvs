@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 )
@@ -34,9 +35,11 @@ func New(routes ...Route) *Api {
 	}
 }
 
-func ProvideRoutes() []Route {
+func ProvideRoutes(
+	createMatchCommand *usecase.CreateMatchCommand,
+) []Route {
 	return []Route{
 		NewGetMe(),
-		NewPostMatch(),
+		NewPostMatch(createMatchCommand),
 	}
 }

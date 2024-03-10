@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/elct9620/wvs/internal/usecase"
+	"github.com/elct9620/wvs/pkg/session"
 )
 
 var _ Route = &PostMatch{}
@@ -17,10 +20,13 @@ type PostMatchOutput struct {
 }
 
 type PostMatch struct {
+	createMatch *usecase.CreateMatchCommand
 }
 
-func NewPostMatch() *PostMatch {
-	return &PostMatch{}
+func NewPostMatch(createMatch *usecase.CreateMatchCommand) *PostMatch {
+	return &PostMatch{
+		createMatch: createMatch,
+	}
 }
 
 func (p *PostMatch) Method() string {
@@ -41,6 +47,17 @@ func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(requestBody, &input); err != nil {
 		http.Error(w, string(ApiErrDecodeJsonFailed), http.StatusBadRequest)
+		return
+	}
+
+	sessionId := session.Get(r.Context())
+	_, err = p.createMatch.Execute(r.Context(), usecase.CreateMatchInput{
+		PlayerId: sessionId,
+		Team:     input.Team,
+	})
+
+	if err != nil {
+		http.Error(w, string(ApiErrInternalServer), http.StatusInternalServerError)
 		return
 	}
 

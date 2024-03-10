@@ -12,6 +12,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
+	"github.com/elct9620/wvs/internal/usecase"
 )
 
 // Injectors from wire.go:
@@ -19,7 +20,8 @@ import (
 func InitializeTest() (*app.Application, error) {
 	scene := web.NewScene()
 	webWeb := web.New(scene)
-	v := api.ProvideRoutes()
+	createMatchCommand := usecase.NewCreateMatchCommand()
+	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
 	webSocket := ws.New()
 	viper, err := config.NewViperWithDefaults()
