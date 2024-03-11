@@ -14,6 +14,14 @@ type Player struct {
 	team Team
 }
 
+func (p *Player) Id() string {
+	return p.id
+}
+
+func (p *Player) Team() Team {
+	return p.team
+}
+
 type Match struct {
 	id      string
 	players []Player
@@ -28,6 +36,10 @@ func NewMatch(id string) *Match {
 
 func (m *Match) Id() string {
 	return m.id
+}
+
+func (m *Match) Players() []Player {
+	return m.players
 }
 
 func (m *Match) IsFull() bool {
