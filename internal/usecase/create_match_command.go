@@ -16,7 +16,7 @@ type CreateMatchOutput struct {
 	MatchId string
 }
 
-var _ Command[CreateMatchInput, CreateMatchOutput] = &CreateMatchCommand{}
+var _ Command[*CreateMatchInput, *CreateMatchOutput] = &CreateMatchCommand{}
 
 type CreateMatchCommand struct {
 }
@@ -25,16 +25,16 @@ func NewCreateMatchCommand() *CreateMatchCommand {
 	return &CreateMatchCommand{}
 }
 
-func (c *CreateMatchCommand) Execute(ctx context.Context, input CreateMatchInput) (CreateMatchOutput, error) {
+func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInput) (*CreateMatchOutput, error) {
 	id := uuid.NewString()
 	match := match.NewMatch(id)
 
 	err := match.AddPlayer(input.PlayerId, parseMatchTeam(input.Team))
 	if err != nil {
-		return CreateMatchOutput{}, err
+		return nil, err
 	}
 
-	return CreateMatchOutput{MatchId: match.Id()}, nil
+	return &CreateMatchOutput{MatchId: match.Id()}, nil
 }
 
 func parseMatchTeam(team string) match.Team {

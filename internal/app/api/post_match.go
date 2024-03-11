@@ -51,7 +51,7 @@ func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionId := session.Get(r.Context())
-	output, err := p.createMatch.Execute(r.Context(), usecase.CreateMatchInput{
+	output, err := p.createMatch.Execute(r.Context(), &usecase.CreateMatchInput{
 		PlayerId: sessionId,
 		Team:     input.Team,
 	})
