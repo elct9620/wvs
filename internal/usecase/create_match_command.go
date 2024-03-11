@@ -19,18 +19,24 @@ type CreateMatchOutput struct {
 var _ Command[*CreateMatchInput, *CreateMatchOutput] = &CreateMatchCommand{}
 
 type CreateMatchCommand struct {
+	matches MatchRepository
 }
 
-func NewCreateMatchCommand() *CreateMatchCommand {
-	return &CreateMatchCommand{}
+func NewCreateMatchCommand(matches MatchRepository) *CreateMatchCommand {
+	return &CreateMatchCommand{
+		matches: matches,
+	}
 }
 
 func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInput) (*CreateMatchOutput, error) {
 	id := uuid.NewString()
 	match := match.NewMatch(id)
 
-	err := match.AddPlayer(input.PlayerId, parseMatchTeam(input.Team))
-	if err != nil {
+	if err := match.AddPlayer(input.PlayerId, parseMatchTeam(input.Team)); err != nil {
+		return nil, err
+	}
+
+	if err := c.matches.Save(match); err != nil {
 		return nil, err
 	}
 

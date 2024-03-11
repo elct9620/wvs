@@ -12,6 +12,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
+	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/usecase"
 )
 
@@ -20,7 +21,8 @@ import (
 func Initialize() (*app.Application, error) {
 	scene := web.NewScene()
 	webWeb := web.New(scene)
-	createMatchCommand := usecase.NewCreateMatchCommand()
+	inMemoryMatchRepository := repository.NewInMemoryMatchRepository()
+	createMatchCommand := usecase.NewCreateMatchCommand(inMemoryMatchRepository)
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
 	webSocket := ws.New()

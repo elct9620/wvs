@@ -8,7 +8,7 @@ import (
 
 var DefaultSet = wire.NewSet(
 	NewCreateMatchCommand,
-	wire.Bind(new(Command[CreateMatchInput, CreateMatchOutput]), new(*CreateMatchCommand)),
+	wire.Bind(new(Command[*CreateMatchInput, *CreateMatchOutput]), new(*CreateMatchCommand)),
 )
 
 type Command[I any, O any] interface {
