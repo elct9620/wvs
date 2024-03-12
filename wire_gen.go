@@ -12,8 +12,10 @@ import (
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
+	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/repository"
 	"github.com/elct9620/wvs/internal/usecase"
+	"github.com/hashicorp/go-memdb"
 )
 
 // Injectors from wire.go:
@@ -21,7 +23,12 @@ import (
 func InitializeTest() (*app.Application, error) {
 	scene := web.NewScene()
 	webWeb := web.New(scene)
-	inMemoryMatchRepository := repository.NewInMemoryMatchRepository()
+	dbSchema := db.ProvideDatabaseSchema()
+	memDB, err := memdb.NewMemDB(dbSchema)
+	if err != nil {
+		return nil, err
+	}
+	inMemoryMatchRepository := repository.NewInMemoryMatchRepository(memDB)
 	createMatchCommand := usecase.NewCreateMatchCommand(inMemoryMatchRepository)
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)

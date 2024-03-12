@@ -1,51 +1,45 @@
 package repository
 
 import (
-	"sync"
-
+	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/entity/match"
 	"github.com/elct9620/wvs/internal/usecase"
+	"github.com/hashicorp/go-memdb"
 )
-
-type inMemoryMatchPlayerSchema struct {
-	ID   string
-	Team match.Team
-}
-
-type inMemoryMatchSchema struct {
-	ID      string
-	Players []inMemoryMatchPlayerSchema
-}
 
 var _ usecase.MatchRepository = &InMemoryMatchRepository{}
 
 type InMemoryMatchRepository struct {
-	mux     sync.RWMutex
-	matches map[string]inMemoryMatchSchema
+	memdb *memdb.MemDB
 }
 
-func NewInMemoryMatchRepository() *InMemoryMatchRepository {
+func NewInMemoryMatchRepository(memdb *memdb.MemDB) *InMemoryMatchRepository {
 	return &InMemoryMatchRepository{
-		matches: make(map[string]inMemoryMatchSchema),
+		memdb: memdb,
 	}
 }
 
-func (r *InMemoryMatchRepository) Save(match *match.Match) error {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+func (r *InMemoryMatchRepository) Save(entity *match.Match) error {
+	tnx := r.memdb.Txn(true)
+	defer tnx.Abort()
 
-	players := make([]inMemoryMatchPlayerSchema, 0, len(match.Players()))
-	for _, player := range match.Players() {
-		players = append(players, inMemoryMatchPlayerSchema{
-			ID:   player.Id(),
-			Team: player.Team(),
+	players := make([]db.MatchPlayer, 0, len(entity.Players()))
+	for _, player := range entity.Players() {
+		players = append(players, db.MatchPlayer{
+			Id:   player.Id(),
+			Team: int(player.Team()),
 		})
 	}
 
-	r.matches[match.Id()] = inMemoryMatchSchema{
-		ID:      match.Id(),
+	match := &db.Match{
+		Id:      entity.Id(),
 		Players: players,
 	}
 
+	if err := tnx.Insert(db.TableMatch, match); err != nil {
+		return err
+	}
+
+	tnx.Commit()
 	return nil
 }
