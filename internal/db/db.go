@@ -17,16 +17,7 @@ const (
 func ProvideDatabaseSchema() *memdb.DBSchema {
 	return &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
-			TableMatch: {
-				Name: TableMatch,
-				Indexes: map[string]*memdb.IndexSchema{
-					"id": {
-						Name:    "id",
-						Unique:  true,
-						Indexer: &memdb.UUIDFieldIndex{Field: "Id"},
-					},
-				},
-			},
+			TableMatch: MatchTableSchema,
 		},
 	}
 }
