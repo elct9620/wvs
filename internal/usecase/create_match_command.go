@@ -29,18 +29,28 @@ func NewCreateMatchCommand(matches MatchRepository) *CreateMatchCommand {
 }
 
 func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInput) (*CreateMatchOutput, error) {
-	id := uuid.NewString()
-	match := match.NewMatch(id)
-
-	if err := match.AddPlayer(input.PlayerId, parseMatchTeam(input.Team)); err != nil {
+	waitingList, err := c.matches.WaitingList(ctx)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := c.matches.Save(match); err != nil {
-		return nil, err
+	var entity *match.Match
+	if len(waitingList) > 0 {
+		entity = waitingList[0]
+	} else {
+		id := uuid.NewString()
+		entity = match.NewMatch(id)
+
+		if err := entity.AddPlayer(input.PlayerId, parseMatchTeam(input.Team)); err != nil {
+			return nil, err
+		}
+
+		if err := c.matches.Save(ctx, entity); err != nil {
+			return nil, err
+		}
 	}
 
-	return &CreateMatchOutput{MatchId: match.Id()}, nil
+	return &CreateMatchOutput{MatchId: entity.Id()}, nil
 }
 
 func parseMatchTeam(team string) match.Team {

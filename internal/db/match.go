@@ -1,12 +1,13 @@
 package db
 
 import (
+	"github.com/elct9620/wvs/internal/entity/match"
 	"github.com/hashicorp/go-memdb"
 )
 
 const (
-	IndexMatchId       = "id"
-	IndexMatchPlayerId = "playerId"
+	IndexMatchId        = "id"
+	IndexMatchIsWaiting = "isWaiting"
 )
 
 var MatchTableSchema = &memdb.TableSchema{
@@ -17,6 +18,13 @@ var MatchTableSchema = &memdb.TableSchema{
 			Unique: true,
 			Indexer: &memdb.StringFieldIndex{
 				Field: "Id",
+			},
+		},
+		IndexMatchIsWaiting: {
+			Name:   IndexMatchIsWaiting,
+			Unique: false,
+			Indexer: &memdb.ConditionalIndex{
+				Conditional: MatchWaitingIndexFunc,
 			},
 		},
 	},
@@ -30,4 +38,13 @@ type MatchPlayer struct {
 type Match struct {
 	Id      string
 	Players []MatchPlayer
+}
+
+func MatchWaitingIndexFunc(obj any) (bool, error) {
+	record, ok := obj.(*Match)
+	if !ok {
+		return false, nil
+	}
+
+	return len(record.Players) < match.MaxPlayers, nil
 }

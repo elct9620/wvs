@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/elct9620/wvs/internal/db"
@@ -21,7 +22,37 @@ func NewInMemoryMatchRepository(memdb *memdb.MemDB) *InMemoryMatchRepository {
 	}
 }
 
-func (r *InMemoryMatchRepository) Save(entity *match.Match) error {
+func (r *InMemoryMatchRepository) WaitingList(ctx context.Context) ([]*match.Match, error) {
+	tnx := r.memdb.Txn(false)
+	defer tnx.Abort()
+
+	iter, err := tnx.Get(db.TableMatch, db.IndexMatchIsWaiting)
+	if err != nil {
+		return nil, err
+	}
+
+	matches := make([]*match.Match, 0)
+	for {
+		raw := iter.Next()
+		if raw == nil {
+			break
+		}
+
+		record, ok := raw.(*db.Match)
+		if !ok {
+			return nil, fmt.Errorf("unexpected type %T", record)
+		}
+
+		entity := match.NewMatch(record.Id)
+		for _, player := range record.Players {
+			entity.AddPlayer(player.Id, match.Team(player.Team))
+		}
+	}
+
+	return matches, nil
+}
+
+func (r *InMemoryMatchRepository) Save(ctx context.Context, entity *match.Match) error {
 	tnx := r.memdb.Txn(true)
 	defer tnx.Abort()
 

@@ -1,7 +1,12 @@
 package usecase
 
-import "github.com/elct9620/wvs/internal/entity/match"
+import (
+	"context"
+
+	"github.com/elct9620/wvs/internal/entity/match"
+)
 
 type MatchRepository interface {
-	Save(*match.Match) error
+	WaitingList(context.Context) ([]*match.Match, error)
+	Save(context.Context, *match.Match) error
 }
