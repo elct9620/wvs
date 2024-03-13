@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/elct9620/wvs/internal/app/api"
+	"github.com/elct9620/wvs/internal/app/testability"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/pkg/session"
@@ -24,6 +25,7 @@ var TestSet = wire.NewSet(
 	web.DefaultSet,
 	api.DefaultSet,
 	ws.DefaultSet,
+	testability.DefaultSet,
 	NewConfig,
 	NewTest,
 )
@@ -57,6 +59,7 @@ func NewTest(
 	web *web.Web,
 	api *api.Api,
 	ws *ws.WebSocket,
+	testability *testability.Testability,
 	config *Config,
 ) *Application {
 	mux := chi.NewRouter()
@@ -66,6 +69,7 @@ func NewTest(
 	mux.Mount("/", web)
 	mux.Mount("/api", api)
 	mux.Mount("/ws", ws)
+	mux.Mount("/testability", testability)
 
 	return &Application{mux, config}
 }

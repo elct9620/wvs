@@ -9,6 +9,7 @@ package wvs
 import (
 	"github.com/elct9620/wvs/internal/app"
 	"github.com/elct9620/wvs/internal/app/api"
+	"github.com/elct9620/wvs/internal/app/testability"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
@@ -33,11 +34,13 @@ func InitializeTest() (*app.Application, error) {
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
 	webSocket := ws.New()
+	v2 := testability.ProvideRoutes()
+	testabilityTestability := testability.New(v2...)
 	viper, err := config.NewViperWithDefaults()
 	if err != nil {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
-	application := app.NewTest(webWeb, apiApi, webSocket, appConfig)
+	application := app.NewTest(webWeb, apiApi, webSocket, testabilityTestability, appConfig)
 	return application, nil
 }
