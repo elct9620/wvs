@@ -18,7 +18,7 @@ func InitializeTest() (*app.Application, error) {
 		repository.DefaultSet,
 		usecase.DefaultSet,
 		config.DefaultSet,
-		app.DefaultSet,
+		app.TestSet,
 	)
 	return nil, nil
 }

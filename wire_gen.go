@@ -38,6 +38,6 @@ func InitializeTest() (*app.Application, error) {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
-	application := app.New(webWeb, apiApi, webSocket, appConfig)
+	application := app.NewTest(webWeb, apiApi, webSocket, appConfig)
 	return application, nil
 }
