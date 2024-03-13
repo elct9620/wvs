@@ -11,7 +11,7 @@ const (
 )
 
 var MatchTableSchema = &memdb.TableSchema{
-	Name: "match",
+	Name: TableMatch,
 	Indexes: map[string]*memdb.IndexSchema{
 		IndexMatchId: {
 			Name:   IndexMatchId,

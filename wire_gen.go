@@ -34,7 +34,8 @@ func InitializeTest() (*app.Application, error) {
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
 	webSocket := ws.New()
-	v2 := testability.ProvideRoutes()
+	directCreateMatchCommand := usecase.NewDirectCreateMatchCommand(inMemoryMatchRepository)
+	v2 := testability.ProvideRoutes(directCreateMatchCommand)
 	testabilityTestability := testability.New(v2...)
 	viper, err := config.NewViperWithDefaults()
 	if err != nil {

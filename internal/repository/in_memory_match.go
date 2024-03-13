@@ -43,10 +43,12 @@ func (r *InMemoryMatchRepository) WaitingList(ctx context.Context) ([]*match.Mat
 			return nil, fmt.Errorf("unexpected type %T", record)
 		}
 
-		entity := match.NewMatch(record.Id)
-		for _, player := range record.Players {
-			entity.AddPlayer(player.Id, match.Team(player.Team))
+		entity, err := newMatchFromDbRecord(record)
+		if err != nil {
+			continue
 		}
+
+		matches = append(matches, entity)
 	}
 
 	return matches, nil
@@ -88,4 +90,15 @@ func (r *InMemoryMatchRepository) Save(ctx context.Context, entity *match.Match)
 
 	tnx.Commit()
 	return nil
+}
+
+func newMatchFromDbRecord(record *db.Match) (*match.Match, error) {
+	entity := match.NewMatch(record.Id)
+	for _, player := range record.Players {
+		if err := entity.AddPlayer(player.Id, match.Team(player.Team)); err != nil {
+			return nil, err
+		}
+	}
+
+	return entity, nil
 }

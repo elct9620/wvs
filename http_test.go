@@ -24,12 +24,46 @@ var (
 	ErrHttpResponseNotFound = errors.New("http response not found in context")
 )
 
-func GetResponse(ctx context.Context) (*http.Response, error) {
+func getResponse(ctx context.Context) (*http.Response, error) {
 	if res, ok := ctx.Value(httpResCtxKey{}).(*http.Response); ok {
 		return res, nil
 	}
 
 	return nil, ErrHttpResponseNotFound
+}
+
+func getResponseJson(ctx context.Context) (any, error) {
+	res, err := getResponse(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var body any
+	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func searchResponseJson[T any](ctx context.Context, path string) (T, error) {
+	var res T
+	body, err := getResponseJson(ctx)
+	if err != nil {
+		return res, err
+	}
+
+	found, err := jmespath.Search(path, body)
+	if err != nil {
+		return res, err
+	}
+
+	res, ok := found.(T)
+	if !ok {
+		return res, fmt.Errorf("expected %T, but got %T", res, found)
+	}
+
+	return res, nil
 }
 
 func newRequest(ctx context.Context, method, target string, body io.Reader) (*http.Request, error) {
@@ -106,22 +140,13 @@ func iMakeARequestToWithBody(ctx context.Context, method string, target string, 
 func theResponseBodyShouldBeAValidJson(ctx context.Context, expectedJson *godog.DocString) error {
 	var expected, actual any
 
-	res, err := GetResponse(ctx)
-	if err != nil {
-		return err
-	}
-
 	if err := json.Unmarshal([]byte(expectedJson.Content), &expected); err != nil {
 		return err
 	}
 
-	actualBody, err := io.ReadAll(res.Body)
+	actual, err := getResponseJson(ctx)
 	if err != nil {
 		return err
-	}
-
-	if err := json.Unmarshal(actualBody, &actual); err != nil {
-		return fmt.Errorf("response body is not a valid JSON: %s", actualBody)
 	}
 
 	if diff := cmp.Diff(expected, actual); diff != "" {
@@ -132,27 +157,12 @@ func theResponseBodyShouldBeAValidJson(ctx context.Context, expectedJson *godog.
 }
 
 func theResponseJsonShouldHas(ctx context.Context, path string) error {
-	res, err := GetResponse(ctx)
+	actual, err := searchResponseJson[any](ctx, path)
 	if err != nil {
 		return err
 	}
 
-	var actual any
-	actualBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(actualBody, &actual); err != nil {
-		return fmt.Errorf("response body is not a valid JSON: %s", actualBody)
-	}
-
-	value, err := jmespath.Search(path, actual)
-	if err != nil {
-		return err
-	}
-
-	switch v := value.(type) {
+	switch v := actual.(type) {
 	case string:
 		if v == "" {
 			return fmt.Errorf("expected JSON has no value at path %s", path)
@@ -164,8 +174,21 @@ func theResponseJsonShouldHas(ctx context.Context, path string) error {
 	return nil
 }
 
+func theResponseJSONShouldHasWithValue(ctx context.Context, path, expected string) error {
+	actual, err := searchResponseJson[string](ctx, path)
+	if err != nil {
+		return err
+	}
+
+	if actual != expected {
+		return fmt.Errorf("expected value %s, but got %s", expected, actual)
+	}
+
+	return nil
+}
+
 func theResponseStatusCodeShouldBe(ctx context.Context, code int) error {
-	res, err := GetResponse(ctx)
+	res, err := getResponse(ctx)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package testability
 import (
 	"net/http"
 
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 )
@@ -34,6 +35,10 @@ func New(routes ...Route) *Testability {
 	}
 }
 
-func ProvideRoutes() []Route {
-	return []Route{}
+func ProvideRoutes(
+	directCreateMatch usecase.Command[*usecase.DirectCreateMatchInput, *usecase.DirectCreateMatchOutput],
+) []Route {
+	return []Route{
+		NewPostMatch(directCreateMatch),
+	}
 }

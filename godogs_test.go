@@ -65,11 +65,14 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I make a (GET|POST|PUT|DELETE) request to "([^"]*)" with body$`, iMakeARequestToWithBody)
 	ctx.Step(`^the response body should be a valid JSON$`, theResponseBodyShouldBeAValidJson)
 	ctx.Step(`^the response JSON should has "([^"]*)"$`, theResponseJsonShouldHas)
+	ctx.Step(`^the response JSON should has "([^"]*)" with value "([^"]*)"$`, theResponseJSONShouldHasWithValue)
 	ctx.Step(`^the response status code should be (\d+)$`, theResponseStatusCodeShouldBe)
 
 	ctx.Step(`^connect to the websocket$`, connectToTheWebsocket)
 	ctx.Step(`^the websocket event "([^"]*)" is received$`, theWebsocketEventIsReceived)
 	ctx.Step(`^the websocket event "([^"]*)" has "([^"]*)" with value "([^"]*)"$`, theWebsocketEventHasWithValue)
+
+	ctx.Step(`^there have a match$`, thereHaveAMatch)
 }
 
 func TestFeatures(t *testing.T) {
