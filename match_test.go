@@ -8,7 +8,7 @@ import (
 	"github.com/cucumber/godog"
 )
 
-func thereHaveAMatch(ctx context.Context, payload *godog.DocString) error {
+func thereHaveSomeMatch(ctx context.Context, payload *godog.DocString) error {
 	req, err := newRequest(ctx, http.MethodPost, "/testability/matches", bytes.NewBufferString(payload.Content))
 	if err != nil {
 		return err

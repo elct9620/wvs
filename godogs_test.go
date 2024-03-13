@@ -72,7 +72,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the websocket event "([^"]*)" is received$`, theWebsocketEventIsReceived)
 	ctx.Step(`^the websocket event "([^"]*)" has "([^"]*)" with value "([^"]*)"$`, theWebsocketEventHasWithValue)
 
-	ctx.Step(`^there have a match$`, thereHaveAMatch)
+	ctx.Step(`^there have some match$`, thereHaveSomeMatch)
 }
 
 func TestFeatures(t *testing.T) {

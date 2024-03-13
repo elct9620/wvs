@@ -35,7 +35,7 @@ func (ctrl *PostMatch) Path() string {
 }
 
 func (ctrl *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var payload PostMatchInput
+	var payload []PostMatchInput
 	requestBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		panic(err)
@@ -45,18 +45,25 @@ func (ctrl *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	input := &usecase.DirectCreateMatchInput{
-		Id: payload.Id,
+	items := make([]usecase.DirectCreateMatchItem, 0, len(payload))
+
+	for _, input := range payload {
+		item := usecase.DirectCreateMatchItem{
+			Id: input.Id,
+		}
+
+		for _, player := range input.Players {
+			item.Players = append(item.Players, usecase.DirectCreateMatchPlayer{
+				Id:   player.Id,
+				Team: player.Team,
+			})
+		}
+
+		items = append(items, item)
 	}
 
-	for _, player := range payload.Players {
-		input.Players = append(input.Players, struct {
-			Id   string
-			Team string
-		}{
-			Id:   player.Id,
-			Team: player.Team,
-		})
+	input := &usecase.DirectCreateMatchInput{
+		Items: items,
 	}
 
 	_, err = ctrl.directCreateMatch.Execute(r.Context(), input)

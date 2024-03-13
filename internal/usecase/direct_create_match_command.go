@@ -2,17 +2,22 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/elct9620/wvs/internal/entity/match"
 )
 
-type DirectCreateMatchInput struct {
+type DirectCreateMatchPlayer struct {
+	Id   string
+	Team string
+}
+
+type DirectCreateMatchItem struct {
 	Id      string
-	Players []struct {
-		Id   string
-		Team string
-	}
+	Players []DirectCreateMatchPlayer
+}
+
+type DirectCreateMatchInput struct {
+	Items []DirectCreateMatchItem
 }
 
 type DirectCreateMatchOutput struct {
@@ -27,25 +32,20 @@ func NewDirectCreateMatchCommand(matches MatchRepository) *DirectCreateMatchComm
 }
 
 func (cmd *DirectCreateMatchCommand) Execute(ctx context.Context, input *DirectCreateMatchInput) (*DirectCreateMatchOutput, error) {
-	entity := match.NewMatch(input.Id)
-	for _, player := range input.Players {
-		team := parseMatchTeam(player.Team)
-		err := entity.AddPlayer(player.Id, team)
-		if err != nil {
+	for _, item := range input.Items {
+		entity := match.NewMatch(item.Id)
+		for _, player := range item.Players {
+			team := parseMatchTeam(player.Team)
+			err := entity.AddPlayer(player.Id, team)
+			if err != nil {
+				return &DirectCreateMatchOutput{}, err
+			}
+		}
+
+		if err := cmd.matches.Save(ctx, entity); err != nil {
 			return &DirectCreateMatchOutput{}, err
 		}
 	}
-
-	if err := cmd.matches.Save(ctx, entity); err != nil {
-		return &DirectCreateMatchOutput{}, err
-	}
-
-	waiting, err := cmd.matches.WaitingList(ctx)
-	if err != nil {
-		return &DirectCreateMatchOutput{}, err
-	}
-
-	fmt.Printf("waiting list: %+v\n", waiting)
 
 	return &DirectCreateMatchOutput{}, nil
 }

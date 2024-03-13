@@ -22,6 +22,27 @@ func NewInMemoryMatchRepository(memdb *memdb.MemDB) *InMemoryMatchRepository {
 	}
 }
 
+func (r *InMemoryMatchRepository) FindByPlayerID(ctx context.Context, playerId string) (*match.Match, error) {
+	tnx := r.memdb.Txn(false)
+	defer tnx.Abort()
+
+	raw, err := tnx.First(db.TableMatch, db.IndexMatchPlayerId, playerId)
+	if err != nil {
+		return nil, err
+	}
+
+	if raw == nil {
+		return nil, nil
+	}
+
+	record, ok := raw.(*db.Match)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %T", record)
+	}
+
+	return newMatchFromDbRecord(record)
+}
+
 func (r *InMemoryMatchRepository) WaitingList(ctx context.Context) ([]*match.Match, error) {
 	tnx := r.memdb.Txn(false)
 	defer tnx.Abort()

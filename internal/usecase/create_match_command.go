@@ -29,12 +29,18 @@ func NewCreateMatchCommand(matches MatchRepository) *CreateMatchCommand {
 }
 
 func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInput) (*CreateMatchOutput, error) {
+	var entity *match.Match
+	if entity, err := c.matches.FindByPlayerID(ctx, input.PlayerId); err != nil {
+		return nil, err
+	} else if entity != nil {
+		return &CreateMatchOutput{MatchId: entity.Id()}, nil
+	}
+
 	waitingList, err := c.matches.WaitingList(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var entity *match.Match
 	if len(waitingList) > 0 {
 		entity = waitingList[0]
 	} else {
