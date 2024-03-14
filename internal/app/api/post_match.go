@@ -6,6 +6,7 @@ import (
 
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/session"
+	"github.com/go-chi/render"
 )
 
 var _ Route = &PostMatch{}
@@ -38,8 +39,8 @@ func (p *PostMatch) Path() string {
 
 func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	input := PostMatchInput{}
-	if json.NewDecoder(r.Body).Decode(&input) != nil {
-		http.Error(w, string(ApiErrDecodeJsonFailed), http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		_ = render.Render(w, r, ErrDecodeJsonFailed.WithError(err))
 		return
 	}
 
@@ -50,7 +51,7 @@ func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, string(ApiErrInternalServer), http.StatusInternalServerError)
+		_ = render.Render(w, r, ErrExecute(err))
 		return
 	}
 
@@ -60,7 +61,7 @@ func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(res); err != nil {
-		http.Error(w, string(ApiErrInternalServer), http.StatusInternalServerError)
+		_ = render.Render(w, r, ErrInternalServer.WithError(err))
 		return
 	}
 }

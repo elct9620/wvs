@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/elct9620/wvs/pkg/session"
+	"github.com/go-chi/render"
 )
 
 var _ Route = &GetMe{}
@@ -33,7 +34,7 @@ func (g *GetMe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if sessionId == "" {
-		http.Error(w, string(ApiErrUnauthorized), http.StatusUnauthorized)
+		_ = render.Render(w, r, ErrUnauthorized)
 		return
 	}
 
@@ -43,6 +44,6 @@ func (g *GetMe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, string(ApiErrInternalServer), http.StatusInternalServerError)
+		_ = render.Render(w, r, ErrInternalServer.WithError(err))
 	}
 }
