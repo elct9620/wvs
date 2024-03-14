@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/elct9620/wvs/internal/usecase"
@@ -38,14 +37,8 @@ func (p *PostMatch) Path() string {
 }
 
 func (p *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var input PostMatchInput
-	requestBody, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, string(ApiErrUnableReadBody), http.StatusBadRequest)
-		return
-	}
-
-	if err := json.Unmarshal(requestBody, &input); err != nil {
+	input := PostMatchInput{}
+	if json.NewDecoder(r.Body).Decode(&input) != nil {
 		http.Error(w, string(ApiErrDecodeJsonFailed), http.StatusBadRequest)
 		return
 	}
