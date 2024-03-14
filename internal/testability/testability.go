@@ -36,9 +36,9 @@ func New(routes ...Route) *Testability {
 }
 
 func ProvideRoutes(
-	directCreateMatch usecase.Command[*usecase.DirectCreateMatchInput, *usecase.DirectCreateMatchOutput],
+	matchRepo usecase.MatchRepository,
 ) []Route {
 	return []Route{
-		NewPostMatch(directCreateMatch),
+		NewPostMatch(matchRepo),
 	}
 }

@@ -2,15 +2,13 @@ package testability
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 
+	"github.com/elct9620/wvs/internal/entity/match"
 	"github.com/elct9620/wvs/internal/usecase"
 )
 
-var _ Route = &PostMatch{}
-
-type PostMatchInput struct {
+type PostMatchRequest struct {
 	Id      string `json:"id"`
 	Players []struct {
 		Id   string `json:"id"`
@@ -18,12 +16,14 @@ type PostMatchInput struct {
 	} `json:"players"`
 }
 
+var _ Route = &PostMatch{}
+
 type PostMatch struct {
-	directCreateMatch usecase.Command[*usecase.DirectCreateMatchInput, *usecase.DirectCreateMatchOutput]
+	matches usecase.MatchRepository
 }
 
-func NewPostMatch(directCreateMatch usecase.Command[*usecase.DirectCreateMatchInput, *usecase.DirectCreateMatchOutput]) *PostMatch {
-	return &PostMatch{directCreateMatch: directCreateMatch}
+func NewPostMatch(matches usecase.MatchRepository) *PostMatch {
+	return &PostMatch{matches: matches}
 }
 
 func (ctrl *PostMatch) Method() string {
@@ -35,39 +35,24 @@ func (ctrl *PostMatch) Path() string {
 }
 
 func (ctrl *PostMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var payload []PostMatchInput
-	requestBody, err := io.ReadAll(r.Body)
-	if err != nil {
+	payload := []PostMatchRequest{}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		panic(err)
 	}
-
-	if err := json.Unmarshal(requestBody, &payload); err != nil {
-		panic(err)
-	}
-
-	items := make([]usecase.DirectCreateMatchItem, 0, len(payload))
 
 	for _, input := range payload {
-		item := usecase.DirectCreateMatchItem{
-			Id: input.Id,
-		}
+		entity := match.NewMatch(input.Id)
 
 		for _, player := range input.Players {
-			item.Players = append(item.Players, usecase.DirectCreateMatchPlayer{
-				Id:   player.Id,
-				Team: player.Team,
-			})
+			team := match.TeamByName(player.Team)
+			if err := entity.AddPlayer(player.Id, team); err != nil {
+				panic(err)
+			}
 		}
 
-		items = append(items, item)
-	}
-
-	input := &usecase.DirectCreateMatchInput{
-		Items: items,
-	}
-
-	_, err = ctrl.directCreateMatch.Execute(r.Context(), input)
-	if err != nil {
-		panic(err)
+		if err := ctrl.matches.Save(r.Context(), entity); err != nil {
+			panic(err)
+		}
 	}
 }
