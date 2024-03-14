@@ -9,12 +9,12 @@ package wvs
 import (
 	"github.com/elct9620/wvs/internal/app"
 	"github.com/elct9620/wvs/internal/app/api"
-	"github.com/elct9620/wvs/internal/app/testability"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/testability"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/hashicorp/go-memdb"
 )

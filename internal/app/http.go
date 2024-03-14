@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/elct9620/wvs/internal/app/api"
-	"github.com/elct9620/wvs/internal/app/testability"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
+	"github.com/elct9620/wvs/internal/testability"
 	"github.com/elct9620/wvs/pkg/session"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
