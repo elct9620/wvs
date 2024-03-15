@@ -13,7 +13,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
 	"github.com/elct9620/wvs/internal/db"
-	"github.com/elct9620/wvs/internal/repository"
+	"github.com/elct9620/wvs/internal/repository/inmemory"
 	"github.com/elct9620/wvs/internal/testability"
 	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/hashicorp/go-memdb"
@@ -29,12 +29,12 @@ func InitializeTest() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	inMemoryMatchRepository := repository.NewInMemoryMatchRepository(memDB)
-	createMatchCommand := usecase.NewCreateMatchCommand(inMemoryMatchRepository)
+	matchRepository := inmemory.NewMatchRepository(memDB)
+	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository)
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
 	webSocket := ws.New()
-	v2 := testability.ProvideRoutes(inMemoryMatchRepository)
+	v2 := testability.ProvideRoutes(matchRepository)
 	testabilityTestability := testability.New(v2...)
 	viper, err := config.NewViperWithDefaults()
 	if err != nil {

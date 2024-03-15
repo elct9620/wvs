@@ -1,4 +1,4 @@
-package repository
+package inmemory
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 	"github.com/hashicorp/go-memdb"
 )
 
-var _ usecase.MatchRepository = &InMemoryMatchRepository{}
+var _ usecase.MatchRepository = &MatchRepository{}
 
-type InMemoryMatchRepository struct {
+type MatchRepository struct {
 	memdb *memdb.MemDB
 }
 
-func NewInMemoryMatchRepository(memdb *memdb.MemDB) *InMemoryMatchRepository {
-	return &InMemoryMatchRepository{
+func NewMatchRepository(memdb *memdb.MemDB) *MatchRepository {
+	return &MatchRepository{
 		memdb: memdb,
 	}
 }
 
-func (r *InMemoryMatchRepository) FindByPlayerID(ctx context.Context, playerId string) (*match.Match, error) {
+func (r *MatchRepository) FindByPlayerID(ctx context.Context, playerId string) (*match.Match, error) {
 	tnx := r.memdb.Txn(false)
 	defer tnx.Abort()
 
@@ -37,7 +37,7 @@ func (r *InMemoryMatchRepository) FindByPlayerID(ctx context.Context, playerId s
 	return dbRecordToMatch(raw.(*db.Match))
 }
 
-func (r *InMemoryMatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
+func (r *MatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
 	tnx := r.memdb.Txn(false)
 	defer tnx.Abort()
 
@@ -64,7 +64,7 @@ func (r *InMemoryMatchRepository) Waiting(ctx context.Context) ([]*match.Match, 
 	return matches, nil
 }
 
-func (r *InMemoryMatchRepository) Save(ctx context.Context, entity *match.Match) error {
+func (r *MatchRepository) Save(ctx context.Context, entity *match.Match) error {
 	tnx := r.memdb.Txn(true)
 	defer tnx.Abort()
 
