@@ -97,6 +97,10 @@ func connectToTheWebsocket(ctx context.Context) (context.Context, error) {
 	wsUrl := fmt.Sprintf("ws://%s/ws", url.Host)
 	ws, res, err := dailer.Dial(wsUrl, nil)
 	if err != nil {
+		if errors.Is(err, websocket.ErrBadHandshake) {
+			return context.WithValue(ctx, httpResCtxKey{}, res), nil
+		}
+
 		return ctx, err
 	}
 

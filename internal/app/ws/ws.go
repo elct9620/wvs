@@ -5,6 +5,7 @@ import (
 
 	"github.com/elct9620/wvs/pkg/event"
 	"github.com/elct9620/wvs/pkg/session"
+	"github.com/go-chi/render"
 	"github.com/google/wire"
 	"github.com/gorilla/websocket"
 )
@@ -25,18 +26,18 @@ func New() *WebSocket {
 var upgrader = websocket.Upgrader{}
 
 func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	sessionId := session.Get(r.Context())
+	if sessionId == "" {
+		_ = render.Render(w, r, ErrUnauthorized)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		http.Error(w, string(WsErrUpgrading), http.StatusInternalServerError)
+		_ = render.Render(w, r, ErrUpgrading)
 		return
 	}
 	defer conn.Close()
-
-	sessionId := session.Get(r.Context())
-	if sessionId == "" {
-		http.Error(w, string(WsErrSessionNotFound), http.StatusUnauthorized)
-		return
-	}
 
 	readyEvent := event.NewReadyEvent(sessionId)
 	_ = conn.WriteJSON(readyEvent)
