@@ -43,7 +43,7 @@ func (r *InMemoryMatchRepository) FindByPlayerID(ctx context.Context, playerId s
 	return newMatchFromDbRecord(record)
 }
 
-func (r *InMemoryMatchRepository) WaitingList(ctx context.Context) ([]*match.Match, error) {
+func (r *InMemoryMatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
 	tnx := r.memdb.Txn(false)
 	defer tnx.Abort()
 
