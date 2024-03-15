@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/entity/match"
@@ -35,12 +34,7 @@ func (r *InMemoryMatchRepository) FindByPlayerID(ctx context.Context, playerId s
 		return nil, nil
 	}
 
-	record, ok := raw.(*db.Match)
-	if !ok {
-		return nil, fmt.Errorf("unexpected type %T", record)
-	}
-
-	return newMatchFromDbRecord(record)
+	return dbRecordToMatch(raw.(*db.Match))
 }
 
 func (r *InMemoryMatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
@@ -59,12 +53,7 @@ func (r *InMemoryMatchRepository) Waiting(ctx context.Context) ([]*match.Match, 
 			break
 		}
 
-		record, ok := raw.(*db.Match)
-		if !ok {
-			return nil, fmt.Errorf("unexpected type %T", record)
-		}
-
-		entity, err := newMatchFromDbRecord(record)
+		entity, err := dbRecordToMatch(raw.(*db.Match))
 		if err != nil {
 			continue
 		}
@@ -79,33 +68,7 @@ func (r *InMemoryMatchRepository) Save(ctx context.Context, entity *match.Match)
 	tnx := r.memdb.Txn(true)
 	defer tnx.Abort()
 
-	record, err := tnx.First(db.TableMatch, db.IndexMatchId, entity.Id())
-	if err != nil {
-		return err
-	}
-
-	var match *db.Match
-	if record == nil {
-		match = &db.Match{
-			Id: entity.Id(),
-		}
-	} else {
-		var ok bool
-		match, ok = record.(*db.Match)
-		if !ok {
-			return fmt.Errorf("unexpected type %T", match)
-		}
-	}
-
-	players := make([]db.MatchPlayer, 0, len(entity.Players()))
-	for _, player := range entity.Players() {
-		players = append(players, db.MatchPlayer{
-			Id:   player.Id(),
-			Team: int(player.Team()),
-		})
-	}
-	match.Players = players
-
+	match := matchToDbRecord(entity)
 	if err := tnx.Insert(db.TableMatch, match); err != nil {
 		return err
 	}
@@ -114,7 +77,7 @@ func (r *InMemoryMatchRepository) Save(ctx context.Context, entity *match.Match)
 	return nil
 }
 
-func newMatchFromDbRecord(record *db.Match) (*match.Match, error) {
+func dbRecordToMatch(record *db.Match) (*match.Match, error) {
 	entity := match.NewMatch(record.Id)
 	for _, player := range record.Players {
 		if err := entity.AddPlayer(player.Id, match.Team(player.Team)); err != nil {
@@ -123,4 +86,19 @@ func newMatchFromDbRecord(record *db.Match) (*match.Match, error) {
 	}
 
 	return entity, nil
+}
+
+func matchToDbRecord(entity *match.Match) *db.Match {
+	players := make([]db.MatchPlayer, 0, len(entity.Players()))
+	for _, player := range entity.Players() {
+		players = append(players, db.MatchPlayer{
+			Id:   player.Id(),
+			Team: int(player.Team()),
+		})
+	}
+
+	return &db.Match{
+		Id:      entity.Id(),
+		Players: players,
+	}
 }
