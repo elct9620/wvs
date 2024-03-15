@@ -29,10 +29,13 @@ func NewCreateMatchCommand(matches MatchRepository) *CreateMatchCommand {
 }
 
 func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInput) (*CreateMatchOutput, error) {
-	var entity *match.Match
-	if entity, err := c.matches.FindByPlayerID(ctx, input.PlayerId); err != nil {
+	entity, err := c.matches.FindByPlayerID(ctx, input.PlayerId)
+	if err != nil {
 		return nil, err
-	} else if entity != nil {
+	}
+
+	playerJoined := entity != nil
+	if playerJoined {
 		return &CreateMatchOutput{MatchId: entity.Id()}, nil
 	}
 
@@ -41,31 +44,29 @@ func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInpu
 		return nil, err
 	}
 
-	if len(waitingList) > 0 {
-		entity = waitingList[0]
-	} else {
+	team := match.TeamByName(input.Team)
+	matchAvailable := len(waitingList) > 0
+	if matchAvailable {
+		for _, match := range waitingList {
+			if match.CanJoinByTeam(team) {
+				entity = match
+				break
+			}
+		}
+	}
+
+	if entity == nil {
 		id := uuid.NewString()
 		entity = match.NewMatch(id)
+	}
 
-		if err := entity.AddPlayer(input.PlayerId, parseMatchTeam(input.Team)); err != nil {
-			return nil, err
-		}
+	if err := entity.AddPlayer(input.PlayerId, team); err != nil {
+		return nil, err
+	}
 
-		if err := c.matches.Save(ctx, entity); err != nil {
-			return nil, err
-		}
+	if err := c.matches.Save(ctx, entity); err != nil {
+		return nil, err
 	}
 
 	return &CreateMatchOutput{MatchId: entity.Id()}, nil
-}
-
-func parseMatchTeam(team string) match.Team {
-	switch team {
-	case "slime":
-		return match.TeamSlime
-	case "walrus":
-		return match.TeamWalrus
-	default:
-		return match.TeamSlime
-	}
 }

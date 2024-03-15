@@ -46,6 +46,20 @@ func (m *Match) IsFull() bool {
 	return len(m.players) >= MaxPlayers
 }
 
+func (m *Match) CanJoinByTeam(team Team) bool {
+	if m.IsFull() {
+		return false
+	}
+
+	for _, player := range m.players {
+		if player.team == team {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (m *Match) AddPlayer(id string, team Team) error {
 	if m.IsFull() {
 		return ErrMatchFull

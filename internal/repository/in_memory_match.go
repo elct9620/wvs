@@ -90,7 +90,8 @@ func (r *InMemoryMatchRepository) Save(ctx context.Context, entity *match.Match)
 			Id: entity.Id(),
 		}
 	} else {
-		match, ok := record.(*db.Match)
+		var ok bool
+		match, ok = record.(*db.Match)
 		if !ok {
 			return fmt.Errorf("unexpected type %T", match)
 		}
