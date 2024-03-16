@@ -10,7 +10,7 @@ import (
 
 type playerEventWatcher struct {
 	isWatching bool
-	channel    chan event.Event
+	channel    chan *event.Event
 }
 
 var _ usecase.PlayerEventRepository = &PlayerEventRepository{}
@@ -26,7 +26,7 @@ func NewPlayerEventRepository() *PlayerEventRepository {
 	}
 }
 
-func (r *PlayerEventRepository) Publish(ctx context.Context, sessionId string, event event.Event) error {
+func (r *PlayerEventRepository) Publish(ctx context.Context, sessionId string, event *event.Event) error {
 	r.mux.RLock()
 	defer r.mux.RUnlock()
 
@@ -39,7 +39,7 @@ func (r *PlayerEventRepository) Publish(ctx context.Context, sessionId string, e
 	return nil
 }
 
-func (r *PlayerEventRepository) Watch(ctx context.Context, sessionId string) (chan event.Event, error) {
+func (r *PlayerEventRepository) Watch(ctx context.Context, sessionId string) (chan *event.Event, error) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
@@ -51,7 +51,7 @@ func (r *PlayerEventRepository) Watch(ctx context.Context, sessionId string) (ch
 
 	if !isFound {
 		watcher = &playerEventWatcher{
-			channel: make(chan event.Event),
+			channel: make(chan *event.Event),
 		}
 	}
 	watcher.isWatching = true

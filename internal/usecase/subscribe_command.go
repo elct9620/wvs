@@ -27,7 +27,7 @@ func NewSubscribeCommand(
 }
 
 func (c *SubscribeCommand) Execute(ctx context.Context, input *SubscribeCommandInput) (*SubscribeCommandOutput, error) {
-	readyEvent := event.NewReadyEvent(input.SessionId)
+	readyEvent := event.NewReadyEvent()
 	_ = input.Stream.Publish(readyEvent)
 
 	eventCh, err := c.events.Watch(ctx, input.SessionId)

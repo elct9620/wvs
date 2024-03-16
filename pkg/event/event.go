@@ -1,55 +1,29 @@
 package event
 
 import (
-	"encoding/json"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-type Event interface {
-	json.Marshaler
-	json.Unmarshaler
-	Type() string
-	AggregateId() string
-	CreatedAt() time.Time
+type Event struct {
+	Id        string    `json:"id"`
+	Type      string    `json:"type"`
+	CreatedAt time.Time `json:"created_at"`
+	Payload   any       `json:"payload"`
 }
 
-var _ Event = &ReadyEvent{}
+const (
+	EventReady = "ReadyEvent"
+)
 
-type ReadyEvent struct {
-	aggregateId string
-	createdAt   time.Time
-}
+type ReadyEvent struct{}
 
-func NewReadyEvent(aggregateId string) *ReadyEvent {
-	return &ReadyEvent{aggregateId: aggregateId, createdAt: time.Now()}
-}
-
-func (e *ReadyEvent) Type() string {
-	return "ReadyEvent"
-}
-
-func (e *ReadyEvent) AggregateId() string {
-	return e.aggregateId
-}
-
-func (e *ReadyEvent) CreatedAt() time.Time {
-	return e.createdAt
-}
-
-func (e *ReadyEvent) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":         e.Type(),
-		"aggregate_id": e.AggregateId(),
-		"created_at":   e.CreatedAt(),
-	})
-}
-
-func (e *ReadyEvent) UnmarshalJSON(data []byte) error {
-	var m map[string]interface{}
-	if err := json.Unmarshal(data, &m); err != nil {
-		return err
+func NewReadyEvent() *Event {
+	return &Event{
+		Id:        uuid.NewString(),
+		Type:      EventReady,
+		CreatedAt: time.Now(),
+		Payload:   ReadyEvent{},
 	}
-	e.aggregateId = m["aggregate_id"].(string)
-	e.createdAt = m["created_at"].(time.Time)
-	return nil
 }

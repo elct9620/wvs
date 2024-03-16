@@ -3,7 +3,6 @@ Feature: WebSocket
     Given the session id is "d7ae7356-2d91-47f7-81bd-428c40bf55c3"
     When connect to the websocket
     Then the websocket event "ReadyEvent" is received
-    And the websocket event "ReadyEvent" has "aggregate_id" with value "d7ae7356-2d91-47f7-81bd-428c40bf55c3"
 
   Scenario: got unauthorized when trying to connect with invalid session id
     Given the session id is ""

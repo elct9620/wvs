@@ -52,6 +52,8 @@ func (c *WebSocketClient) ReadEvents() {
 			break
 		}
 
+		fmt.Printf("event: %+v\n", event)
+
 		c.mux.Lock()
 		c.events = append(c.events, event)
 		c.mux.Unlock()
