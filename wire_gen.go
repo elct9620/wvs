@@ -16,7 +16,6 @@ import (
 	"github.com/elct9620/wvs/internal/repository/inmemory"
 	"github.com/elct9620/wvs/internal/testability"
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/hashicorp/go-memdb"
 )
 
 // Injectors from wire.go:
@@ -24,12 +23,11 @@ import (
 func InitializeTest() (*app.Application, error) {
 	scene := web.NewScene()
 	webWeb := web.New(scene)
-	dbSchema := db.ProvideDatabaseSchema()
-	memDB, err := memdb.NewMemDB(dbSchema)
+	database, err := db.NewDatabase()
 	if err != nil {
 		return nil, err
 	}
-	matchRepository := inmemory.NewMatchRepository(memDB)
+	matchRepository := inmemory.NewMatchRepository(database)
 	streamRepository := ws.NewStreamRepository()
 	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository, streamRepository)
 	v := api.ProvideRoutes(createMatchCommand)

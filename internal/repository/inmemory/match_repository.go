@@ -6,23 +6,22 @@ import (
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/entity/match"
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/hashicorp/go-memdb"
 )
 
 var _ usecase.MatchRepository = &MatchRepository{}
 
 type MatchRepository struct {
-	memdb *memdb.MemDB
+	db *db.Database
 }
 
-func NewMatchRepository(memdb *memdb.MemDB) *MatchRepository {
+func NewMatchRepository(db *db.Database) *MatchRepository {
 	return &MatchRepository{
-		memdb: memdb,
+		db: db,
 	}
 }
 
 func (r *MatchRepository) FindByPlayerID(ctx context.Context, playerId string) (*match.Match, error) {
-	tnx := r.memdb.Txn(false)
+	tnx := r.db.Txn(false)
 	defer tnx.Abort()
 
 	raw, err := tnx.First(db.TableMatch, db.IndexMatchPlayerId, playerId)
@@ -38,7 +37,7 @@ func (r *MatchRepository) FindByPlayerID(ctx context.Context, playerId string) (
 }
 
 func (r *MatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
-	tnx := r.memdb.Txn(false)
+	tnx := r.db.Txn(false)
 	defer tnx.Abort()
 
 	iter, err := tnx.Get(db.TableMatch, db.IndexMatchIsWaiting)
@@ -65,7 +64,7 @@ func (r *MatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
 }
 
 func (r *MatchRepository) Save(ctx context.Context, entity *match.Match) error {
-	tnx := r.memdb.Txn(true)
+	tnx := r.db.Txn(true)
 	defer tnx.Abort()
 
 	match := matchToRecord(entity)

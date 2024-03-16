@@ -6,18 +6,27 @@ import (
 )
 
 var DefaultSet = wire.NewSet(
-	ProvideDatabaseSchema,
-	memdb.NewMemDB,
+	NewDatabase,
 )
 
 const (
 	TableMatch = "match"
 )
 
-func ProvideDatabaseSchema() *memdb.DBSchema {
-	return &memdb.DBSchema{
+type Database struct {
+	*memdb.MemDB
+}
+
+func NewDatabase() (*Database, error) {
+	db, err := memdb.NewMemDB(&memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
 			TableMatch: MatchTableSchema,
 		},
+	})
+
+	if err != nil {
+		return nil, err
 	}
+
+	return &Database{MemDB: db}, nil
 }
