@@ -21,13 +21,13 @@ var _ Command[*CreateMatchInput, *CreateMatchOutput] = &CreateMatchCommand{}
 
 type CreateMatchCommand struct {
 	matches MatchRepository
-	events  PlayerEventRepository
+	streams StreamRepository
 }
 
-func NewCreateMatchCommand(matches MatchRepository, events PlayerEventRepository) *CreateMatchCommand {
+func NewCreateMatchCommand(matches MatchRepository, streams StreamRepository) *CreateMatchCommand {
 	return &CreateMatchCommand{
 		matches: matches,
-		events:  events,
+		streams: streams,
 	}
 }
 
@@ -85,9 +85,14 @@ func (c *CreateMatchCommand) nextAvailableMatch(matches []*match.Match, team mat
 
 func (c *CreateMatchCommand) publishEvents(ctx context.Context, entity *match.Match) error {
 	for _, player := range entity.Players() {
+		stream, err := c.streams.Find(ctx, player.Id())
+		if err != nil {
+			continue
+		}
+
 		event := event.NewJoinMatchEvent(entity.Id(), player.Id())
 
-		if err := c.events.Publish(ctx, player.Id(), event); err != nil {
+		if err := stream.Publish(event); err != nil {
 			return err
 		}
 	}

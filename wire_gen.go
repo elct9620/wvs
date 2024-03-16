@@ -30,11 +30,11 @@ func InitializeTest() (*app.Application, error) {
 		return nil, err
 	}
 	matchRepository := inmemory.NewMatchRepository(memDB)
-	playerEventRepository := inmemory.NewPlayerEventRepository()
-	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository, playerEventRepository)
+	streamRepository := ws.NewStreamRepository()
+	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository, streamRepository)
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
-	streamRepository := ws.NewStreamRepository()
+	playerEventRepository := inmemory.NewPlayerEventRepository()
 	subscribeCommand := usecase.NewSubscribeCommand(playerEventRepository, streamRepository)
 	webSocket := ws.New(subscribeCommand, streamRepository)
 	v2 := testability.ProvideRoutes(matchRepository)

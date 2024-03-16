@@ -29,7 +29,7 @@ func NewSubscribeCommand(
 }
 
 func (c *SubscribeCommand) Execute(ctx context.Context, input *SubscribeCommandInput) (*SubscribeCommandOutput, error) {
-	stream, err := c.streams.Find(input.SessionId)
+	stream, err := c.streams.Find(ctx, input.SessionId)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"sync"
 
 	"github.com/elct9620/wvs/internal/usecase"
@@ -36,7 +37,7 @@ func NewStreamRepository() *StreamRepository {
 	}
 }
 
-func (r *StreamRepository) Find(id string) (usecase.Stream, error) {
+func (r *StreamRepository) Find(ctx context.Context, id string) (usecase.Stream, error) {
 	r.mux.RLock()
 	defer r.mux.RUnlock()
 
