@@ -23,12 +23,8 @@ func NewSubscribeCommand() *SubscribeCommand {
 
 func (c *SubscribeCommand) Execute(ctx context.Context, input *SubscribeCommandInput) (*SubscribeCommandOutput, error) {
 	readyEvent := event.NewReadyEvent(input.SessionId)
-	input.Stream.Publish(readyEvent)
+	_ = input.Stream.Publish(readyEvent)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return &SubscribeCommandOutput{}, nil
-		}
-	}
+	<-ctx.Done()
+	return &SubscribeCommandOutput{}, nil
 }
