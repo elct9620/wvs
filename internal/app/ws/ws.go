@@ -50,6 +50,7 @@ func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	ws.streams.Add(sessionId, NewStream(conn))
+	defer ws.streams.Remove(sessionId)
 
 	_, err = ws.subscribe.Execute(r.Context(), &usecase.SubscribeCommandInput{
 		SessionId: sessionId,

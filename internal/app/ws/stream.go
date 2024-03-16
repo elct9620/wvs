@@ -55,3 +55,10 @@ func (r *StreamRepository) Add(id string, stream *Stream) {
 
 	r.streams[id] = stream
 }
+
+func (r *StreamRepository) Remove(id string) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	delete(r.streams, id)
+}
