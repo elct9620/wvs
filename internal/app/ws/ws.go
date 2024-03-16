@@ -11,6 +11,8 @@ import (
 )
 
 var DefaultSet = wire.NewSet(
+	NewStreamRepository,
+	wire.Bind(new(usecase.StreamRepository), new(*StreamRepository)),
 	New,
 )
 
@@ -18,13 +20,16 @@ var _ http.Handler = &WebSocket{}
 
 type WebSocket struct {
 	subscribe usecase.Command[*usecase.SubscribeCommandInput, *usecase.SubscribeCommandOutput]
+	streams   *StreamRepository
 }
 
 func New(
 	subscribe usecase.Command[*usecase.SubscribeCommandInput, *usecase.SubscribeCommandOutput],
+	streams *StreamRepository,
 ) *WebSocket {
 	return &WebSocket{
 		subscribe: subscribe,
+		streams:   streams,
 	}
 }
 
@@ -44,11 +49,11 @@ func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	input := usecase.SubscribeCommandInput{
+	ws.streams.Add(sessionId, NewStream(conn))
+
+	_, err = ws.subscribe.Execute(r.Context(), &usecase.SubscribeCommandInput{
 		SessionId: sessionId,
-		Stream:    NewStream(conn),
-	}
-	_, err = ws.subscribe.Execute(r.Context(), &input)
+	})
 
 	if err != nil {
 		conn.Close()
