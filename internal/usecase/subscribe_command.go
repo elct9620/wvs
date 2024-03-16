@@ -14,16 +14,13 @@ type SubscribeCommandOutput struct {
 }
 
 type SubscribeCommand struct {
-	events  PlayerEventRepository
 	streams StreamRepository
 }
 
 func NewSubscribeCommand(
-	events PlayerEventRepository,
 	streams StreamRepository,
 ) *SubscribeCommand {
 	return &SubscribeCommand{
-		events:  events,
 		streams: streams,
 	}
 }
@@ -37,17 +34,6 @@ func (c *SubscribeCommand) Execute(ctx context.Context, input *SubscribeCommandI
 	readyEvent := event.NewReadyEvent()
 	_ = stream.Publish(readyEvent)
 
-	eventCh, err := c.events.Watch(ctx, input.SessionId)
-	if err != nil {
-		return nil, err
-	}
-
-	for {
-		select {
-		case evt := <-eventCh:
-			_ = stream.Publish(evt)
-		case <-ctx.Done():
-			return &SubscribeCommandOutput{}, nil
-		}
-	}
+	<-ctx.Done()
+	return &SubscribeCommandOutput{}, nil
 }

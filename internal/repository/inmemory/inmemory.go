@@ -8,6 +8,4 @@ import (
 var DefaultSet = wire.NewSet(
 	NewMatchRepository,
 	wire.Bind(new(usecase.MatchRepository), new(*MatchRepository)),
-	NewPlayerEventRepository,
-	wire.Bind(new(usecase.PlayerEventRepository), new(*PlayerEventRepository)),
 )
