@@ -3,6 +3,7 @@ package ws
 import (
 	"net/http"
 
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/elct9620/wvs/pkg/event"
 	"github.com/elct9620/wvs/pkg/session"
 	"github.com/go-chi/render"
@@ -17,10 +18,15 @@ var DefaultSet = wire.NewSet(
 var _ http.Handler = &WebSocket{}
 
 type WebSocket struct {
+	subscribe usecase.Command[*usecase.SubscribeCommandInput, *usecase.SubscribeCommandOutput]
 }
 
-func New() *WebSocket {
-	return &WebSocket{}
+func New(
+	subscribe usecase.Command[*usecase.SubscribeCommandInput, *usecase.SubscribeCommandOutput],
+) *WebSocket {
+	return &WebSocket{
+		subscribe: subscribe,
+	}
 }
 
 var upgrader = websocket.Upgrader{}
@@ -42,10 +48,6 @@ func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	readyEvent := event.NewReadyEvent(sessionId)
 	_ = conn.WriteJSON(readyEvent)
 
-	for {
-		_, _, err := conn.ReadMessage()
-		if err != nil {
-			return
-		}
-	}
+	input := usecase.SubscribeCommandInput{}
+	_, _ = ws.subscribe.Execute(r.Context(), &input)
 }

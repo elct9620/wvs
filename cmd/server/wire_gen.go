@@ -32,7 +32,8 @@ func Initialize() (*app.Application, error) {
 	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository)
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
-	webSocket := ws.New()
+	subscribeCommand := usecase.NewSubscribeCommand()
+	webSocket := ws.New(subscribeCommand)
 	viper, err := config.NewViperWithDefaults()
 	if err != nil {
 		return nil, err
