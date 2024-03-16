@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/elct9620/wvs/pkg/event"
 	"github.com/elct9620/wvs/pkg/session"
 	"github.com/go-chi/render"
 	"github.com/google/wire"
@@ -45,9 +44,9 @@ func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	readyEvent := event.NewReadyEvent(sessionId)
-	_ = conn.WriteJSON(readyEvent)
-
-	input := usecase.SubscribeCommandInput{}
+	input := usecase.SubscribeCommandInput{
+		SessionId: sessionId,
+		Stream:    NewStream(conn),
+	}
 	_, _ = ws.subscribe.Execute(r.Context(), &input)
 }

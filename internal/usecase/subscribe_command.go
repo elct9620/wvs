@@ -1,8 +1,14 @@
 package usecase
 
-import "context"
+import (
+	"context"
+
+	"github.com/elct9620/wvs/pkg/event"
+)
 
 type SubscribeCommandInput struct {
+	SessionId string
+	Stream    Stream
 }
 
 type SubscribeCommandOutput struct {
@@ -16,6 +22,9 @@ func NewSubscribeCommand() *SubscribeCommand {
 }
 
 func (c *SubscribeCommand) Execute(ctx context.Context, input *SubscribeCommandInput) (*SubscribeCommandOutput, error) {
+	readyEvent := event.NewReadyEvent(input.SessionId)
+	input.Stream.Publish(readyEvent)
+
 	for {
 		select {
 		case <-ctx.Done():
