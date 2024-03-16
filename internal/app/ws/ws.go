@@ -48,5 +48,9 @@ func (ws *WebSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SessionId: sessionId,
 		Stream:    NewStream(conn),
 	}
-	_, _ = ws.subscribe.Execute(r.Context(), &input)
+	_, err = ws.subscribe.Execute(r.Context(), &input)
+
+	if err != nil {
+		conn.Close()
+	}
 }
