@@ -29,10 +29,10 @@ func Initialize() (*app.Application, error) {
 		return nil, err
 	}
 	matchRepository := inmemory.NewMatchRepository(memDB)
-	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository)
+	playerEventRepository := inmemory.NewPlayerEventRepository()
+	createMatchCommand := usecase.NewCreateMatchCommand(matchRepository, playerEventRepository)
 	v := api.ProvideRoutes(createMatchCommand)
 	apiApi := api.New(v...)
-	playerEventRepository := inmemory.NewPlayerEventRepository()
 	subscribeCommand := usecase.NewSubscribeCommand(playerEventRepository)
 	webSocket := ws.New(subscribeCommand)
 	viper, err := config.NewViperWithDefaults()

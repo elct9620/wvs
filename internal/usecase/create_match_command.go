@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/elct9620/wvs/internal/entity/match"
+	"github.com/elct9620/wvs/pkg/event"
 	"github.com/google/uuid"
 )
 
@@ -20,11 +21,13 @@ var _ Command[*CreateMatchInput, *CreateMatchOutput] = &CreateMatchCommand{}
 
 type CreateMatchCommand struct {
 	matches MatchRepository
+	events  PlayerEventRepository
 }
 
-func NewCreateMatchCommand(matches MatchRepository) *CreateMatchCommand {
+func NewCreateMatchCommand(matches MatchRepository, events PlayerEventRepository) *CreateMatchCommand {
 	return &CreateMatchCommand{
 		matches: matches,
+		events:  events,
 	}
 }
 
@@ -36,6 +39,10 @@ func (c *CreateMatchCommand) Execute(ctx context.Context, input *CreateMatchInpu
 
 	playerJoined := entity != nil
 	if playerJoined {
+		if err := c.publishEvents(ctx, entity); err != nil {
+			return nil, err
+		}
+
 		return &CreateMatchOutput{MatchId: entity.Id()}, nil
 	}
 
@@ -59,6 +66,10 @@ func (c *CreateMatchCommand) joinOrCreate(ctx context.Context, input *CreateMatc
 		return nil, err
 	}
 
+	if err := c.publishEvents(ctx, entity); err != nil {
+		return nil, err
+	}
+
 	return &CreateMatchOutput{MatchId: entity.Id()}, nil
 }
 
@@ -70,4 +81,16 @@ func (c *CreateMatchCommand) nextAvailableMatch(matches []*match.Match, team mat
 	}
 
 	return match.NewMatch(uuid.NewString())
+}
+
+func (c *CreateMatchCommand) publishEvents(ctx context.Context, entity *match.Match) error {
+	for _, player := range entity.Players() {
+		event := event.NewJoinMatchEvent(entity.Id(), player.Id())
+
+		if err := c.events.Publish(ctx, player.Id(), event); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

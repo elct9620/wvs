@@ -15,4 +15,5 @@ type MatchRepository interface {
 
 type PlayerEventRepository interface {
 	Watch(context.Context, string) (chan event.Event, error)
+	Publish(context.Context, string, event.Event) error
 }

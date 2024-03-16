@@ -26,6 +26,19 @@ func NewPlayerEventRepository() *PlayerEventRepository {
 	}
 }
 
+func (r *PlayerEventRepository) Publish(ctx context.Context, sessionId string, event event.Event) error {
+	r.mux.RLock()
+	defer r.mux.RUnlock()
+
+	watcher, isFound := r.watchers[sessionId]
+	if !isFound {
+		return nil
+	}
+
+	watcher.channel <- event
+	return nil
+}
+
 func (r *PlayerEventRepository) Watch(ctx context.Context, sessionId string) (chan event.Event, error) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
@@ -42,6 +55,7 @@ func (r *PlayerEventRepository) Watch(ctx context.Context, sessionId string) (ch
 		}
 	}
 	watcher.isWatching = true
+	r.watchers[sessionId] = watcher
 
 	return watcher.channel, nil
 }

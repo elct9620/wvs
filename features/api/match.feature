@@ -1,6 +1,8 @@
 Feature: Match
   Scenario: I can create a new match
-    When I make a POST request to "/api/match" with body
+    Given the session id is "d7ae7356-2d91-47f7-81bd-428c40bf55c3"
+    When connect to the websocket
+    And I make a POST request to "/api/match" with body
       """
       {
         "team": "slime"
@@ -8,6 +10,8 @@ Feature: Match
       """
     Then the response JSON should has "match_id"
     And the response status code should be 200
+    And the websocket event "JoinMatchEvent" is received
+    And the websocket event "JoinMatchEvent" has "player_id" with value "d7ae7356-2d91-47f7-81bd-428c40bf55c3"
 
   Scenario: The joined match will be returned
     Given the session id is "d7ae7356-2d91-47f7-81bd-428c40bf55c3"
