@@ -2,7 +2,6 @@ package eventbus
 
 import (
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/google/wire"
 )
@@ -20,8 +19,6 @@ func New(options ...RouterOptionFn) (*message.Router, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	router.AddPlugin(plugin.SignalsHandler)
 
 	for _, option := range options {
 		option(router)
