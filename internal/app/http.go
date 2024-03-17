@@ -1,8 +1,10 @@
 package app
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/elct9620/wvs/internal/app/api"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
@@ -11,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/wire"
+	"golang.org/x/sync/errgroup"
 )
 
 var DefaultSet = wire.NewSet(
@@ -32,7 +35,8 @@ var TestSet = wire.NewSet(
 
 type Application struct {
 	chi.Router
-	config *Config
+	eventBus *message.Router
+	config   *Config
 }
 
 func New(
@@ -40,6 +44,7 @@ func New(
 	api *api.Api,
 	ws *ws.WebSocket,
 	config *Config,
+	eventBus *message.Router,
 ) *Application {
 	mux := chi.NewRouter()
 
@@ -52,7 +57,7 @@ func New(
 	mux.Mount("/api", api)
 	mux.Mount("/ws", ws)
 
-	return &Application{mux, config}
+	return &Application{mux, eventBus, config}
 }
 
 func NewTest(
@@ -61,6 +66,7 @@ func NewTest(
 	ws *ws.WebSocket,
 	testability *testability.Testability,
 	config *Config,
+	eventBus *message.Router,
 ) *Application {
 	mux := chi.NewRouter()
 
@@ -71,9 +77,19 @@ func NewTest(
 	mux.Mount("/ws", ws)
 	mux.Mount("/testability", testability)
 
-	return &Application{mux, config}
+	return &Application{mux, eventBus, config}
 }
 
 func (app *Application) Serve() error {
-	return http.ListenAndServe(app.config.Address, app)
+	group := errgroup.Group{}
+
+	group.Go(func() error {
+		return app.eventBus.Run(context.Background())
+	})
+
+	group.Go(func() error {
+		return http.ListenAndServe(app.config.Address, app)
+	})
+
+	return group.Wait()
 }

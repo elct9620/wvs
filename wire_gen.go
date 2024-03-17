@@ -13,6 +13,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
 	"github.com/elct9620/wvs/internal/db"
+	"github.com/elct9620/wvs/internal/eventbus"
 	"github.com/elct9620/wvs/internal/repository/inmemory"
 	"github.com/elct9620/wvs/internal/testability"
 	"github.com/elct9620/wvs/internal/usecase"
@@ -41,6 +42,10 @@ func InitializeTest() (*app.Application, error) {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
-	application := app.NewTest(webWeb, apiApi, webSocket, testabilityTestability, appConfig)
+	router, err := eventbus.New()
+	if err != nil {
+		return nil, err
+	}
+	application := app.NewTest(webWeb, apiApi, webSocket, testabilityTestability, appConfig, router)
 	return application, nil
 }
