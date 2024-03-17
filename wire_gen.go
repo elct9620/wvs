@@ -42,7 +42,8 @@ func InitializeTest() (*app.Application, error) {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
-	v3 := eventbus.ProvideOptions()
+	databaseChangeHandler := eventbus.NewDatabaseChangeHandler()
+	v3 := eventbus.ProvideOptions(database, databaseChangeHandler)
 	router, err := eventbus.New(v3...)
 	if err != nil {
 		return nil, err

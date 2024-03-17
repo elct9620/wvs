@@ -3,10 +3,12 @@ package eventbus
 import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
+	"github.com/elct9620/wvs/internal/db"
 	"github.com/google/wire"
 )
 
 var DefaultSet = wire.NewSet(
+	NewDatabaseChangeHandler,
 	ProvideOptions,
 	New,
 )
@@ -28,8 +30,12 @@ func New(options ...RouterOptionFn) (*message.Router, error) {
 	return router, nil
 }
 
-func ProvideOptions() []RouterOptionFn {
+func ProvideOptions(
+	db *db.Database,
+	dbHandler *DatabaseChangeHandler,
+) []RouterOptionFn {
 	return []RouterOptionFn{
 		WithDefaultMiddleware(),
+		SubscribeDatabaseChanges(db, dbHandler),
 	}
 }

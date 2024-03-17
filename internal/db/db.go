@@ -15,7 +15,7 @@ const (
 
 type Database struct {
 	*memdb.MemDB
-	changes chan memdb.Change
+	watchers map[*Watcher]struct{}
 }
 
 func NewDatabase() (*Database, error) {
@@ -30,8 +30,8 @@ func NewDatabase() (*Database, error) {
 	}
 
 	return &Database{
-		MemDB:   db,
-		changes: make(chan memdb.Change),
+		MemDB:    db,
+		watchers: make(map[*Watcher]struct{}),
 	}, nil
 }
 
@@ -42,10 +42,28 @@ func (d *Database) Tnx(write bool) *memdb.Txn {
 		changes := tnx.Changes()
 		if len(changes) > 0 {
 			for _, change := range changes {
-				d.changes <- change
+				d.publish(&change)
 			}
 		}
 	})
 
 	return tnx
+}
+
+func (d *Database) publish(change *memdb.Change) {
+	for watcher := range d.watchers {
+		if watcher.Closed() {
+			delete(d.watchers, watcher)
+			continue
+		}
+
+		watcher.ch <- change
+	}
+}
+
+func (d *Database) Watch() *Watcher {
+	watcher := NewWatcher()
+	d.watchers[watcher] = struct{}{}
+
+	return watcher
 }
