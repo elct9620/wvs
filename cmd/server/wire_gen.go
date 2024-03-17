@@ -39,12 +39,13 @@ func Initialize() (*app.Application, error) {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
+	mux := app.ProvideHttpServer(webWeb, apiApi, webSocket, appConfig)
 	databaseChangeHandler := eventbus.NewDatabaseChangeHandler()
 	v2 := eventbus.ProvideOptions(database, databaseChangeHandler)
 	router, err := eventbus.New(v2...)
 	if err != nil {
 		return nil, err
 	}
-	application := app.New(webWeb, apiApi, webSocket, appConfig, router)
+	application := app.New(mux, appConfig, router)
 	return application, nil
 }

@@ -42,12 +42,13 @@ func InitializeTest() (*app.Application, error) {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
+	mux := app.ProvideHttpTestServer(webWeb, apiApi, webSocket, testabilityTestability, appConfig)
 	databaseChangeHandler := eventbus.NewDatabaseChangeHandler()
 	v3 := eventbus.ProvideOptions(database, databaseChangeHandler)
 	router, err := eventbus.New(v3...)
 	if err != nil {
 		return nil, err
 	}
-	application := app.NewTest(webWeb, apiApi, webSocket, testabilityTestability, appConfig, router)
+	application := app.New(mux, appConfig, router)
 	return application, nil
 }
