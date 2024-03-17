@@ -39,7 +39,8 @@ func Initialize() (*app.Application, error) {
 		return nil, err
 	}
 	appConfig := app.NewConfig(viper)
-	router, err := eventbus.New()
+	v2 := eventbus.ProvideOptions()
+	router, err := eventbus.New(v2...)
 	if err != nil {
 		return nil, err
 	}

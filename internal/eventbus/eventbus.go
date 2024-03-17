@@ -7,10 +7,13 @@ import (
 )
 
 var DefaultSet = wire.NewSet(
+	ProvideOptions,
 	New,
 )
 
-func New() (*message.Router, error) {
+type RouterOptionFn func(*message.Router)
+
+func New(options ...RouterOptionFn) (*message.Router, error) {
 	router, err := message.NewRouter(message.RouterConfig{}, nil)
 	if err != nil {
 		return nil, err
@@ -18,5 +21,15 @@ func New() (*message.Router, error) {
 
 	router.AddPlugin(plugin.SignalsHandler)
 
+	for _, option := range options {
+		option(router)
+	}
+
 	return router, nil
+}
+
+func ProvideOptions() []RouterOptionFn {
+	return []RouterOptionFn{
+		WithDefaultMiddleware(),
+	}
 }
