@@ -64,12 +64,12 @@ func (s *Subscriber) consume(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case change := <-s.watcher.ch:
-			s.dispatch(change)
+			s.dispatch(ctx, change)
 		}
 	}
 }
 
-func (s *Subscriber) dispatch(change *memdb.Change) {
+func (s *Subscriber) dispatch(ctx context.Context, change *memdb.Change) {
 	s.mux.RLock()
 	defer s.mux.RUnlock()
 
@@ -88,7 +88,35 @@ func (s *Subscriber) dispatch(change *memdb.Change) {
 			continue
 		}
 
-		out <- event
+		s.send(ctx, out, event)
+	}
+}
+
+func (s *Subscriber) send(ctx context.Context, out chan *message.Message, msg *message.Message) {
+	msgCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	msg.SetContext(msgCtx)
+
+ResendLoop:
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case out <- msg:
+		}
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-msg.Acked():
+			return
+		case <-msg.Nacked():
+			msg := msg.Copy()
+			msg.SetContext(msgCtx)
+
+			continue ResendLoop
+		}
 	}
 }
 
