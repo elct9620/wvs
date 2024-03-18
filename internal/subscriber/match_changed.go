@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	TopicMatchChanged = "db:match"
+	TopicMatchChanged = "match"
 	MatchChanged      = "match_changed"
 )
 

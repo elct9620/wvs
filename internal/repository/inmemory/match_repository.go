@@ -21,10 +21,10 @@ func NewMatchRepository(db *db.Database) *MatchRepository {
 }
 
 func (r *MatchRepository) FindByPlayerID(ctx context.Context, playerId string) (*match.Match, error) {
-	tnx := r.db.Txn(false)
-	defer tnx.Abort()
+	txn := r.db.Txn(false)
+	defer txn.Abort()
 
-	raw, err := tnx.First(db.TableMatch, db.IndexMatchPlayerId, playerId)
+	raw, err := txn.First(db.TableMatch, db.IndexMatchPlayerId, playerId)
 	if err != nil {
 		return nil, err
 	}
@@ -37,10 +37,10 @@ func (r *MatchRepository) FindByPlayerID(ctx context.Context, playerId string) (
 }
 
 func (r *MatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
-	tnx := r.db.Txn(false)
-	defer tnx.Abort()
+	txn := r.db.Txn(false)
+	defer txn.Abort()
 
-	iter, err := tnx.Get(db.TableMatch, db.IndexMatchIsWaiting)
+	iter, err := txn.Get(db.TableMatch, db.IndexMatchIsWaiting)
 	if err != nil {
 		return nil, err
 	}
@@ -64,14 +64,14 @@ func (r *MatchRepository) Waiting(ctx context.Context) ([]*match.Match, error) {
 }
 
 func (r *MatchRepository) Save(ctx context.Context, entity *match.Match) error {
-	tnx := r.db.Txn(true)
-	defer tnx.Abort()
+	txn := r.db.Txn(true)
+	defer txn.Abort()
 
 	match := matchToRecord(entity)
-	if err := tnx.Insert(db.TableMatch, match); err != nil {
+	if err := txn.Insert(db.TableMatch, match); err != nil {
 		return err
 	}
 
-	tnx.Commit()
+	txn.Commit()
 	return nil
 }

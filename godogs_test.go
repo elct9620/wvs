@@ -8,6 +8,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/elct9620/wvs"
+	"github.com/elct9620/wvs/internal/app"
 )
 
 var opts = godog.Options{
@@ -20,11 +21,20 @@ func init() {
 	godog.BindCommandLineFlags("godog.", &opts)
 }
 
+type appCtxKey struct{}
 type srvCtxKey struct{}
 
 var (
 	ErrServerNotFound = errors.New("server not found")
 )
+
+func GetApp(ctx context.Context) (*app.Application, error) {
+	if app, ok := ctx.Value(appCtxKey{}).(*app.Application); ok {
+		return app, nil
+	}
+
+	return nil, errors.New("app not found")
+}
 
 func beforeScenarioAppHook(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 	app, err := wvs.InitializeTest()
@@ -32,13 +42,21 @@ func beforeScenarioAppHook(ctx context.Context, sc *godog.Scenario) (context.Con
 		return ctx, err
 	}
 
+	go app.StartEventBus() // nolint:errcheck
+
 	srv := httptest.NewServer(app)
+
+	ctx = context.WithValue(ctx, appCtxKey{}, app)
 	return context.WithValue(ctx, srvCtxKey{}, srv), nil
 }
 
 func afterScenarioAppHook(ctx context.Context, sc *godog.Scenario, err error) (context.Context, error) {
 	if srv, err := GetServer(ctx); err == nil {
 		srv.Close()
+	}
+
+	if app, err := GetApp(ctx); err == nil {
+		app.StopEventBus() // nolint:errcheck
 	}
 
 	if ws, err := GetWebSocket(ctx); err == nil {

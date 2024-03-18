@@ -35,11 +35,11 @@ func NewDatabase() (*Database, error) {
 	}, nil
 }
 
-func (d *Database) Tnx(write bool) *memdb.Txn {
-	tnx := d.MemDB.Txn(write)
-	tnx.TrackChanges()
-	tnx.Defer(func() {
-		changes := tnx.Changes()
+func (d *Database) Txn(write bool) *memdb.Txn {
+	txn := d.MemDB.Txn(write)
+	txn.TrackChanges()
+	txn.Defer(func() {
+		changes := txn.Changes()
 		if len(changes) > 0 {
 			for _, change := range changes {
 				d.publish(&change)
@@ -47,7 +47,7 @@ func (d *Database) Tnx(write bool) *memdb.Txn {
 		}
 	})
 
-	return tnx
+	return txn
 }
 
 func (d *Database) publish(change *memdb.Change) {

@@ -71,3 +71,11 @@ func (app *Application) Serve() error {
 
 	return group.Wait()
 }
+
+func (app *Application) StartEventBus() error {
+	return app.event.Run(context.Background())
+}
+
+func (app *Application) StopEventBus() error {
+	return app.event.Close()
+}

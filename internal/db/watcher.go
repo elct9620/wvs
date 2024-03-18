@@ -18,10 +18,6 @@ func NewWatcher() *Watcher {
 	}
 }
 
-func (w *Watcher) Consume() *memdb.Change {
-	return <-w.ch
-}
-
 func (w *Watcher) Closed() bool {
 	return w.isClosed
 }

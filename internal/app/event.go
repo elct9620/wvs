@@ -23,6 +23,10 @@ func ProvideEventBus(options ...EventBusOption) (*message.Router, error) {
 		middleware.Recoverer,
 	)
 
+	for _, option := range options {
+		option(router)
+	}
+
 	return router, nil
 }
 
@@ -36,7 +40,7 @@ func ProvideEventSubscribers(
 	return []EventBusOption{
 		func(router *message.Router) {
 			for _, s := range databaseSubscribers {
-				router.AddNoPublisherHandler(s.Topic(), s.Name(), dbSubscriber, s.Handler)
+				router.AddNoPublisherHandler(s.Name(), s.Topic(), dbSubscriber, s.Handler)
 			}
 		},
 	}

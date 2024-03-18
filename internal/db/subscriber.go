@@ -2,45 +2,104 @@ package db
 
 import (
 	"context"
+	"encoding/json"
+	"sync"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/hashicorp/go-memdb"
 )
 
 var _ message.Subscriber = &Subscriber{}
 
 type Subscriber struct {
-	watcher *Watcher
+	mux        sync.RWMutex
+	watcher    *Watcher
+	subscriber map[string][]chan *message.Message
+	startOnce  sync.Once
 }
 
 func NewSubscriber(watcher *Watcher) *Subscriber {
 	return &Subscriber{
-		watcher: watcher,
+		watcher:    watcher,
+		subscriber: make(map[string][]chan *message.Message),
 	}
 }
 
 func (s *Subscriber) Subscribe(ctx context.Context, topic string) (<-chan *message.Message, error) {
-	ch := make(chan *message.Message)
+	s.mux.Lock()
+	defer s.mux.Unlock()
 
-	go func() {
-		defer close(ch)
+	if _, ok := s.subscriber[topic]; !ok {
+		s.subscriber[topic] = make([]chan *message.Message, 0)
+	}
 
-		for {
-			change := s.watcher.Consume()
-			if change == nil {
-				continue
-			}
+	out := make(chan *message.Message)
+	s.subscriber[topic] = append(s.subscriber[topic], out)
 
-			msg := message.NewMessage(watermill.NewUUID(), []byte(change.Table))
-			ch <- msg
-		}
-	}()
+	s.startOnce.Do(func() {
+		go s.consume(ctx)
+	})
 
-	return ch, nil
+	return out, nil
 }
 
 func (s *Subscriber) Close() error {
-	s.watcher.Close()
+	s.mux.Lock()
+	defer s.mux.Unlock()
 
+	for _, subs := range s.subscriber {
+		for _, sub := range subs {
+			close(sub)
+		}
+	}
+
+	s.watcher.Close()
 	return nil
+}
+
+func (s *Subscriber) consume(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case change := <-s.watcher.ch:
+			s.dispatch(change)
+		}
+	}
+}
+
+func (s *Subscriber) dispatch(change *memdb.Change) {
+	s.mux.RLock()
+	defer s.mux.RUnlock()
+
+	if change == nil {
+		return
+	}
+
+	subscribers, ok := s.subscriber[change.Table]
+	if !ok {
+		return
+	}
+
+	for _, out := range subscribers {
+		event, err := databaseChangeToMessage(change)
+		if err != nil {
+			continue
+		}
+
+		out <- event
+	}
+}
+
+func databaseChangeToMessage(change *memdb.Change) (*message.Message, error) {
+	payload, err := json.Marshal(change)
+	if err != nil {
+		return nil, err
+	}
+
+	return message.NewMessage(
+		watermill.NewUUID(),
+		payload,
+	), nil
 }
