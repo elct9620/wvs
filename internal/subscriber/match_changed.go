@@ -6,19 +6,26 @@ import (
 
 const (
 	TopicMatchChanged = "db:match"
+	MatchChanged      = "match_changed"
 )
 
-func SubscribeMatchChanged(subscriber message.Subscriber) SubscriberFn {
-	return func(r *message.Router) {
-		r.AddNoPublisherHandler(
-			TopicMatchChanged,
-			"match_changed",
-			subscriber,
-			MatchChangedHandler,
-		)
-	}
+var _ Subscriber = &MatchChangedSubscriber{}
+
+type MatchChangedSubscriber struct {
 }
 
-func MatchChangedHandler(msg *message.Message) error {
+func NewMatchChangedSubscriber() *MatchChangedSubscriber {
+	return &MatchChangedSubscriber{}
+}
+
+func (s *MatchChangedSubscriber) Name() string {
+	return MatchChanged
+}
+
+func (s *MatchChangedSubscriber) Topic() string {
+	return TopicMatchChanged
+}
+
+func (s *MatchChangedSubscriber) Handler(msg *message.Message) error {
 	return nil
 }

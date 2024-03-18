@@ -28,11 +28,16 @@ func ProvideEventBus(options ...EventBusOption) (*message.Router, error) {
 
 func ProvideEventSubscribers(
 	database *db.Database,
+	databaseSubscribers []subscriber.DatabaseSubscriber,
 ) []EventBusOption {
 	watcher := database.Watch()
 	dbSubscriber := db.NewSubscriber(watcher)
 
 	return []EventBusOption{
-		subscriber.SubscribeMatchChanged(dbSubscriber),
+		func(router *message.Router) {
+			for _, s := range databaseSubscribers {
+				router.AddNoPublisherHandler(s.Topic(), s.Name(), dbSubscriber, s.Handler)
+			}
+		},
 	}
 }

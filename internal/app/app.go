@@ -8,6 +8,7 @@ import (
 	"github.com/elct9620/wvs/internal/app/api"
 	"github.com/elct9620/wvs/internal/app/web"
 	"github.com/elct9620/wvs/internal/app/ws"
+	"github.com/elct9620/wvs/internal/subscriber"
 	"github.com/elct9620/wvs/internal/testability"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
@@ -18,6 +19,7 @@ var DefaultSet = wire.NewSet(
 	web.DefaultSet,
 	api.DefaultSet,
 	ws.DefaultSet,
+	subscriber.DefaultSet,
 	ProvideEventBus,
 	ProvideEventSubscribers,
 	ProvideHttpServer,
@@ -30,6 +32,7 @@ var TestSet = wire.NewSet(
 	api.DefaultSet,
 	ws.DefaultSet,
 	testability.DefaultSet,
+	subscriber.DefaultSet,
 	ProvideEventBus,
 	ProvideEventSubscribers,
 	ProvideHttpTestServer,

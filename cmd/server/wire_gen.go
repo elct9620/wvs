@@ -14,6 +14,7 @@ import (
 	"github.com/elct9620/wvs/internal/config"
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/repository/inmemory"
+	"github.com/elct9620/wvs/internal/subscriber"
 	"github.com/elct9620/wvs/internal/usecase"
 )
 
@@ -39,8 +40,9 @@ func Initialize() (*app.Application, error) {
 	}
 	appConfig := app.NewConfig(viper)
 	mux := app.ProvideHttpServer(webWeb, apiApi, webSocket, appConfig)
-	v2 := app.ProvideEventSubscribers(database)
-	router, err := app.ProvideEventBus(v2...)
+	v2 := subscriber.ProvideDatabaseSubscribers()
+	v3 := app.ProvideEventSubscribers(database, v2)
+	router, err := app.ProvideEventBus(v3...)
 	if err != nil {
 		return nil, err
 	}

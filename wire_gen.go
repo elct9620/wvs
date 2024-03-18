@@ -14,6 +14,7 @@ import (
 	"github.com/elct9620/wvs/internal/config"
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/repository/inmemory"
+	"github.com/elct9620/wvs/internal/subscriber"
 	"github.com/elct9620/wvs/internal/testability"
 	"github.com/elct9620/wvs/internal/usecase"
 )
@@ -42,8 +43,9 @@ func InitializeTest() (*app.Application, error) {
 	}
 	appConfig := app.NewConfig(viper)
 	mux := app.ProvideHttpTestServer(webWeb, apiApi, webSocket, testabilityTestability, appConfig)
-	v3 := app.ProvideEventSubscribers(database)
-	router, err := app.ProvideEventBus(v3...)
+	v3 := subscriber.ProvideDatabaseSubscribers()
+	v4 := app.ProvideEventSubscribers(database, v3)
+	router, err := app.ProvideEventBus(v4...)
 	if err != nil {
 		return nil, err
 	}
