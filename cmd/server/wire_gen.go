@@ -13,7 +13,6 @@ import (
 	"github.com/elct9620/wvs/internal/app/ws"
 	"github.com/elct9620/wvs/internal/config"
 	"github.com/elct9620/wvs/internal/db"
-	"github.com/elct9620/wvs/internal/eventbus"
 	"github.com/elct9620/wvs/internal/repository/inmemory"
 	"github.com/elct9620/wvs/internal/usecase"
 )
@@ -40,9 +39,8 @@ func Initialize() (*app.Application, error) {
 	}
 	appConfig := app.NewConfig(viper)
 	mux := app.ProvideHttpServer(webWeb, apiApi, webSocket, appConfig)
-	databaseChangeHandler := eventbus.NewDatabaseChangeHandler()
-	v2 := eventbus.ProvideOptions(database, databaseChangeHandler)
-	router, err := eventbus.New(v2...)
+	v2 := app.ProvideEventSubscribers(database)
+	router, err := app.ProvideEventBus(v2...)
 	if err != nil {
 		return nil, err
 	}
