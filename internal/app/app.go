@@ -42,8 +42,8 @@ var TestSet = wire.NewSet(
 
 type Application struct {
 	chi.Router
-	config *Config
-	event  *message.Router
+	Config *Config
+	Event  *message.Router
 }
 
 func New(
@@ -53,8 +53,8 @@ func New(
 ) *Application {
 	return &Application{
 		Router: http,
-		config: config,
-		event:  event,
+		Config: config,
+		Event:  event,
 	}
 }
 
@@ -62,20 +62,12 @@ func (app *Application) Serve() error {
 	group := errgroup.Group{}
 
 	group.Go(func() error {
-		return app.event.Run(context.Background())
+		return app.Event.Run(context.Background())
 	})
 
 	group.Go(func() error {
-		return http.ListenAndServe(app.config.Address, app)
+		return http.ListenAndServe(app.Config.Address, app)
 	})
 
 	return group.Wait()
-}
-
-func (app *Application) StartEventBus() error {
-	return app.event.Run(context.Background())
-}
-
-func (app *Application) StopEventBus() error {
-	return app.event.Close()
 }

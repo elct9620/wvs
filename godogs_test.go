@@ -42,7 +42,7 @@ func beforeScenarioAppHook(ctx context.Context, sc *godog.Scenario) (context.Con
 		return ctx, err
 	}
 
-	go app.StartEventBus() // nolint:errcheck
+	go app.Event.Run(ctx) // nolint:errcheck
 
 	srv := httptest.NewServer(app)
 
@@ -56,7 +56,7 @@ func afterScenarioAppHook(ctx context.Context, sc *godog.Scenario, err error) (c
 	}
 
 	if app, err := GetApp(ctx); err == nil {
-		app.StopEventBus() // nolint:errcheck
+		app.Event.Close() // nolint:errcheck
 	}
 
 	if ws, err := GetWebSocket(ctx); err == nil {
