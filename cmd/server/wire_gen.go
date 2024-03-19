@@ -40,7 +40,8 @@ func Initialize() (*app.Application, error) {
 	}
 	appConfig := app.NewConfig(viper)
 	mux := app.ProvideHttpServer(webWeb, apiApi, webSocket, appConfig)
-	v2 := subscriber.ProvideDatabaseSubscribers()
+	notifyJoinMatchCommand := usecase.NewNotifyJoinMatchCommand(streamRepository)
+	v2 := subscriber.ProvideDatabaseSubscribers(notifyJoinMatchCommand)
 	v3 := app.ProvideEventSubscribers(database, v2)
 	router, err := app.ProvideEventBus(v3...)
 	if err != nil {

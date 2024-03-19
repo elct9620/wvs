@@ -2,6 +2,7 @@ package subscriber
 
 import (
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/elct9620/wvs/internal/usecase"
 	"github.com/google/wire"
 )
 
@@ -17,8 +18,10 @@ type Subscriber interface {
 
 type DatabaseSubscriber Subscriber
 
-func ProvideDatabaseSubscribers() []DatabaseSubscriber {
+func ProvideDatabaseSubscribers(
+	notifyJoinMatch *usecase.NotifyJoinMatchCommand,
+) []DatabaseSubscriber {
 	return []DatabaseSubscriber{
-		NewMatchChangedSubscriber(),
+		NewMatchChangedSubscriber(notifyJoinMatch),
 	}
 }

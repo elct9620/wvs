@@ -94,9 +94,8 @@ func (s *Subscriber) dispatch(ctx context.Context, change *memdb.Change) {
 
 func (s *Subscriber) send(ctx context.Context, out chan *message.Message, msg *message.Message) {
 	msgCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
 	msg.SetContext(msgCtx)
+	defer cancel()
 
 ResendLoop:
 	for {
