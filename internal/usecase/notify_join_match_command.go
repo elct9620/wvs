@@ -6,15 +6,15 @@ import (
 	"github.com/elct9620/wvs/pkg/event"
 )
 
-type NotifyJoinMatchCommandInput struct {
+type NotifyJoinMatchInput struct {
 	MatchId  string
 	PlayerId string
 }
 
-type NotifyJoinMatchCommandOutput struct {
+type NotifyJoinMatchOutput struct {
 }
 
-var _ Command[*NotifyJoinMatchCommandInput, *NotifyJoinMatchCommandOutput] = &NotifyJoinMatchCommand{}
+var _ Command[*NotifyJoinMatchInput, *NotifyJoinMatchOutput] = &NotifyJoinMatchCommand{}
 
 type NotifyJoinMatchCommand struct {
 	streams StreamRepository
@@ -26,7 +26,7 @@ func NewNotifyJoinMatchCommand(streams StreamRepository) *NotifyJoinMatchCommand
 	}
 }
 
-func (c *NotifyJoinMatchCommand) Execute(ctx context.Context, input *NotifyJoinMatchCommandInput) (*NotifyJoinMatchCommandOutput, error) {
+func (c *NotifyJoinMatchCommand) Execute(ctx context.Context, input *NotifyJoinMatchInput) (*NotifyJoinMatchOutput, error) {
 	stream, err := c.streams.Find(ctx, input.PlayerId)
 	if err != nil {
 		return nil, err
@@ -37,5 +37,5 @@ func (c *NotifyJoinMatchCommand) Execute(ctx context.Context, input *NotifyJoinM
 		return nil, err
 	}
 
-	return &NotifyJoinMatchCommandOutput{}, nil
+	return &NotifyJoinMatchOutput{}, nil
 }

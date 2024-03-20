@@ -44,14 +44,23 @@ func (s *MatchChangedSubscriber) Handler(msg *message.Message) error {
 		return nil
 	}
 
-	for _, player := range change.After.Players {
-		_, err := s.notifyJoinMatch.Execute(msg.Context(), &usecase.NotifyJoinMatchCommandInput{
-			MatchId:  change.After.Id,
+	err := s.notifyJoined(change.After)
+	if err != nil {
+		msg.Ack()
+		return err
+	}
+
+	return nil
+}
+
+func (s *MatchChangedSubscriber) notifyJoined(match *db.Match) error {
+	for _, player := range match.Players {
+		_, err := s.notifyJoinMatch.Execute(nil, &usecase.NotifyJoinMatchInput{
+			MatchId:  match.Id,
 			PlayerId: player.Id,
 		})
 
 		if err != nil {
-			msg.Ack()
 			return err
 		}
 	}

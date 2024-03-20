@@ -12,7 +12,7 @@ var DefaultSet = wire.NewSet(
 	NewSubscribeCommand,
 	wire.Bind(new(Command[*SubscribeCommandInput, *SubscribeCommandOutput]), new(*SubscribeCommand)),
 	NewNotifyJoinMatchCommand,
-	wire.Bind(new(Command[*NotifyJoinMatchCommandInput, *NotifyJoinMatchCommandOutput]), new(*NotifyJoinMatchCommand)),
+	wire.Bind(new(Command[*NotifyJoinMatchInput, *NotifyJoinMatchOutput]), new(*NotifyJoinMatchCommand)),
 )
 
 type Command[I any, O any] interface {
