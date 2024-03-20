@@ -7,8 +7,7 @@ import (
 )
 
 type NotifyJoinMatchInput struct {
-	MatchId  string
-	PlayerId string
+	MatchId string
 }
 
 type NotifyJoinMatchOutput struct {
@@ -17,24 +16,36 @@ type NotifyJoinMatchOutput struct {
 var _ Command[*NotifyJoinMatchInput, *NotifyJoinMatchOutput] = &NotifyJoinMatchCommand{}
 
 type NotifyJoinMatchCommand struct {
+	matchs  MatchRepository
 	streams StreamRepository
 }
 
-func NewNotifyJoinMatchCommand(streams StreamRepository) *NotifyJoinMatchCommand {
+func NewNotifyJoinMatchCommand(
+	matchs MatchRepository,
+	streams StreamRepository,
+) *NotifyJoinMatchCommand {
 	return &NotifyJoinMatchCommand{
+		matchs:  matchs,
 		streams: streams,
 	}
 }
 
 func (c *NotifyJoinMatchCommand) Execute(ctx context.Context, input *NotifyJoinMatchInput) (*NotifyJoinMatchOutput, error) {
-	stream, err := c.streams.Find(ctx, input.PlayerId)
+	match, err := c.matchs.Find(ctx, input.MatchId)
 	if err != nil {
 		return nil, err
 	}
 
-	event := event.NewJoinMatchEvent(input.MatchId, input.PlayerId)
-	if err := stream.Publish(event); err != nil {
-		return nil, err
+	for _, player := range match.Players() {
+		stream, err := c.streams.Find(ctx, player.Id())
+		if err != nil {
+			continue
+		}
+
+		event := event.NewJoinMatchEvent(match.Id(), player.Id())
+		if err := stream.Publish(event); err != nil {
+			continue
+		}
 	}
 
 	return &NotifyJoinMatchOutput{}, nil

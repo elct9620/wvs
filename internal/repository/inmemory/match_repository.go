@@ -20,6 +20,22 @@ func NewMatchRepository(db *db.Database) *MatchRepository {
 	}
 }
 
+func (r *MatchRepository) Find(ctx context.Context, id string) (*match.Match, error) {
+	txn := r.db.Txn(false)
+	defer txn.Abort()
+
+	raw, err := txn.First(db.TableMatch, db.IndexMatchId, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if raw == nil {
+		return nil, nil
+	}
+
+	return recordToMatch(raw.(*db.Match))
+}
+
 func (r *MatchRepository) FindByPlayerID(ctx context.Context, playerId string) (*match.Match, error) {
 	txn := r.db.Txn(false)
 	defer txn.Abort()

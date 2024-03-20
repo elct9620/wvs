@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -113,6 +114,7 @@ ResendLoop:
 		case <-msg.Nacked():
 			msg := msg.Copy()
 			msg.SetContext(msgCtx)
+			time.Sleep(100 * time.Millisecond)
 
 			continue ResendLoop
 		}

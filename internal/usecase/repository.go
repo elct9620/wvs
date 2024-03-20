@@ -7,6 +7,7 @@ import (
 )
 
 type MatchRepository interface {
+	Find(context.Context, string) (*match.Match, error)
 	FindByPlayerID(context.Context, string) (*match.Match, error)
 	Waiting(context.Context) ([]*match.Match, error)
 	Save(context.Context, *match.Match) error

@@ -39,30 +39,19 @@ func (s *MatchChangedSubscriber) Handler(msg *message.Message) error {
 		return err
 	}
 
-	isNewPlayerJoined := change.Created() || change.Updated()
-	if !isNewPlayerJoined {
-		return nil
+	var matchId string
+	if change.After != nil {
+		matchId = change.After.Id
+	} else {
+		matchId = change.Before.Id
 	}
 
-	err := s.notifyJoined(change.After)
+	_, err := s.notifyJoinMatch.Execute(msg.Context(), &usecase.NotifyJoinMatchInput{
+		MatchId: matchId,
+	})
 	if err != nil {
 		msg.Ack()
 		return err
-	}
-
-	return nil
-}
-
-func (s *MatchChangedSubscriber) notifyJoined(match *db.Match) error {
-	for _, player := range match.Players {
-		_, err := s.notifyJoinMatch.Execute(nil, &usecase.NotifyJoinMatchInput{
-			MatchId:  match.Id,
-			PlayerId: player.Id,
-		})
-
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
