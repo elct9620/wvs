@@ -21,7 +21,8 @@ type Database struct {
 func NewDatabase() (*Database, error) {
 	db, err := memdb.NewMemDB(&memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
-			TableMatch: MatchTableSchema,
+			TableMatch:  MatchTableSchema,
+			TableBattle: BattleTableSchema,
 		},
 	})
 

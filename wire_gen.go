@@ -43,8 +43,8 @@ func InitializeTest() (*app.Application, error) {
 	}
 	appConfig := app.NewConfig(viper)
 	mux := app.ProvideHttpTestServer(webWeb, apiApi, webSocket, testabilityTestability, appConfig)
-	battleRepository := inmemory.NewBattleRepository()
-	createBattleCommand := usecase.NewCreateBattleCommand(battleRepository)
+	battleRepository := inmemory.NewBattleRepository(database)
+	createBattleCommand := usecase.NewCreateBattleCommand(matchRepository, battleRepository)
 	v3 := subscriber.ProvideDatabaseSubscribers(createBattleCommand)
 	v4 := app.ProvideEventSubscribers(database, v3)
 	router, err := app.ProvideEventBus(v4...)

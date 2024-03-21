@@ -40,8 +40,8 @@ func Initialize() (*app.Application, error) {
 	}
 	appConfig := app.NewConfig(viper)
 	mux := app.ProvideHttpServer(webWeb, apiApi, webSocket, appConfig)
-	battleRepository := inmemory.NewBattleRepository()
-	createBattleCommand := usecase.NewCreateBattleCommand(battleRepository)
+	battleRepository := inmemory.NewBattleRepository(database)
+	createBattleCommand := usecase.NewCreateBattleCommand(matchRepository, battleRepository)
 	v2 := subscriber.ProvideDatabaseSubscribers(createBattleCommand)
 	v3 := app.ProvideEventSubscribers(database, v2)
 	router, err := app.ProvideEventBus(v3...)

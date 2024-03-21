@@ -16,19 +16,31 @@ type CreateBattleOutput struct {
 var _ Command[*CreateBattleInput, *CreateBattleOutput] = &CreateBattleCommand{}
 
 type CreateBattleCommand struct {
+	matches MatchRepository
 	battles BattleRepository
 }
 
 func NewCreateBattleCommand(
+	matches MatchRepository,
 	battles BattleRepository,
 ) *CreateBattleCommand {
 	return &CreateBattleCommand{
+		matches: matches,
 		battles: battles,
 	}
 }
 
 func (c *CreateBattleCommand) Execute(ctx context.Context, input *CreateBattleInput) (*CreateBattleOutput, error) {
-	entity := battle.New(input.MatchId)
+	match, err := c.matches.Find(ctx, input.MatchId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !match.IsReady() {
+		return &CreateBattleOutput{}, nil
+	}
+
+	entity := battle.New(match.Id())
 	if err := c.battles.Save(ctx, entity); err != nil {
 		return nil, err
 	}

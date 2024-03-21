@@ -16,12 +16,12 @@ const (
 var _ Subscriber = &MatchChangedSubscriber{}
 
 type MatchChangedSubscriber struct {
-	notifyJoinMatch *usecase.CreateBattleCommand
+	createBattle *usecase.CreateBattleCommand
 }
 
-func NewMatchChangedSubscriber(notifyJoinMatch *usecase.CreateBattleCommand) *MatchChangedSubscriber {
+func NewMatchChangedSubscriber(createBattle *usecase.CreateBattleCommand) *MatchChangedSubscriber {
 	return &MatchChangedSubscriber{
-		notifyJoinMatch: notifyJoinMatch,
+		createBattle: createBattle,
 	}
 }
 
@@ -39,15 +39,12 @@ func (s *MatchChangedSubscriber) Handler(msg *message.Message) error {
 		return err
 	}
 
-	var matchId string
-	if change.After != nil {
-		matchId = change.After.Id
-	} else {
-		matchId = change.Before.Id
+	if !change.Updated() {
+		return nil
 	}
 
-	_, err := s.notifyJoinMatch.Execute(msg.Context(), &usecase.CreateBattleInput{
-		MatchId: matchId,
+	_, err := s.createBattle.Execute(msg.Context(), &usecase.CreateBattleInput{
+		MatchId: change.After.Id,
 	})
 	if err != nil {
 		msg.Ack()

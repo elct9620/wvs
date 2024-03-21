@@ -42,6 +42,10 @@ func (m *Match) Players() []Player {
 	return m.players
 }
 
+func (m *Match) IsReady() bool {
+	return len(m.players) == MaxPlayers
+}
+
 func (m *Match) IsFull() bool {
 	return len(m.players) >= MaxPlayers
 }
