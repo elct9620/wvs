@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/elct9620/wvs/pkg/event"
+	"github.com/elct9620/wvs/internal/entity/battle"
 )
 
 type CreateBattleInput struct {
@@ -16,36 +16,21 @@ type CreateBattleOutput struct {
 var _ Command[*CreateBattleInput, *CreateBattleOutput] = &CreateBattleCommand{}
 
 type CreateBattleCommand struct {
-	matchs  MatchRepository
-	streams StreamRepository
+	battles BattleRepository
 }
 
 func NewCreateBattleCommand(
-	matchs MatchRepository,
-	streams StreamRepository,
+	battles BattleRepository,
 ) *CreateBattleCommand {
 	return &CreateBattleCommand{
-		matchs:  matchs,
-		streams: streams,
+		battles: battles,
 	}
 }
 
 func (c *CreateBattleCommand) Execute(ctx context.Context, input *CreateBattleInput) (*CreateBattleOutput, error) {
-	match, err := c.matchs.Find(ctx, input.MatchId)
-	if err != nil {
+	entity := battle.New(input.MatchId)
+	if err := c.battles.Save(ctx, entity); err != nil {
 		return nil, err
-	}
-
-	for _, player := range match.Players() {
-		stream, err := c.streams.Find(ctx, player.Id())
-		if err != nil {
-			continue
-		}
-
-		event := event.NewJoinMatchEvent(match.Id(), player.Id())
-		if err := stream.Publish(event); err != nil {
-			continue
-		}
 	}
 
 	return &CreateBattleOutput{}, nil
