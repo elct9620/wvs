@@ -16,10 +16,10 @@ const (
 var _ Subscriber = &MatchChangedSubscriber{}
 
 type MatchChangedSubscriber struct {
-	notifyJoinMatch *usecase.NotifyJoinMatchCommand
+	notifyJoinMatch *usecase.CreateBattleCommand
 }
 
-func NewMatchChangedSubscriber(notifyJoinMatch *usecase.NotifyJoinMatchCommand) *MatchChangedSubscriber {
+func NewMatchChangedSubscriber(notifyJoinMatch *usecase.CreateBattleCommand) *MatchChangedSubscriber {
 	return &MatchChangedSubscriber{
 		notifyJoinMatch: notifyJoinMatch,
 	}
@@ -46,7 +46,7 @@ func (s *MatchChangedSubscriber) Handler(msg *message.Message) error {
 		matchId = change.Before.Id
 	}
 
-	_, err := s.notifyJoinMatch.Execute(msg.Context(), &usecase.NotifyJoinMatchInput{
+	_, err := s.notifyJoinMatch.Execute(msg.Context(), &usecase.CreateBattleInput{
 		MatchId: matchId,
 	})
 	if err != nil {

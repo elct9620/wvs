@@ -6,31 +6,31 @@ import (
 	"github.com/elct9620/wvs/pkg/event"
 )
 
-type NotifyJoinMatchInput struct {
+type CreateBattleInput struct {
 	MatchId string
 }
 
-type NotifyJoinMatchOutput struct {
+type CreateBattleOutput struct {
 }
 
-var _ Command[*NotifyJoinMatchInput, *NotifyJoinMatchOutput] = &NotifyJoinMatchCommand{}
+var _ Command[*CreateBattleInput, *CreateBattleOutput] = &CreateBattleCommand{}
 
-type NotifyJoinMatchCommand struct {
+type CreateBattleCommand struct {
 	matchs  MatchRepository
 	streams StreamRepository
 }
 
-func NewNotifyJoinMatchCommand(
+func NewCreateBattleCommand(
 	matchs MatchRepository,
 	streams StreamRepository,
-) *NotifyJoinMatchCommand {
-	return &NotifyJoinMatchCommand{
+) *CreateBattleCommand {
+	return &CreateBattleCommand{
 		matchs:  matchs,
 		streams: streams,
 	}
 }
 
-func (c *NotifyJoinMatchCommand) Execute(ctx context.Context, input *NotifyJoinMatchInput) (*NotifyJoinMatchOutput, error) {
+func (c *CreateBattleCommand) Execute(ctx context.Context, input *CreateBattleInput) (*CreateBattleOutput, error) {
 	match, err := c.matchs.Find(ctx, input.MatchId)
 	if err != nil {
 		return nil, err
@@ -48,5 +48,5 @@ func (c *NotifyJoinMatchCommand) Execute(ctx context.Context, input *NotifyJoinM
 		}
 	}
 
-	return &NotifyJoinMatchOutput{}, nil
+	return &CreateBattleOutput{}, nil
 }

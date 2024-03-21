@@ -19,7 +19,7 @@ type Subscriber interface {
 type DatabaseSubscriber Subscriber
 
 func ProvideDatabaseSubscribers(
-	notifyJoinMatch *usecase.NotifyJoinMatchCommand,
+	notifyJoinMatch *usecase.CreateBattleCommand,
 ) []DatabaseSubscriber {
 	return []DatabaseSubscriber{
 		NewMatchChangedSubscriber(notifyJoinMatch),
