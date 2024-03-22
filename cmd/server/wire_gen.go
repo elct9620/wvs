@@ -42,7 +42,8 @@ func Initialize() (*app.Application, error) {
 	mux := app.ProvideHttpServer(webWeb, apiApi, webSocket, appConfig)
 	battleRepository := inmemory.NewBattleRepository(database)
 	createBattleCommand := usecase.NewCreateBattleCommand(matchRepository, battleRepository)
-	v2 := subscriber.ProvideDatabaseSubscribers(createBattleCommand)
+	startBattleCommand := usecase.NewStartBattleCommand(matchRepository, streamRepository)
+	v2 := subscriber.ProvideDatabaseSubscribers(createBattleCommand, startBattleCommand)
 	v3 := app.ProvideEventSubscribers(database, v2)
 	router, err := app.ProvideEventBus(v3...)
 	if err != nil {

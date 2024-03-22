@@ -45,7 +45,8 @@ func InitializeTest() (*app.Application, error) {
 	mux := app.ProvideHttpTestServer(webWeb, apiApi, webSocket, testabilityTestability, appConfig)
 	battleRepository := inmemory.NewBattleRepository(database)
 	createBattleCommand := usecase.NewCreateBattleCommand(matchRepository, battleRepository)
-	v3 := subscriber.ProvideDatabaseSubscribers(createBattleCommand)
+	startBattleCommand := usecase.NewStartBattleCommand(matchRepository, streamRepository)
+	v3 := subscriber.ProvideDatabaseSubscribers(createBattleCommand, startBattleCommand)
 	v4 := app.ProvideEventSubscribers(database, v3)
 	router, err := app.ProvideEventBus(v4...)
 	if err != nil {

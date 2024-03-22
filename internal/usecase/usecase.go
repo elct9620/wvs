@@ -13,6 +13,8 @@ var DefaultSet = wire.NewSet(
 	wire.Bind(new(Command[*SubscribeCommandInput, *SubscribeCommandOutput]), new(*SubscribeCommand)),
 	NewCreateBattleCommand,
 	wire.Bind(new(Command[*CreateBattleInput, *CreateBattleOutput]), new(*CreateBattleCommand)),
+	NewStartBattleCommand,
+	wire.Bind(new(Command[*StartBattleInput, *StartBattleOutput]), new(*StartBattleCommand)),
 )
 
 type Command[I any, O any] interface {

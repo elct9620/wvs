@@ -20,8 +20,10 @@ type DatabaseSubscriber Subscriber
 
 func ProvideDatabaseSubscribers(
 	notifyJoinMatch *usecase.CreateBattleCommand,
+	startBattle *usecase.StartBattleCommand,
 ) []DatabaseSubscriber {
 	return []DatabaseSubscriber{
 		NewMatchChangedSubscriber(notifyJoinMatch),
+		NewBattleChangedSubscriber(startBattle),
 	}
 }
