@@ -43,7 +43,7 @@ func (d *Database) Txn(write bool) *memdb.Txn {
 		changes := txn.Changes()
 		if len(changes) > 0 {
 			for _, change := range changes {
-				d.publish(&change)
+				go d.publish(&change)
 			}
 		}
 	})

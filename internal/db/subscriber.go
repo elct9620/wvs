@@ -17,12 +17,15 @@ type Subscriber struct {
 	mux        sync.RWMutex
 	watcher    *Watcher
 	subscriber map[string][]chan *message.Message
-	startOnce  sync.Once
+	runOnce    sync.Once
+	closing    chan struct{}
+	isClosed   bool
 }
 
 func NewSubscriber(watcher *Watcher) *Subscriber {
 	return &Subscriber{
 		watcher:    watcher,
+		closing:    make(chan struct{}),
 		subscriber: make(map[string][]chan *message.Message),
 	}
 }
@@ -38,30 +41,33 @@ func (s *Subscriber) Subscribe(ctx context.Context, topic string) (<-chan *messa
 	out := make(chan *message.Message)
 	s.subscriber[topic] = append(s.subscriber[topic], out)
 
-	s.startOnce.Do(func() {
+	s.runOnce.Do(func() {
 		go s.consume(ctx)
 	})
+
+	go func() {
+		<-s.closing
+		close(out)
+	}()
 
 	return out, nil
 }
 
 func (s *Subscriber) Close() error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	for _, subs := range s.subscriber {
-		for _, sub := range subs {
-			close(sub)
-		}
+	if s.isClosed {
+		return nil
 	}
+	s.isClosed = true
+	close(s.closing)
 
-	s.watcher.Close()
 	return nil
 }
 
 func (s *Subscriber) consume(ctx context.Context) {
 	for {
 		select {
+		case <-s.closing:
+			return
 		case <-ctx.Done():
 			return
 		case change := <-s.watcher.ch:
@@ -100,15 +106,20 @@ func (s *Subscriber) send(ctx context.Context, out chan *message.Message, msg *m
 
 ResendLoop:
 	for {
-		select {
-		case <-ctx.Done():
+		if s.isClosed {
 			return
-		case out <- msg:
 		}
 
 		select {
+		case out <- msg:
+		case <-s.closing:
+			return
 		case <-ctx.Done():
 			return
+		}
+
+		select {
+
 		case <-msg.Acked():
 			return
 		case <-msg.Nacked():
@@ -117,6 +128,10 @@ ResendLoop:
 			time.Sleep(100 * time.Millisecond)
 
 			continue ResendLoop
+		case <-s.closing:
+			return
+		case <-ctx.Done():
+			return
 		}
 	}
 }
