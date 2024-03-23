@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/elct9620/wvs/internal/entity/battle"
 )
@@ -41,6 +42,7 @@ func (c *CreateBattleCommand) Execute(ctx context.Context, input *CreateBattleIn
 	}
 
 	entity := battle.New(match.Id())
+	fmt.Printf("Battle created: %s\n", entity.Id())
 	if err := c.battles.Save(ctx, entity); err != nil {
 		return nil, err
 	}
