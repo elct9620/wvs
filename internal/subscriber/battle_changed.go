@@ -46,7 +46,7 @@ func (s *BattleChangedSubscriber) Handler(msg *message.Message) error {
 		return nil
 	}
 
-	id := change.After.MatchId
+	id := change.After.AggregateId
 	_, err := s.startBattle.Execute(context.Background(), &usecase.StartBattleInput{
 		BattleId: id,
 	})

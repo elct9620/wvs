@@ -35,5 +35,5 @@ func (b *Battle) apply(evt Event) {
 }
 
 func onCreated(b *Battle, evt Event) {
-	b.id = evt.(*BattleCreated).Id
+	b.id = evt.(*BattleCreated).BattleId
 }

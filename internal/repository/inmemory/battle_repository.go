@@ -26,8 +26,8 @@ func (r *BattleRepository) Save(ctx context.Context, entity *battle.Battle) erro
 	defer txn.Abort()
 
 	record := &db.BattleEvent{
-		Id:      uuid.NewString(),
-		MatchId: entity.Id(),
+		Id:          uuid.NewString(),
+		AggregateId: entity.Id(),
 	}
 
 	if err := txn.Insert(db.TableBattle, record); err != nil {

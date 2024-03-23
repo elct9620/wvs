@@ -3,10 +3,10 @@ package db
 import "github.com/hashicorp/go-memdb"
 
 const (
-	TableBattle         = "battle"
-	IndexBattleId       = "id"
-	IndexBattleMatchId  = "matchId"
-	IndexBattlePlayerId = "playerId"
+	TableBattle            = "battle"
+	IndexBattleId          = "id"
+	IndexBattleAggregateId = "aggregateId"
+	IndexBattlePlayerId    = "playerId"
 )
 
 var BattleTableSchema = &memdb.TableSchema{
@@ -19,16 +19,16 @@ var BattleTableSchema = &memdb.TableSchema{
 				Field: "Id",
 			},
 		},
-		IndexBattleMatchId: {
-			Name: IndexBattleMatchId,
+		IndexBattleAggregateId: {
+			Name: IndexBattleAggregateId,
 			Indexer: &memdb.StringFieldIndex{
-				Field: "MatchId",
+				Field: "AggregateId",
 			},
 		},
 	},
 }
 
 type BattleEvent struct {
-	Id      string
-	MatchId string
+	Id          string
+	AggregateId string
 }
