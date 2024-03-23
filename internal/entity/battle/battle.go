@@ -25,6 +25,10 @@ func (b *Battle) Id() string {
 	return b.id
 }
 
+func (b *Battle) PendingEvents() []Event {
+	return b.pendingEvents
+}
+
 func (b *Battle) apply(evt Event) {
 	handler, ok := handlers[evt.Type()]
 	if !ok {

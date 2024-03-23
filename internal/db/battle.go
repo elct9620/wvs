@@ -31,4 +31,5 @@ var BattleTableSchema = &memdb.TableSchema{
 type BattleEvent struct {
 	Id          string
 	AggregateId string
+	Type        string
 }

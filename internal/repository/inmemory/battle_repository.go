@@ -6,7 +6,6 @@ import (
 	"github.com/elct9620/wvs/internal/db"
 	"github.com/elct9620/wvs/internal/entity/battle"
 	"github.com/elct9620/wvs/internal/usecase"
-	"github.com/google/uuid"
 )
 
 var _ usecase.BattleRepository = &BattleRepository{}
@@ -25,13 +24,18 @@ func (r *BattleRepository) Save(ctx context.Context, entity *battle.Battle) erro
 	txn := r.db.Txn(true)
 	defer txn.Abort()
 
-	record := &db.BattleEvent{
-		Id:          uuid.NewString(),
-		AggregateId: entity.Id(),
-	}
+	events := entity.PendingEvents()
 
-	if err := txn.Insert(db.TableBattle, record); err != nil {
-		return err
+	for _, evt := range events {
+		record := &db.BattleEvent{
+			Id:          evt.Id(),
+			AggregateId: evt.AggregateId(),
+			Type:        evt.Type(),
+		}
+
+		if err := txn.Insert(db.TableBattle, record); err != nil {
+			return err
+		}
 	}
 
 	txn.Commit()
