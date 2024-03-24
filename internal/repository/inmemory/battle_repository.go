@@ -39,5 +39,7 @@ func (r *BattleRepository) Save(ctx context.Context, entity *battle.Battle) erro
 	}
 
 	txn.Commit()
+	entity.ClearEvents()
+
 	return nil
 }
