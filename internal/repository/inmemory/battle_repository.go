@@ -31,6 +31,7 @@ func (r *BattleRepository) Save(ctx context.Context, entity *battle.Battle) erro
 			Id:          evt.Id(),
 			AggregateId: evt.AggregateId(),
 			Type:        evt.Type(),
+			CreatedAt:   evt.CreatedAt(),
 		}
 
 		if err := txn.Insert(db.TableBattle, record); err != nil {

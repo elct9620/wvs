@@ -1,6 +1,9 @@
 package battle
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 type handler func(*Battle, Event)
 
@@ -17,7 +20,7 @@ type Battle struct {
 func New(id string) *Battle {
 	battle := &Battle{}
 
-	event := NewBattleCreated(id)
+	event := NewBattleCreated(id, time.Now().Unix())
 	battle.apply(event)
 
 	return battle

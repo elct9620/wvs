@@ -32,4 +32,5 @@ type BattleEvent struct {
 	Id          string
 	AggregateId string
 	Type        string
+	CreatedAt   int64
 }
