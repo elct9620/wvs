@@ -25,12 +25,15 @@ func (r *BattleRepository) Save(ctx context.Context, entity *battle.Battle) erro
 	defer txn.Abort()
 
 	events := entity.PendingEvents()
+	currentVersion := entity.Version()
+	nextVersion := currentVersion - len(events) + 1
 
-	for _, evt := range events {
+	for idx, evt := range events {
 		record := &db.BattleEvent{
 			Id:          evt.Id(),
 			AggregateId: evt.AggregateId(),
 			Type:        evt.Type(),
+			Version:     nextVersion + idx,
 			CreatedAt:   evt.CreatedAt(),
 		}
 

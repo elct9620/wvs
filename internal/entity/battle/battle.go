@@ -15,6 +15,7 @@ type Battle struct {
 	mux           sync.RWMutex
 	id            string
 	pendingEvents []Event
+	version       int
 }
 
 func New(id string) *Battle {
@@ -37,6 +38,13 @@ func (b *Battle) PendingEvents() []Event {
 	return b.pendingEvents
 }
 
+func (b *Battle) Version() int {
+	b.mux.RLock()
+	defer b.mux.RUnlock()
+
+	return b.version
+}
+
 func (b *Battle) ClearEvents() {
 	b.mux.Lock()
 	defer b.mux.Unlock()
@@ -56,6 +64,7 @@ func (b *Battle) apply(evt Event) {
 	handler(b, evt)
 
 	b.pendingEvents = append(b.pendingEvents, evt)
+	b.version++
 }
 
 func onCreated(b *Battle, evt Event) {
