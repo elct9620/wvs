@@ -1,12 +1,13 @@
 module github.com/elct9620/wvs
 
-go 1.21
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/cucumber/godog v0.14.0
-	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/render v1.0.3
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
